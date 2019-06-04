@@ -111,6 +111,7 @@ namespace teanicorns_art_trade_bot
         static PersistentStorage()
         {
             Console.WriteLine("PersistentStorage: constructor");
+            Validate(storageFileName);
         }
 
         public static void Initialize()
