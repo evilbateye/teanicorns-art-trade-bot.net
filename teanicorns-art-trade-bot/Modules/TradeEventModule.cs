@@ -256,8 +256,7 @@ namespace teanicorns_art_trade_bot.Modules
                     continue;
                 }
 
-                await socketUser.SendMessageAsync($"Your art trade partner is {Format.Bold($"{nextUser.UserName}")}. Have fun <@{user.Id}>!\n" +
-                    $"\"{nextUser?.ReferenceDescription}\"", false, embed);
+                await ReferenceModule.SendPartnerResponse(nextUser, user);
             }
 
             string report = "";
@@ -269,6 +268,29 @@ namespace teanicorns_art_trade_bot.Modules
                 report += "Users not found: \n" + report3;
 
             await user.SendMessageAsync(report);
+        }
+
+        [Command("set theme")]
+        [Summary("Set the art trade theme.")]
+        public async Task SetTheme([Remainder]string theme)
+        {
+            var user = Context.Message.Author;
+            if (!Utils.IsAdminUser(user))
+            {
+                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(theme))
+            {
+                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. The provided theme is null or whitespace.");
+                return;
+            }
+
+            if (PersistentStorage.SetTheme(theme))
+                await ReplyAsync($"The theme has been set successfully <@{Context.Message.Author.Id}>!");
+            else
+                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. There has been a problem when setting the theme.");
         }
     }
 }

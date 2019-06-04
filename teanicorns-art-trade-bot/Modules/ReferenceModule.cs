@@ -92,20 +92,31 @@ namespace teanicorns_art_trade_bot.Modules
             PersistentStorage.UserData nextUser;
             if (PersistentStorage.Next(user.Id, out nextUser))
             {
-                Embed embed = null;
-                if (!string.IsNullOrWhiteSpace(nextUser.ReferenceUrl))
-                    embed = new EmbedBuilder().WithImageUrl(nextUser.ReferenceUrl).Build();
-
-                if (!string.IsNullOrWhiteSpace(nextUser.ReferenceDescription) || embed != null)
-                {
-                    await user.SendMessageAsync($"Your art trade partner is {Format.Bold($"{nextUser.UserName}")}. Have fun <@{user.Id}>!\n" +
-                        $"\"{nextUser?.ReferenceDescription}\"", false, embed);
-                }
-                else
+                if (!await SendPartnerResponse(nextUser, user))
                     await ReplyAsync($"Sorry <@{user.Id}>, your art trade partner has no reference registered.");
             }
             else
                 await ReplyAsync($"Sorry <@{user.Id}>. Could not find an art trade partner for you.");
+        }
+
+        public static async Task<bool> SendPartnerResponse(PersistentStorage.UserData partnerData, Discord.WebSocket.SocketUser user)
+        {
+            Embed embed = null;
+            if (!string.IsNullOrWhiteSpace(partnerData.ReferenceUrl))
+                embed = new EmbedBuilder().WithImageUrl(partnerData.ReferenceUrl).Build();
+
+            if (string.IsNullOrWhiteSpace(partnerData.ReferenceDescription) && embed == null)
+                return false;
+
+            string message = $"Your art trade partner is.. {Format.Bold($"{partnerData.UserName}")}.";
+            if (!string.IsNullOrWhiteSpace(PersistentStorage.AppData.Theme))
+                message += $" Theme of this art trade is.. {PersistentStorage.AppData.Theme}.";
+            message += $" Have fun <@{user.Id}>!\n";
+            if (!string.IsNullOrWhiteSpace(partnerData.ReferenceDescription))
+                message += $"\"{partnerData.ReferenceDescription}\"";
+
+            await user.SendMessageAsync(message, false, embed);
+            return true;
         }
     }
 }

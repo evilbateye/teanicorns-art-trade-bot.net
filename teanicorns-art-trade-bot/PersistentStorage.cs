@@ -23,6 +23,7 @@ namespace teanicorns_art_trade_bot
         {
             public bool ArtTradeActive = false;
             public string WorkingChannel = "";
+            public string Theme = "";
             public List<UserData> Storage = new List<UserData>();
 
             public UserData TryGetValue(ulong userId, out int index)
@@ -162,6 +163,18 @@ namespace teanicorns_art_trade_bot
             if (AppData != null)
             {
                 AppData.WorkingChannel = channel;
+                Save();
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool SetTheme(string theme)
+        {
+            if (AppData != null)
+            {
+                AppData.Theme = theme;
                 Save();
                 return true;
             }
