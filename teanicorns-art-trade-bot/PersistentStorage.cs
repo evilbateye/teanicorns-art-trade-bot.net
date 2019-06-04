@@ -110,13 +110,20 @@ namespace teanicorns_art_trade_bot
         public static ApplicationData AppData = new ApplicationData();
         static PersistentStorage()
         {
+            Console.WriteLine("PersistentStorage: constructor");
+
             if (!Validate(storageFileName))
                 return;
 
             string json = File.ReadAllText(storageFileName);
+
+            Console.WriteLine("PersistentStorage: " + json);
+
             var loaded = JsonConvert.DeserializeObject<ApplicationData>(json);
             if (loaded != null)
                 AppData = loaded;
+
+            Console.WriteLine("PersistentStorage: " + AppData.Storage.Count);
         }
 
         private static bool Validate(string filePath)

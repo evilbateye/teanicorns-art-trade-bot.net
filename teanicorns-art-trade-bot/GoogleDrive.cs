@@ -32,14 +32,20 @@ namespace teanicorns_art_trade_bot
             }
             catch (Exception e)
             {
+                Console.WriteLine("SetupGoogleDrive: " + e.ToString());
                 return;
             }
 
             if (files == null)
+            {
+                Console.WriteLine("SetupGoogleDrive: files == null");
                 return;
+            }
 
             if (files.Files.Count <= 0)
             {
+                Console.WriteLine("SetupGoogleDrive: files.Files.Count <= 0");
+
                 _file = new File();
                 _file.Name = _fileName;
                 _file.MimeType = "application/json";
@@ -51,7 +57,7 @@ namespace teanicorns_art_trade_bot
                 }
                 catch (Exception e)
                 {
-
+                    Console.WriteLine("SetupGoogleDrive: " + e.ToString());
                 }
             }
             else
@@ -83,7 +89,7 @@ namespace teanicorns_art_trade_bot
             }
             catch (Exception e)
             {
-
+                Console.WriteLine("DownloadGoogleFile: " + e.ToString());
             }
             
             System.IO.FileStream file = new System.IO.FileStream(PersistentStorage.storageFileName, System.IO.FileMode.Truncate, System.IO.FileAccess.Write);
@@ -92,8 +98,9 @@ namespace teanicorns_art_trade_bot
             {
                 stream.WriteTo(file);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine("DownloadGoogleFile: " + e.ToString());
             }
             finally
             {
@@ -119,7 +126,7 @@ namespace teanicorns_art_trade_bot
             }
             catch (Exception e)
             {
-
+                Console.WriteLine("UploadGoogleFile: " + e.ToString());
             }
         }
 
