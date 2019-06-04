@@ -20,6 +20,8 @@ namespace teanicorns_art_trade_bot
 
         public static async Task SetupGoogleDrive(DriveService service)
         {
+            Console.WriteLine("SetupGoogleDrive: start");
+
             _service = service;
             FilesResource resource = _service.Files;
 
@@ -80,6 +82,8 @@ namespace teanicorns_art_trade_bot
 
         public static async Task DownloadGoogleFile()
         {
+            Console.WriteLine("DownloadGoogleFile: start");
+
             var stream = new System.IO.MemoryStream();
 
             try
@@ -106,16 +110,21 @@ namespace teanicorns_art_trade_bot
             {
                 file.Close();
                 stream.Close();
+                Console.WriteLine("DownloadGoogleFile: stream.Length=", stream.Length);
             }
         }
 
         public static async Task UploadGoogleFile()
         {
+            Console.WriteLine("UploadGoogleFile: start");
+
             if (!System.IO.File.Exists(PersistentStorage.storageFileName))
                 return;
 
             byte[] byteArray = System.IO.File.ReadAllBytes(PersistentStorage.storageFileName);
             System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
+
+            Console.WriteLine("UploadGoogleFile: byteArray.Length=", byteArray.Length);
 
             try
             {
