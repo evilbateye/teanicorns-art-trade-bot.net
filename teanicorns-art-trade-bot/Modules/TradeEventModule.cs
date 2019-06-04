@@ -213,5 +213,62 @@ namespace teanicorns_art_trade_bot.Modules
             else
                 await user.SendFileAsync(PersistentStorage.storageFileName, $"Sending the full database <@{Context.Message.Author.Id}>.");
         }
+
+        [Command("send partners")]
+        [Summary("Send to all participants their trade partner's entry in a DM.")]
+        public async Task SendPartners()
+        {
+            var user = Context.Message.Author;
+            if (!Utils.IsAdminUser(user))
+            {
+                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                return;
+            }
+
+            string report1 = "";
+            string report2 = "";
+            string report3 = "";
+
+            var client = Context.Client;
+            foreach (var userData in PersistentStorage.AppData.Storage)
+            {
+                PersistentStorage.UserData nextUser;
+                if (!PersistentStorage.Next(userData.UserId, out nextUser))
+                {
+                    report1 += $"{userData.UserName}\n";
+                    continue;
+                }
+
+                Embed embed = null;
+                if (!string.IsNullOrWhiteSpace(nextUser.ReferenceUrl))
+                    embed = new EmbedBuilder().WithImageUrl(nextUser.ReferenceUrl).Build();
+
+                if (string.IsNullOrWhiteSpace(nextUser.ReferenceDescription) && embed == null)
+                {
+                    report2 += $"{userData.UserName}\n";
+                    continue;
+                }
+
+                var socketUser = client.GetUser(userData.UserId);
+                if (socketUser == null)
+                {
+                    report3 += $"{userData.UserName}\n";
+                    continue;
+                }
+
+                await socketUser.SendMessageAsync($"Your art trade partner is {Format.Bold($"{nextUser.UserName}")}. Have fun <@{user.Id}>!\n" +
+                    $"\"{nextUser?.ReferenceDescription}\"", false, embed);
+            }
+
+            string report = "";
+            if (!string.IsNullOrWhiteSpace(report1))
+                report += "Could not find an art trade partner for: \n" + report1;
+            if (!string.IsNullOrWhiteSpace(report2))
+                report += "Could not find any entry info for: \n" + report2;
+            if (!string.IsNullOrWhiteSpace(report3))
+                report += "Users not found: \n" + report3;
+
+            await user.SendMessageAsync(report);
+        }
     }
 }
