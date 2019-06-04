@@ -109,8 +109,8 @@ namespace teanicorns_art_trade_bot
             finally
             {
                 file.Close();
-                stream.Close();
                 Console.WriteLine("DownloadGoogleFile: stream.Length=", stream.Length);
+                stream.Close();
             }
         }
 

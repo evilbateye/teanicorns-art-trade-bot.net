@@ -117,8 +117,6 @@ namespace teanicorns_art_trade_bot
 
             string json = File.ReadAllText(storageFileName);
 
-            Console.WriteLine("PersistentStorage: " + json);
-
             var loaded = JsonConvert.DeserializeObject<ApplicationData>(json);
             if (loaded != null)
                 AppData = loaded;
