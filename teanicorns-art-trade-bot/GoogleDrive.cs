@@ -69,7 +69,7 @@ namespace teanicorns_art_trade_bot
             System.Timers.Timer timer = new System.Timers.Timer();
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             timer.Interval = 300000;
-            timer.Enabled = true;
+            timer.Enabled = true; 
         }
 
         private static async void OnTimedEvent(object source, ElapsedEventArgs e)
