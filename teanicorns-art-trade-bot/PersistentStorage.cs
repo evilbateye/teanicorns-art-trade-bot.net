@@ -111,6 +111,11 @@ namespace teanicorns_art_trade_bot
         static PersistentStorage()
         {
             Console.WriteLine("PersistentStorage: constructor");
+        }
+
+        public static void Initialize()
+        {
+            Console.WriteLine("PersistentStorage: Initialize");
 
             if (!Validate(storageFileName))
                 return;
@@ -123,7 +128,6 @@ namespace teanicorns_art_trade_bot
 
             Console.WriteLine("PersistentStorage: " + AppData.Storage.Count);
         }
-
         private static bool Validate(string filePath)
         {
             if (!File.Exists(filePath))

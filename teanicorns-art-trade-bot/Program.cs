@@ -59,6 +59,8 @@ namespace teanicorns_art_trade_bot
                 ApplicationName = "teanicorns-art-trade-bot",
             }));
 
+            PersistentStorage.Initialize();
+
             await Task.Delay(-1);
 		}
 
