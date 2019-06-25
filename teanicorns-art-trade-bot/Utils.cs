@@ -31,7 +31,8 @@ namespace teanicorns_art_trade_bot
 
         public static bool IsAdminCommand(CommandInfo cmd)
         {
-            return cmd.Module.Group == adminGroupId;
+            //return cmd.Module.Group == adminGroupId;
+            return cmd.Module.Name == "TradeEventModule";
         }
 
         public static SocketUser FindUser(SocketGuild guild, string userName)

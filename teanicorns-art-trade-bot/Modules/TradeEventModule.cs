@@ -10,7 +10,7 @@ using Discord.WebSocket;
 namespace teanicorns_art_trade_bot.Modules
 {
     //[RequireUserPermissionAttribute(GuildPermission.Administrator)]
-    [Group(Utils.adminGroupId)]
+    //[Group(Utils.adminGroupId)]
     public class TradeEventModule : ModuleBase<SocketCommandContext>
     {
         [Command("entry week")]
@@ -24,8 +24,14 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
+            PersistentStorage.BackupStorage();
+
             if (PersistentStorage.ActivateTrade(false))
+            {
+                PersistentStorage.ClearStorage();
+                PersistentStorage.SetTheme("");
                 await ReplyAsync($"@everyone the entry week started. {Format.Bold("We are accepting new entries!")}");
+            }
             else
                 await ReplyAsync($"<@{Context.Message.Author.Id}> the entry week is already in progress.");
         }
@@ -41,10 +47,13 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
+            PersistentStorage.BackupStorage();
+
             if (PersistentStorage.ActivateTrade(true))
             {
-                PersistentStorage.BackupStorage();
+                PersistentStorage.Shuffle();
                 await ReplyAsync($"@everyone the art trade month started. {Format.Bold("We are no longer accepting new entries!")}");
+                await SendPartners();
             }
             else
                 await ReplyAsync($"<@{Context.Message.Author.Id}> the art trade month is already in progress.");
@@ -61,6 +70,7 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
+            PersistentStorage.BackupStorage();
             PersistentStorage.Shuffle();
             await ReplyAsync($"Entries have been shuffled successfully <@{user.Id}>.");
         }
@@ -121,8 +131,12 @@ namespace teanicorns_art_trade_bot.Modules
                 partner2 = ourUser;
             }
 
+            PersistentStorage.BackupStorage();
+
             if (PersistentStorage.ResetNext(partner2.Id, partner1.Id))
+            {
                 await ourUser.SendMessageAsync($"Art trade partner of {Format.Bold(partner2.Username)} has been changed to {Format.Bold(partner1.Username)} <@{ourUser.Id}>.");
+            }
             else
                 await ReplyAsync($"Could not change your art trade partner.");
         }
@@ -138,6 +152,15 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
+            string info = "Currently taking place.. ";
+            if (PersistentStorage.AppData.ArtTradeActive)
+                info += $"{Format.Bold("Trade month")}.\n";
+            else
+                info += $"{Format.Bold("Entry week")}.\n";
+
+            if (!string.IsNullOrWhiteSpace(PersistentStorage.AppData.Theme))
+                info += $"This month's theme is.. \"{PersistentStorage.AppData.Theme}\".\n";
+
             string entries = $"Listing all entries <@{user.Id}>. Each next entry is the partner of the previous one.\n";
             if (string.IsNullOrWhiteSpace(all) || all != "all")
                 entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}"));
@@ -145,10 +168,10 @@ namespace teanicorns_art_trade_bot.Modules
                 entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}\n{x.UserId}\n" +
                 (string.IsNullOrWhiteSpace(x.ReferenceUrl) ? "" : $"<{x.ReferenceUrl}>\n") +
                 (string.IsNullOrWhiteSpace(x.ReferenceDescription) ? "" : $"{x.ReferenceDescription}\n")));
-            await user.SendMessageAsync(entries);
+            await user.SendMessageAsync(info + entries);
         }
 
-        [Command("work channel")]
+        [Command("channel")]
         [Summary("Sets the working channel for ATB.")]
         public async Task WorkChannel(string channel)
         {
@@ -159,13 +182,17 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
+            PersistentStorage.BackupStorage();
+
             if (PersistentStorage.SetWorkingChannel(channel))
+            {
                 await ReplyAsync($"Channel has been set successfully <@{Context.Message.Author.Id}>.");
+            }
             else
                 await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. Was not able to change the working channel. Current working channel is {PersistentStorage.AppData.WorkingChannel}.");
         }
 
-        [Command("restore")]
+        [Command("undo")]
         [Summary("Restores art trade entries from backup file / embeded JSON file.")]
         public async Task RestoreAll()
         {
@@ -256,7 +283,7 @@ namespace teanicorns_art_trade_bot.Modules
                     continue;
                 }
 
-                await ReferenceModule.SendPartnerResponse(nextUser, user);
+                await ReferenceModule.SendPartnerResponse(nextUser, socketUser);
             }
 
             string report = "";
@@ -267,10 +294,13 @@ namespace teanicorns_art_trade_bot.Modules
             if (!string.IsNullOrWhiteSpace(report3))
                 report += "Users not found: \n" + report3;
 
+            if (string.IsNullOrWhiteSpace(report))
+                report = "All trade participants received their partners.";
+
             await user.SendMessageAsync(report);
         }
 
-        [Command("set theme")]
+        [Command("theme")]
         [Summary("Set the art trade theme.")]
         public async Task SetTheme([Remainder]string theme)
         {
@@ -287,8 +317,12 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
+            PersistentStorage.BackupStorage();
+
             if (PersistentStorage.SetTheme(theme))
+            {
                 await ReplyAsync($"The theme has been set successfully <@{Context.Message.Author.Id}>!");
+            }
             else
                 await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. There has been a problem when setting the theme.");
         }

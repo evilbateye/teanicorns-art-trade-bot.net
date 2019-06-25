@@ -22,6 +22,8 @@ namespace teanicorns_art_trade_bot.Modules
             string about = $"Hello <@{user.Id}>, I am art-trade-bot, written in Discord.Net ({DiscordConfig.Version}).\n";
             about += $"{Format.Bold("Command list:")}\n";
 
+            string adminAbout = $"\n{Format.Bold("Admin only commands:")}\n";
+
             bool adminUser = Utils.IsAdminUser(user);
 
             foreach (var cmd in CommandService.Commands)
@@ -29,13 +31,16 @@ namespace teanicorns_art_trade_bot.Modules
                 if (Utils.IsAdminCommand(cmd))
                 {
                     if (adminUser)
-                        about += $"{Utils.adminGroupId} {cmd.Name} : {cmd.Summary}\n";
+                    {
+                        //about += $"{Utils.adminGroupId} {cmd.Name} : {cmd.Summary}\n";
+                        adminAbout += $"{cmd.Name} : {cmd.Summary}\n";
+                    }
                 }
                 else
                     about += $"{cmd.Name} : {cmd.Summary}\n";
             }
 
-            await ReplyAsync(about);
+            await ReplyAsync(about + adminAbout);
         }
     }
 }
