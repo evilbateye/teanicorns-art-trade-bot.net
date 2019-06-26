@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord.Commands;
+using Discord.WebSocket;
 using Discord;
 
 namespace teanicorns_art_trade_bot.Modules
@@ -35,6 +36,8 @@ namespace teanicorns_art_trade_bot.Modules
                 data.ReferenceUrl = attachments.FirstOrDefault().Url;
             if (!string.IsNullOrWhiteSpace(description))
                 data.ReferenceDescription = description;
+            if (user is IGuildUser guildUser)
+                data.NickName = guildUser.Nickname;
             PersistentStorage.Set(data);
             await ReplyAsync($"Your entry has been registered successfully <@{user.Id}>!");
         }
@@ -108,7 +111,8 @@ namespace teanicorns_art_trade_bot.Modules
             if (string.IsNullOrWhiteSpace(partnerData.ReferenceDescription) && embed == null)
                 return false;
 
-            string message = $"Your art trade partner is.. {Format.Bold($"{partnerData.UserName}")}.";
+            string message = $"Your art trade partner is.. {Format.Bold($"{partnerData.UserName}")}"
+                + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName}).");
             if (!string.IsNullOrWhiteSpace(PersistentStorage.AppData.Theme))
                 message += $" Theme of this art trade is.. {PersistentStorage.AppData.Theme}.";
             message += $" Have fun <@{user.Id}>!\n";

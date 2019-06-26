@@ -17,6 +17,7 @@ namespace teanicorns_art_trade_bot
             public string UserName;
             public string ReferenceUrl;
             public string ReferenceDescription;
+            public string NickName;
         }
 
         public class ApplicationData
@@ -46,6 +47,8 @@ namespace teanicorns_art_trade_bot
                         Storage[index].ReferenceDescription = data.ReferenceDescription;
                     if (!string.IsNullOrWhiteSpace(data.ReferenceUrl))
                         Storage[index].ReferenceUrl = data.ReferenceUrl;
+                    if (!string.IsNullOrWhiteSpace(data.NickName))
+                        Storage[index].NickName = data.NickName;
                 }
                 else
                     Storage.Add(data);
