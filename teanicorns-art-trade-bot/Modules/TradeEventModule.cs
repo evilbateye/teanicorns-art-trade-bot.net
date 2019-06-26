@@ -14,8 +14,8 @@ namespace teanicorns_art_trade_bot.Modules
     public class TradeEventModule : ModuleBase<SocketCommandContext>
     {
         [Command("entry week")]
-        [Summary("Stops the art trade, starts accepting entries.")]
-        public async Task EntryWeek()
+        [Summary("Stops the art trade, clears all entries and theme, starts accepting entries.")]
+        public async Task EntryWeek([Remainder]string theme = null)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -29,16 +29,22 @@ namespace teanicorns_art_trade_bot.Modules
             if (PersistentStorage.ActivateTrade(false))
             {
                 PersistentStorage.ClearStorage();
-                PersistentStorage.SetTheme("");
-                await ReplyAsync($"@everyone the entry week started. {Format.Bold("We are accepting new entries!")}");
+
+                if (string.IsNullOrWhiteSpace(theme))
+                    PersistentStorage.SetTheme("");
+                else
+                    PersistentStorage.SetTheme(theme);
+
+                await ReplyAsync($"@everyone the {Format.Bold("entry week")} started. {Format.Bold("We are accepting new entries!")}\n"
+                    + (string.IsNullOrWhiteSpace(PersistentStorage.AppData.Theme) ? "" : $" Theme of this art trade is.. \"{PersistentStorage.AppData.Theme}\"."));
             }
             else
                 await ReplyAsync($"<@{Context.Message.Author.Id}> the entry week is already in progress.");
         }
 
         [Command("trade month")]
-        [Summary("Starts the art trade, stops accepting entries. [updates backup]")]
-        public async Task TradeMonth()
+        [Summary("Starts the art trade, shuffles entries, sends all partners in a DM, stops accepting entries.")]
+        public async Task TradeMonth([Remainder]string theme = null)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -51,12 +57,110 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (PersistentStorage.ActivateTrade(true))
             {
+                if (!string.IsNullOrWhiteSpace(theme))
+                    PersistentStorage.SetTheme(theme);
+
                 PersistentStorage.Shuffle();
-                await ReplyAsync($"@everyone the art trade month started. {Format.Bold("We are no longer accepting new entries!")}");
+                await ReplyAsync($"@everyone the art {Format.Bold("trade month")} started. {Format.Bold("We are no longer accepting new entries!")}\n"
+                    + (string.IsNullOrWhiteSpace(PersistentStorage.AppData.Theme) ? "" : $" Theme of this art trade is.. \"{PersistentStorage.AppData.Theme}\"."));
                 await SendPartners();
             }
             else
                 await ReplyAsync($"<@{Context.Message.Author.Id}> the art trade month is already in progress.");
+        }
+
+        [Command("theme")]
+        [Summary("Set the art trade theme.")]
+        public async Task SetTheme([Remainder]string theme)
+        {
+            var user = Context.Message.Author;
+            if (!Utils.IsAdminUser(user))
+            {
+                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(theme))
+            {
+                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. The provided theme is null or whitespace.");
+                return;
+            }
+
+            PersistentStorage.BackupStorage();
+
+            if (PersistentStorage.SetTheme(theme))
+            {
+                await ReplyAsync($"The theme has been set successfully <@{Context.Message.Author.Id}>!");
+            }
+            else
+                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. There has been a problem when setting the theme.");
+        }
+
+        [Command("channel")]
+        [Summary("Sets the working channel for ATB.")]
+        public async Task WorkChannel(string channel)
+        {
+            var user = Context.Message.Author;
+            if (!Utils.IsAdminUser(user))
+            {
+                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                return;
+            }
+
+            PersistentStorage.BackupStorage();
+
+            if (PersistentStorage.SetWorkingChannel(channel))
+            {
+                await ReplyAsync($"Channel has been set successfully <@{Context.Message.Author.Id}>.");
+            }
+            else
+                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. Was not able to change the working channel. Current working channel is {PersistentStorage.AppData.WorkingChannel}.");
+        }
+
+        [Command("list")]
+        [Summary("Sends you a list of all entries in a DM.")]
+        public async Task ListAllEntries(string all = null)
+        {
+            var user = Context.Message.Author;
+            if (!Utils.IsAdminUser(user))
+            {
+                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                return;
+            }
+
+            string info = "Currently taking place.. ";
+            if (PersistentStorage.AppData.ArtTradeActive)
+                info += $"{Format.Bold("Trade month")}.\n";
+            else
+                info += $"{Format.Bold("Entry week")}.\n";
+
+            if (!string.IsNullOrWhiteSpace(PersistentStorage.AppData.Theme))
+                info += $"This month's theme is.. \"{PersistentStorage.AppData.Theme}\".\n";
+
+            string entries = $"Listing all entries <@{user.Id}>. Each next entry is the partner of the previous one.\n";
+            if (string.IsNullOrWhiteSpace(all) || all != "all")
+                entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}"));
+            else
+                entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}\n{x.UserId}\n" +
+                (string.IsNullOrWhiteSpace(x.ReferenceUrl) ? "" : $"<{x.ReferenceUrl}>\n") +
+                (string.IsNullOrWhiteSpace(x.ReferenceDescription) ? "" : $"{x.ReferenceDescription}\n")));
+            await user.SendMessageAsync(info + entries);
+        }
+
+        [Command("clear")]
+        [Summary("Delete all art trade entries.")]
+        public async Task ClearAll()
+        {
+            var user = Context.Message.Author;
+            if (!Utils.IsAdminUser(user))
+            {
+                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                return;
+            }
+
+            PersistentStorage.BackupStorage();
+            PersistentStorage.ClearStorage();
+            await ReplyAsync($"All entries successfully removed <@{user.Id}>. Backup file updated.");
         }
 
         [Command("shuffle")]
@@ -74,23 +178,7 @@ namespace teanicorns_art_trade_bot.Modules
             PersistentStorage.Shuffle();
             await ReplyAsync($"Entries have been shuffled successfully <@{user.Id}>.");
         }
-
-        [Command("clear")]
-        [Summary("Delete all art trade entries. [updates backup]")]
-        public async Task ClearAll()
-        {
-            var user = Context.Message.Author;
-            if (!Utils.IsAdminUser(user))
-            {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
-                return;
-            }
-
-            PersistentStorage.BackupStorage();
-            PersistentStorage.ClearStorage();
-            await ReplyAsync($"All entries successfully removed <@{user.Id}>. Backup file updated.");
-        }
-
+                
         [Command("swap")]
         [Summary("Changes your art trade partner.")]
         public async Task ChangeMyPair(string partner1Name, string partner2Name = null)
@@ -139,57 +227,6 @@ namespace teanicorns_art_trade_bot.Modules
             }
             else
                 await ReplyAsync($"Could not change your art trade partner.");
-        }
-
-        [Command("list")]
-        [Summary("Sends you a list of all entries in a DM.")]
-        public async Task ListAllEntries(string all = null)
-        {
-            var user = Context.Message.Author;
-            if (!Utils.IsAdminUser(user))
-            {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
-                return;
-            }
-
-            string info = "Currently taking place.. ";
-            if (PersistentStorage.AppData.ArtTradeActive)
-                info += $"{Format.Bold("Trade month")}.\n";
-            else
-                info += $"{Format.Bold("Entry week")}.\n";
-
-            if (!string.IsNullOrWhiteSpace(PersistentStorage.AppData.Theme))
-                info += $"This month's theme is.. \"{PersistentStorage.AppData.Theme}\".\n";
-
-            string entries = $"Listing all entries <@{user.Id}>. Each next entry is the partner of the previous one.\n";
-            if (string.IsNullOrWhiteSpace(all) || all != "all")
-                entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}"));
-            else
-                entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}\n{x.UserId}\n" +
-                (string.IsNullOrWhiteSpace(x.ReferenceUrl) ? "" : $"<{x.ReferenceUrl}>\n") +
-                (string.IsNullOrWhiteSpace(x.ReferenceDescription) ? "" : $"{x.ReferenceDescription}\n")));
-            await user.SendMessageAsync(info + entries);
-        }
-
-        [Command("channel")]
-        [Summary("Sets the working channel for ATB.")]
-        public async Task WorkChannel(string channel)
-        {
-            var user = Context.Message.Author;
-            if (!Utils.IsAdminUser(user))
-            {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
-                return;
-            }
-
-            PersistentStorage.BackupStorage();
-
-            if (PersistentStorage.SetWorkingChannel(channel))
-            {
-                await ReplyAsync($"Channel has been set successfully <@{Context.Message.Author.Id}>.");
-            }
-            else
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. Was not able to change the working channel. Current working channel is {PersistentStorage.AppData.WorkingChannel}.");
         }
 
         [Command("undo")]
@@ -298,33 +335,6 @@ namespace teanicorns_art_trade_bot.Modules
                 report = "All trade participants received their partners.";
 
             await user.SendMessageAsync(report);
-        }
-
-        [Command("theme")]
-        [Summary("Set the art trade theme.")]
-        public async Task SetTheme([Remainder]string theme)
-        {
-            var user = Context.Message.Author;
-            if (!Utils.IsAdminUser(user))
-            {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(theme))
-            {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. The provided theme is null or whitespace.");
-                return;
-            }
-
-            PersistentStorage.BackupStorage();
-
-            if (PersistentStorage.SetTheme(theme))
-            {
-                await ReplyAsync($"The theme has been set successfully <@{Context.Message.Author.Id}>!");
-            }
-            else
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. There has been a problem when setting the theme.");
         }
     }
 }

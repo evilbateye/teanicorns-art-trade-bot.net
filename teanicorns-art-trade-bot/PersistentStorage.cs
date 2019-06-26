@@ -186,8 +186,6 @@ namespace teanicorns_art_trade_bot
         {
             if (AppData != null)
             {
-                if (AppData.Storage.Count <= 0)
-                    return;
                 string backupName = storageFileName + ".bk";
                 if (File.Exists(backupName))
                     File.Delete(backupName);
