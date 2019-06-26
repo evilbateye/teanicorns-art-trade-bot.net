@@ -139,9 +139,11 @@ namespace teanicorns_art_trade_bot.Modules
 
             string entries = $"Listing all entries <@{user.Id}>. Each next entry is the partner of the previous one.\n";
             if (string.IsNullOrWhiteSpace(all) || all != "all")
-                entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}"));
+                entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}" +
+                (string.IsNullOrWhiteSpace(x.NickName) ? "" : $" ({x.NickName})")));
             else
                 entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}\n{x.UserId}\n" +
+                (string.IsNullOrWhiteSpace(x.NickName) ? "" : $"({x.NickName})\n") +
                 (string.IsNullOrWhiteSpace(x.ReferenceUrl) ? "" : $"<{x.ReferenceUrl}>\n") +
                 (string.IsNullOrWhiteSpace(x.ReferenceDescription) ? "" : $"{x.ReferenceDescription}\n")));
             await user.SendMessageAsync(info + entries);
@@ -229,7 +231,7 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync($"Could not change your art trade partner.");
         }
 
-        [Command("undo")]
+        [Command("restore")]
         [Summary("Restores art trade entries from backup file / embeded JSON file.")]
         public async Task RestoreAll()
         {
