@@ -12,7 +12,8 @@ namespace teanicorns_art_trade_bot.Modules
     public class ReferenceModule : ModuleBase<SocketCommandContext>
     {
         [Command("set entry")]
-        [Summary("Set your trade entry. [during entry week only]")]
+        [Alias("se")]
+        [Summary("Set your trade entry. (entry week only)")]
         public async Task SetEntry([Remainder]string description = null)
         {
             var user = Context.Message.Author;
@@ -43,6 +44,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("get entry")]
+        [Alias("ge")]
         [Summary("Get your trade entry.")]
         public async Task GetEntry()
         {
@@ -65,7 +67,8 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("delete entry")]
-        [Summary("Remove your trade entry. [during entry week only]")]
+        [Alias("de")]
+        [Summary("Remove your trade entry. (entry week only)")]
         public async Task DeleteEntry()
         {
             var user = Context.Message.Author;
@@ -82,7 +85,8 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("show partner")]
-        [Summary("Sends you your trade partner's entry in a DM. [during trade month only]")]
+        [Alias("sp")]
+        [Summary("Sends you your trade partner's entry in a DM. (trade month only)")]
         public async Task ShowPartner()
         {
             var user = Context.Message.Author;

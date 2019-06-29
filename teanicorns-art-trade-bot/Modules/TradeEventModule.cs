@@ -14,6 +14,7 @@ namespace teanicorns_art_trade_bot.Modules
     public class TradeEventModule : ModuleBase<SocketCommandContext>
     {
         [Command("entry week")]
+        [Alias("ew")]
         [Summary("Stops the art trade, clears all entries and theme, starts accepting entries.")]
         public async Task EntryWeek([Remainder]string theme = null)
         {
@@ -43,6 +44,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("trade month")]
+        [Alias("tm")]
         [Summary("Starts the art trade, shuffles entries, sends all partners in a DM, stops accepting entries.")]
         public async Task TradeMonth([Remainder]string theme = null)
         {
@@ -70,6 +72,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("theme")]
+        [Alias("th")]
         [Summary("Set the art trade theme.")]
         public async Task SetTheme([Remainder]string theme)
         {
@@ -97,6 +100,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("channel")]
+        [Alias("ch")]
         [Summary("Sets the working channel for ATB.")]
         public async Task WorkChannel(string channel)
         {
@@ -118,6 +122,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("list")]
+        [Alias("l")]
         [Summary("Sends you a list of all entries in a DM.")]
         public async Task ListAllEntries(string all = null)
         {
@@ -150,6 +155,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("clear")]
+        [Alias("cl")]
         [Summary("Delete all art trade entries.")]
         public async Task ClearAll()
         {
@@ -166,6 +172,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("shuffle")]
+        [Alias("sf")]
         [Summary("Randomly shuffle art trade entries.")]
         public async Task Shuffle()
         {
@@ -182,6 +189,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
                 
         [Command("swap")]
+        [Alias("sw")]
         [Summary("Changes your art trade partner.")]
         public async Task ChangeMyPair(string partner1Name, string partner2Name = null)
         {
@@ -232,6 +240,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("restore")]
+        [Alias("rs")]
         [Summary("Restores art trade entries from backup file / embeded JSON file.")]
         public async Task RestoreAll()
         {
@@ -261,6 +270,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("backup")]
+        [Alias("bp")]
         [Summary("Update backup file / flush entire ATB database in a DM as a JSON file.")]
         public async Task FlushStorage(string json = "")
         {
@@ -281,6 +291,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("send partners")]
+        [Alias("sps")]
         [Summary("Send to all participants their trade partner's entry in a DM.")]
         public async Task SendPartners()
         {
