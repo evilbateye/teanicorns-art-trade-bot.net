@@ -126,5 +126,70 @@ namespace teanicorns_art_trade_bot.Modules
             await user.SendMessageAsync(message, false, embed);
             return true;
         }
+
+        [Command("reveal art")]
+        [Alias("ra")]
+        [Summary("Registers your finished art, sends DM with the art to your trade partner. (trade month only)")]
+        public async Task RevealArt()
+        {
+            var user = Context.Message.Author;
+            if (!PersistentStorage.AppData.ArtTradeActive)
+            {
+                await ReplyAsync($"Sorry <@{user.Id}>. Entry week is currently taking place. Trade pairs are not formed until closed.");
+                return;
+            }
+
+            var attachments = Context.Message.Attachments;
+            if (attachments.Count <= 0)
+            {
+                await ReplyAsync($"Missing art reference <@{user.Id}>. Please provide an embeded image.");
+                return;
+            }
+
+            var data = PersistentStorage.Get(user.Id);
+            if (data == null)
+            {
+                await ReplyAsync($"Sorry <@{user.Id}>, there is no reference registered.");
+                return;
+            }
+
+            PersistentStorage.UserData nextUserData;
+            if (PersistentStorage.Next(user.Id, out nextUserData))
+            {
+                data.ArtUrl = attachments.FirstOrDefault().Url;
+                PersistentStorage.Set(data);
+                string reply = $"Your art has been published <@{user.Id}> ";
+
+                var client = Context.Client;
+                var nextUser = client.GetUser(nextUserData.UserId);
+                if (nextUser == null)
+                {
+                    await ReplyAsync(reply + "but was unable to notify your partner.");
+                    return;
+                }
+
+                if (!await SendPartnerArtResponse(data, nextUser))
+                    await ReplyAsync(reply + "but was unable to notify your partner.");
+                else
+                    await ReplyAsync(reply + "and your partner has been notified.");
+            }
+            else
+                await ReplyAsync($"Sorry <@{user.Id}>. Could not find your trade partner.");
+        }
+
+        public static async Task<bool> SendPartnerArtResponse(PersistentStorage.UserData partnerData, Discord.WebSocket.SocketUser user)
+        {
+            Embed embed = null;
+            if (!string.IsNullOrWhiteSpace(partnerData.ArtUrl))
+                embed = new EmbedBuilder().WithImageUrl(partnerData.ArtUrl).Build();
+
+            if (embed == null)
+                return false;
+
+            string message = $"Your hidden art trade partner was {Format.Bold($"{partnerData.UserName}")}"
+                + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName}) and they are done with their art <@{user.Id}>!");
+            await user.SendMessageAsync(message, false, embed);
+            return true;
+        }
     }
 }

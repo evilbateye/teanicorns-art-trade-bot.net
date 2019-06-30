@@ -25,6 +25,7 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
+            string artMissing = string.Join(", ", PersistentStorage.GetStorage().Select(x => $"{(string.IsNullOrWhiteSpace(x.ArtUrl) ? (string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName) : "")}"));
             PersistentStorage.BackupStorage();
 
             if (PersistentStorage.ActivateTrade(false))
@@ -37,7 +38,8 @@ namespace teanicorns_art_trade_bot.Modules
                     PersistentStorage.SetTheme(theme);
 
                 await ReplyAsync($"@everyone the {Format.Bold("entry week")} started. {Format.Bold("We are accepting new entries!")}\n"
-                    + (string.IsNullOrWhiteSpace(PersistentStorage.AppData.Theme) ? "" : $" Theme of this art trade is.. \"{PersistentStorage.AppData.Theme}\"."));
+                    + (string.IsNullOrWhiteSpace(PersistentStorage.AppData.Theme) ? "" : $" Theme of this month's art trade is.. \"{PersistentStorage.AppData.Theme}\".")
+                    + (string.IsNullOrWhiteSpace(artMissing) ? "" : $" Following users did not reveal their art: {artMissing}"));
             }
             else
                 await ReplyAsync($"<@{Context.Message.Author.Id}> the entry week is already in progress.");
@@ -145,12 +147,14 @@ namespace teanicorns_art_trade_bot.Modules
             string entries = $"Listing all entries <@{user.Id}>. Each next entry is the partner of the previous one.\n";
             if (string.IsNullOrWhiteSpace(all) || all != "all")
                 entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}" +
-                (string.IsNullOrWhiteSpace(x.NickName) ? "" : $" ({x.NickName})")));
+                (string.IsNullOrWhiteSpace(x.NickName) ? "" : $" | nickname:{x.NickName}") +
+                (string.IsNullOrWhiteSpace(x.ArtUrl) ? " | art:missing" : "")));
             else
-                entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}\n{x.UserId}\n" +
-                (string.IsNullOrWhiteSpace(x.NickName) ? "" : $"({x.NickName})\n") +
-                (string.IsNullOrWhiteSpace(x.ReferenceUrl) ? "" : $"<{x.ReferenceUrl}>\n") +
-                (string.IsNullOrWhiteSpace(x.ReferenceDescription) ? "" : $"{x.ReferenceDescription}\n")));
+                entries += string.Join("\n", PersistentStorage.GetStorage().Select(x => $"{x.UserName}: {x.UserId}\n" +
+                (string.IsNullOrWhiteSpace(x.NickName) ? "" : $"Nickname: {x.NickName}\n") +
+                (string.IsNullOrWhiteSpace(x.ReferenceUrl) ? "" : $"Entry Url: <{x.ReferenceUrl}>\n") +
+                (string.IsNullOrWhiteSpace(x.ReferenceDescription) ? "" : $"Entry Desc: {x.ReferenceDescription}\n") +
+                (string.IsNullOrWhiteSpace(x.ArtUrl) ? "" : $"Art Url: <{x.ArtUrl}>\n")));
             await user.SendMessageAsync(info + entries);
         }
 
