@@ -130,7 +130,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Command("reveal art")]
         [Alias("ra")]
         [Summary("Registers your finished art, sends DM with the art to your trade partner. (trade month only)")]
-        public async Task RevealArt()
+        public async Task RevealArt([Remainder]string unusedTxt = null)
         {
             var user = Context.Message.Author;
             if (!PersistentStorage.AppData.ArtTradeActive)
@@ -158,20 +158,20 @@ namespace teanicorns_art_trade_bot.Modules
             {
                 data.ArtUrl = attachments.FirstOrDefault().Url;
                 PersistentStorage.Set(data);
-                string reply = $"Your art has been published <@{user.Id}> ";
+                string reply = $"Thank you for the reveal <@{user.Id}>!";
 
                 var client = Context.Client;
                 var nextUser = client.GetUser(nextUserData.UserId);
                 if (nextUser == null)
                 {
-                    await ReplyAsync(reply + "but was unable to notify your partner.");
+                    await ReplyAsync(reply + " Sorry, but your partner did not received the notification.");
                     return;
                 }
 
                 if (!await SendPartnerArtResponse(data, nextUser))
-                    await ReplyAsync(reply + "but was unable to notify your partner.");
+                    await ReplyAsync(reply + " Sorry, but your partner did not received the notification.");
                 else
-                    await ReplyAsync(reply + "and your partner has been notified.");
+                    await ReplyAsync(reply + $" A notification was sent to your partner <@{nextUser.Id}>.");
             }
             else
                 await ReplyAsync($"Sorry <@{user.Id}>. Could not find your trade partner.");
@@ -186,8 +186,8 @@ namespace teanicorns_art_trade_bot.Modules
             if (embed == null)
                 return false;
 
-            string message = $"Your hidden art trade partner was {Format.Bold($"{partnerData.UserName}")}"
-                + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName}) and they are done with their art <@{user.Id}>!");
+            string message = $"Hello <@{user.Id}>! This month's hidden art trade partner for you was {Format.Bold($"{partnerData.UserName}")}"
+                + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName}) and they are ready to show you their work!!");
             await user.SendMessageAsync(message, false, embed);
             return true;
         }
