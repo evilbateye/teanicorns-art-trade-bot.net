@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
 using Discord;
+using System.Text.RegularExpressions;
 
 namespace teanicorns_art_trade_bot.Modules
 {
@@ -17,7 +18,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task SetEntry([Remainder]string description = null)
         {
             var user = Context.Message.Author;
-            if (PersistentStorage.AppData.ArtTradeActive)
+            if (Storage.Axx.AppData.ArtTradeActive)
             {
                 await ReplyAsync($"Sorry <@{user.Id}>. Art trade is currently taking place. Can't modify existing entries.");
                 return;
@@ -30,7 +31,7 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            PersistentStorage.UserData data = new PersistentStorage.UserData();
+            Storage.UserData data = new Storage.UserData();
             data.UserId = user.Id;
             data.UserName = user.Username;
             if (attachments.Count > 0)
@@ -39,7 +40,7 @@ namespace teanicorns_art_trade_bot.Modules
                 data.ReferenceDescription = description;
             if (user is IGuildUser guildUser)
                 data.NickName = guildUser.Nickname;
-            PersistentStorage.Set(data);
+            Storage.Axx.AppData.Set(data);
             await ReplyAsync($"Your entry has been registered successfully <@{user.Id}>!");
         }
 
@@ -49,7 +50,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task GetEntry()
         {
             var user = Context.Message.Author;
-            var data = PersistentStorage.Get(user.Id);
+            var data = Storage.Axx.AppData.Get(user.Id);
             if (data != null)
             {
                 Embed embed = null;
@@ -72,13 +73,13 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task DeleteEntry()
         {
             var user = Context.Message.Author;
-            if (PersistentStorage.AppData.ArtTradeActive)
+            if (Storage.Axx.AppData.ArtTradeActive)
             {
                 await ReplyAsync($"Sorry <@{user.Id}>. Art trade is currently taking place. Can't modify existing entries.");
                 return;
             }
 
-            if (PersistentStorage.Remove(user.Id))
+            if (Storage.Axx.AppData.Remove(user.Id))
                 await ReplyAsync($"<@{user.Id}> your reference has been removed.");
             else
                 await ReplyAsync($"Sorry <@{user.Id}>, there is no reference registered.");
@@ -90,14 +91,14 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task ShowPartner()
         {
             var user = Context.Message.Author;
-            if (!PersistentStorage.AppData.ArtTradeActive)
+            if (!Storage.Axx.AppData.ArtTradeActive)
             {
                 await ReplyAsync($"Sorry <@{user.Id}>. Entry week is currently taking place. Trade pairs are not formed until closed.");
                 return;
             }
 
-            PersistentStorage.UserData nextUser;
-            if (PersistentStorage.Next(user.Id, out nextUser))
+            Storage.UserData nextUser;
+            if (Storage.Axx.AppData.Next(user.Id, out nextUser))
             {
                 if (!await SendPartnerResponse(nextUser, user))
                     await ReplyAsync($"Sorry <@{user.Id}>, your art trade partner has no reference registered.");
@@ -106,7 +107,7 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync($"Sorry <@{user.Id}>. Could not find an art trade partner for you.");
         }
 
-        public static async Task<bool> SendPartnerResponse(PersistentStorage.UserData partnerData, Discord.WebSocket.SocketUser user)
+        public static async Task<bool> SendPartnerResponse(Storage.UserData partnerData, Discord.WebSocket.SocketUser user)
         {
             Embed embed = null;
             if (!string.IsNullOrWhiteSpace(partnerData.ReferenceUrl))
@@ -117,8 +118,8 @@ namespace teanicorns_art_trade_bot.Modules
 
             string message = $"Your art trade partner is.. {Format.Bold($"{partnerData.UserName}")}"
                 + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName}).");
-            if (!string.IsNullOrWhiteSpace(PersistentStorage.AppData.Theme))
-                message += $" Theme of this art trade is.. {PersistentStorage.AppData.Theme}.";
+            if (!string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
+                message += $" Theme of this art trade is.. {Storage.Axx.AppData.Theme}.";
             message += $" Have fun <@{user.Id}>!\n";
             if (!string.IsNullOrWhiteSpace(partnerData.ReferenceDescription))
                 message += $"\"{partnerData.ReferenceDescription}\"";
@@ -130,10 +131,37 @@ namespace teanicorns_art_trade_bot.Modules
         [Command("reveal art")]
         [Alias("ra")]
         [Summary("Registers your finished art, sends DM with the art to your trade partner. (trade month only)")]
-        public async Task RevealArt([Remainder]string unusedTxt = null)
+        public async Task RevealArt([Remainder]string text = null)
         {
             var user = Context.Message.Author;
-            if (!PersistentStorage.AppData.ArtTradeActive)
+            Storage.ApplicationData foundTrade = null;
+
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                text = text.ToLower();
+
+                for (int i = 0; i < Storage.Axx.AppHistory.History.Count && i < 3; ++i)
+                {
+                    var d = Storage.Axx.AppHistory.History[i];
+
+                    if (string.IsNullOrWhiteSpace(d.Theme))
+                        continue;
+                    if (text.Contains(d.Theme.ToLower().Trim()))
+                    {
+                        foundTrade = d;
+                        break;
+                    }
+                }
+            }
+
+            if (foundTrade == null)
+            {
+                foundTrade = Storage.Axx.AppData;
+            }
+
+            bool bCurrentTrade = foundTrade == Storage.Axx.AppData;
+
+            if (bCurrentTrade && !Storage.Axx.AppData.ArtTradeActive)
             {
                 await ReplyAsync($"Sorry <@{user.Id}>. Entry week is currently taking place. Trade pairs are not formed until closed.");
                 return;
@@ -146,18 +174,18 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            var data = PersistentStorage.Get(user.Id);
+            var data = foundTrade.Get(user.Id);
             if (data == null)
             {
                 await ReplyAsync($"Sorry <@{user.Id}>, there is no reference registered.");
                 return;
             }
 
-            PersistentStorage.UserData nextUserData;
-            if (PersistentStorage.Next(user.Id, out nextUserData))
+            Storage.UserData nextUserData;
+            if (foundTrade.Next(user.Id, out nextUserData))
             {
                 data.ArtUrl = attachments.FirstOrDefault().Url;
-                PersistentStorage.Set(data);
+                foundTrade.Set(data);
                 string reply = $"Thank you for the reveal <@{user.Id}>!";
 
                 var client = Context.Client;
@@ -168,7 +196,11 @@ namespace teanicorns_art_trade_bot.Modules
                     return;
                 }
 
-                if (!await SendPartnerArtResponse(data, nextUser))
+                string monthTheme = "This month's";
+                if (!bCurrentTrade)
+                    monthTheme = $"\"{foundTrade.Theme}\" themed month's";
+
+                if (!await SendPartnerArtResponse(data, nextUser, monthTheme))
                     await ReplyAsync(reply + " Sorry, but your partner did not received the notification.");
                 else
                     await ReplyAsync(reply + $" A notification was sent to your partner <@{nextUser.Id}>.");
@@ -177,7 +209,7 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync($"Sorry <@{user.Id}>. Could not find your trade partner.");
         }
 
-        public static async Task<bool> SendPartnerArtResponse(PersistentStorage.UserData partnerData, Discord.WebSocket.SocketUser user)
+        public static async Task<bool> SendPartnerArtResponse(Storage.UserData partnerData, Discord.WebSocket.SocketUser user, string monthTheme)
         {
             Embed embed = null;
             if (!string.IsNullOrWhiteSpace(partnerData.ArtUrl))
@@ -186,8 +218,8 @@ namespace teanicorns_art_trade_bot.Modules
             if (embed == null)
                 return false;
 
-            string message = $"Hello <@{user.Id}>! This month's hidden art trade partner for you was {Format.Bold($"{partnerData.UserName}")}"
-                + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName}) and they are ready to show you their work!!");
+            string message = $"Hello <@{user.Id}>! {monthTheme} hidden art trade partner for you was {Format.Bold($"{partnerData.UserName}")}"
+                + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})") + " and they are ready to show you their work!!";
             await user.SendMessageAsync(message, false, embed);
             return true;
         }

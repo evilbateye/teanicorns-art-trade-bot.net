@@ -15,88 +15,90 @@ namespace teanicorns_art_trade_bot
     class GoogleDrive
     {
         private static DriveService _service = null;
-        private static File _file = null;
-        private static string _fileName = "teanicorns_storage.json";
+        private static string _filePrefix = "teanicorns_";
+        private static Dictionary<File, string> _gFiles = new Dictionary<File, string>();
 
         public static async Task SetupGoogleDrive(DriveService service)
         {
-            Console.WriteLine("SetupGoogleDrive: start");
-
             _service = service;
-            FilesResource resource = _service.Files;
 
-            FileList files = null;
-            try
-            {
-                FilesResource.ListRequest req = resource.List();
-                req.Q = $"name='{_fileName}'";
-                files = await req.ExecuteAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("SetupGoogleDrive: " + e.ToString());
-                return;
-            }
+            File f = await FetchGoogleFile(Storage.Axx.AppDataFileName);
+            if (f != null)
+                _gFiles.Add(f, Storage.Axx.AppDataFileName);
 
-            if (files == null)
-            {
-                Console.WriteLine("SetupGoogleDrive: files == null");
-                return;
-            }
-
-            if (files.Files.Count <= 0)
-            {
-                Console.WriteLine("SetupGoogleDrive: files.Files.Count <= 0");
-
-                _file = new File();
-                _file.Name = _fileName;
-                _file.MimeType = "application/json";
-
-                try
-                {
-                    FilesResource.CreateRequest create = resource.Create(_file);
-                    await create.ExecuteAsync();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("SetupGoogleDrive: " + e.ToString());
-                }
-            }
-            else
-            {
-                _file = files.Files[0];
-                await DownloadGoogleFile();
-            }
+            f = await FetchGoogleFile(Storage.Axx.AppHistoryFileName);
+            if (f != null)
+                _gFiles.Add(f, Storage.Axx.AppHistoryFileName);
 
             System.Timers.Timer timer = new System.Timers.Timer();
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
             timer.Interval = 300000;
             timer.Enabled = true; 
         }
-
         private static async void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-            await UploadGoogleFile();
-
+            await UploadGoogleFiles();
         }
 
-        public static async Task DownloadGoogleFile()
+        public static async Task<File> FetchGoogleFile(string fileName)
         {
-            Console.WriteLine("DownloadGoogleFile: start");
+            File f = null;
+            FilesResource resource = _service.Files;
+            FileList files = null;
+            try
+            {
+                FilesResource.ListRequest req = resource.List();
+                req.Q = $"name='{_filePrefix + fileName}'";
+                files = await req.ExecuteAsync();
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
 
+            if (files == null)
+            {
+                return null;
+            }
+
+            if (files.Files.Count <= 0)
+            {
+                f = new File();
+                f.Name = _filePrefix + fileName;
+                f.MimeType = "application/json";
+
+                try
+                {
+                    FilesResource.CreateRequest create = resource.Create(f);
+                    await create.ExecuteAsync();
+                }
+                catch (Exception e)
+                {
+                }
+            }
+            else
+            {
+                f = files.Files[0];
+                await DownloadGoogleFile(f, fileName);
+            }
+
+            return f;
+        }
+
+        public static async Task DownloadGoogleFile(File f, string fileName)
+        {
             var stream = new System.IO.MemoryStream();
 
             try
             {
-                FilesResource.GetRequest req = _service.Files.Get(_file.Id);
+                FilesResource.GetRequest req = _service.Files.Get(f.Id);
                 await req.DownloadAsync(stream);
             }
             catch (Exception e)
             {
-                Console.WriteLine("DownloadGoogleFile: " + e.ToString());
             }
             
-            System.IO.FileStream file = new System.IO.FileStream(PersistentStorage.storageFileName, System.IO.FileMode.Truncate, System.IO.FileAccess.Write);
+            System.IO.FileStream file = new System.IO.FileStream(fileName, System.IO.FileMode.Truncate, System.IO.FileAccess.Write);
 
             try
             {
@@ -104,38 +106,34 @@ namespace teanicorns_art_trade_bot
             }
             catch (Exception e)
             {
-                Console.WriteLine("DownloadGoogleFile: " + e.ToString());
             }
             finally
             {
                 file.Close();
-                Console.WriteLine("DownloadGoogleFile: stream.Length=", stream.Length);
                 stream.Close();
             }
         }
 
-        public static async Task UploadGoogleFile()
+        public static async Task UploadGoogleFiles()
         {
-            Console.WriteLine("UploadGoogleFile: start");
-
-            if (!System.IO.File.Exists(PersistentStorage.storageFileName))
-                return;
-
-            byte[] byteArray = System.IO.File.ReadAllBytes(PersistentStorage.storageFileName);
-            System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
-
-            Console.WriteLine("UploadGoogleFile: byteArray.Length=", byteArray.Length);
-
-            try
+            foreach (var gFile in _gFiles)
             {
-                File body = new File();
-                FilesResource.UpdateMediaUpload req = _service.Files.Update(body, _file.Id, stream, "application/json");
-                var progress = await req.UploadAsync();
-                File response = req.ResponseBody;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("UploadGoogleFile: " + e.ToString());
+                if (!System.IO.File.Exists(gFile.Value))
+                    return;
+
+                byte[] byteArray = System.IO.File.ReadAllBytes(gFile.Value);
+                System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
+
+                try
+                {
+                    File body = new File();
+                    FilesResource.UpdateMediaUpload req = _service.Files.Update(body, gFile.Key.Id, stream, "application/json");
+                    var progress = await req.UploadAsync();
+                    File response = req.ResponseBody;
+                }
+                catch (Exception e)
+                {
+                }
             }
         }
 
