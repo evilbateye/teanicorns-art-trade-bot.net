@@ -308,7 +308,19 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            await user.SendFileAsync(Storage.Axx.AppHistoryFileName, $"Sending the full history database <@{Context.Message.Author.Id}>.");
+            var attachments = Context.Message.Attachments;
+            if (attachments.Count <= 0)
+            {
+                await user.SendFileAsync(Storage.Axx.AppHistoryFileName, $"Sending the full history database <@{Context.Message.Author.Id}>.");
+            }
+            else
+            {
+                string fileUrl = attachments.FirstOrDefault().Url;
+                if (await Storage.Axx.RestoreStorage(Storage.Axx.AppHistory, fileUrl))
+                    await ReplyAsync($"The history has been loaded successfully <@{user.Id}>.");
+                else
+                    await ReplyAsync($"Sorry <@{user.Id}>. There have been some problems when loading the history.");
+            }
         }
 
         [Command("send partners")]
