@@ -11,8 +11,6 @@ namespace teanicorns_art_trade_bot.Storage
 {
     public class ApplicationData : IStorage, ICloneable
     {
-        public bool ArtTradeActive = false;
-        public string WorkingChannel = "";
         public string Theme = "";
         public List<UserData> Storage = new List<UserData>();
         
@@ -101,25 +99,6 @@ namespace teanicorns_art_trade_bot.Storage
         }
 
         // public methods
-        public bool ActivateTrade(bool b)
-        {
-            if (ArtTradeActive != b)
-            {
-                ArtTradeActive = b;
-                Save();
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool SetWorkingChannel(string channel)
-        {
-            WorkingChannel = channel;
-            Save();
-            return true;
-        }
-
         public bool SetTheme(string theme)
         {
             Theme = theme;

@@ -23,6 +23,8 @@ namespace teanicorns_art_trade_bot.Storage
         public static ApplicationData AppData = new ApplicationData();
         public static string AppHistoryFileName = "history.json";
         public static ApplicationHistory AppHistory = new ApplicationHistory();
+        public static string AppSettingsFileName = "settings.json";
+        public static ApplicationSettings AppSettings = new ApplicationSettings();
 
         static Axx()
         {
@@ -39,14 +41,21 @@ namespace teanicorns_art_trade_bot.Storage
             {
                 AppData.Load(AppData.FileName());
                 if (AppData != null)
-                    Console.WriteLine($"Axx: data-count-{AppData.Storage.Count}");
+                    Console.WriteLine($"Axx: data-count-{AppData.Count()}");
             }
 
             if (Validate(AppHistory))
             {
                 AppHistory.Load(AppHistory.FileName());
                 if (AppHistory != null)
-                    Console.WriteLine($"Axx: history-count-{AppHistory.History.Count}");
+                    Console.WriteLine($"Axx: history-count-{AppHistory.Count()}");
+            }
+
+            if (Validate(AppSettings))
+            {
+                AppSettings.Load(AppSettings.FileName());
+                if (AppSettings != null)
+                    Console.WriteLine($"Axx: history-count-{AppSettings.Count()}");
             }
         }
         private static bool Validate(IStorage s)
@@ -105,7 +114,7 @@ namespace teanicorns_art_trade_bot.Storage
                 {
                     await wc.DownloadFileTaskAsync(url, s.FileName());
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     return false;
                 }

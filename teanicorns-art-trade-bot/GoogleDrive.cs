@@ -29,15 +29,20 @@ namespace teanicorns_art_trade_bot
             f = await FetchGoogleFile(Storage.Axx.AppHistoryFileName);
             if (f != null)
                 _gFiles.Add(Storage.Axx.AppHistoryFileName, f);
+            
+            f = await FetchGoogleFile(Storage.Axx.AppSettingsFileName);
+            if (f != null)
+                _gFiles.Add(Storage.Axx.AppSettingsFileName, f);
 
             System.Timers.Timer timer = new System.Timers.Timer();
-            timer.Elapsed += new ElapsedEventHandler(OnUpdateAppDataFile);
+            timer.Elapsed += new ElapsedEventHandler(OnPeriodicUpdate);
             timer.Interval = 300000;
             timer.Enabled = true; 
         }
-        private static async void OnUpdateAppDataFile(object source, ElapsedEventArgs e)
+        private static async void OnPeriodicUpdate(object source, ElapsedEventArgs e)
         {
             await UploadGoogleFile(Storage.Axx.AppDataFileName);
+            await UploadGoogleFile(Storage.Axx.AppSettingsFileName);
         }
 
         public static async Task<File> FetchGoogleFile(string fileName)
@@ -51,7 +56,7 @@ namespace teanicorns_art_trade_bot
                 req.Q = $"name='{_filePrefix + fileName}'";
                 files = await req.ExecuteAsync();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }
@@ -72,7 +77,7 @@ namespace teanicorns_art_trade_bot
                     FilesResource.CreateRequest create = resource.Create(f);
                     await create.ExecuteAsync();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                 }
             }
@@ -94,7 +99,7 @@ namespace teanicorns_art_trade_bot
                 FilesResource.GetRequest req = _service.Files.Get(f.Id);
                 await req.DownloadAsync(stream);
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
             
@@ -104,7 +109,7 @@ namespace teanicorns_art_trade_bot
             {
                 stream.WriteTo(file);
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
             finally
@@ -129,7 +134,7 @@ namespace teanicorns_art_trade_bot
                 var progress = await req.UploadAsync();
                 File response = req.ResponseBody;
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }

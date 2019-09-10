@@ -18,7 +18,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task SetEntry([Remainder]string description = null)
         {
             var user = Context.Message.Author;
-            if (Storage.Axx.AppData.ArtTradeActive)
+            if (Storage.Axx.AppSettings.ArtTradeActive)
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
@@ -73,7 +73,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task DeleteEntry()
         {
             var user = Context.Message.Author;
-            if (Storage.Axx.AppData.ArtTradeActive)
+            if (Storage.Axx.AppSettings.ArtTradeActive)
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
@@ -91,7 +91,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task ShowPartner()
         {
             var user = Context.Message.Author;
-            if (!Storage.Axx.AppData.ArtTradeActive)
+            if (!Storage.Axx.AppSettings.ArtTradeActive)
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_EW_TAKING_PLACE, user.Id));
                 return;
@@ -164,7 +164,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             bool bCurrentTrade = foundTrade == Storage.Axx.AppData;
 
-            if (bCurrentTrade && !Storage.Axx.AppData.ArtTradeActive)
+            if (bCurrentTrade && !Storage.Axx.AppSettings.ArtTradeActive)
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_EW_TAKING_PLACE, user.Id));
                 return;

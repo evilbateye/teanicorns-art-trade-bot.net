@@ -35,8 +35,9 @@ namespace teanicorns_art_trade_bot.Modules
             }
 
             Storage.Axx.BackupStorage(Storage.Axx.AppData);
+            Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
 
-            if (Storage.Axx.AppData.ActivateTrade(false))
+            if (Storage.Axx.AppSettings.ActivateTrade(false))
             {
                 Storage.Axx.AppHistory.RecordTrade(Storage.Axx.AppData);
                 await GoogleDrive.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
@@ -68,8 +69,9 @@ namespace teanicorns_art_trade_bot.Modules
             }
 
             Storage.Axx.BackupStorage(Storage.Axx.AppData);
+            Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
 
-            if (Storage.Axx.AppData.ActivateTrade(true))
+            if (Storage.Axx.AppSettings.ActivateTrade(true))
             {
                 if (!string.IsNullOrWhiteSpace(theme))
                     Storage.Axx.AppData.SetTheme(theme);
@@ -121,12 +123,12 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.Axx.BackupStorage(Storage.Axx.AppData);
+            Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
 
-            if (Storage.Axx.AppData.SetWorkingChannel(channel))
+            if (Storage.Axx.AppSettings.SetWorkingChannel(channel))
                 await ReplyAsync(string.Format(Properties.Resources.TRADE_CHANNEL_SET, user.Id));
             else
-                await ReplyAsync(string.Format(Properties.Resources.TRADE_CHANNEL_PROBLEM, user.Id, Storage.Axx.AppData.WorkingChannel));
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_CHANNEL_PROBLEM, user.Id, Storage.Axx.AppSettings.WorkingChannel));
         }
 
         [Command("list")]
@@ -141,7 +143,7 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            string info = (Storage.Axx.AppData.ArtTradeActive ? string.Format(Properties.Resources.TRADE_TAKING_PLACE_TM) : string.Format(Properties.Resources.TRADE_TAKING_PLACE_EW)) + "\n";
+            string info = (Storage.Axx.AppSettings.ArtTradeActive ? string.Format(Properties.Resources.TRADE_TAKING_PLACE_TM) : string.Format(Properties.Resources.TRADE_TAKING_PLACE_EW)) + "\n";
 
             if (!string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
                 info += string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n";
@@ -260,7 +262,7 @@ namespace teanicorns_art_trade_bot.Modules
             var attachments = Context.Message.Attachments;
             if (attachments.Count <= 0)
             {
-                if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData))
+                if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData) && await Storage.Axx.RestoreStorage(Storage.Axx.AppSettings))
                     await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DONE, user.Id));
                 else
                     await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_NO_BACKUP, user.Id));
@@ -268,7 +270,7 @@ namespace teanicorns_art_trade_bot.Modules
             else
             {
                 string fileUrl = attachments.FirstOrDefault().Url;
-                if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData, fileUrl))
+                if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData, fileUrl) && await Storage.Axx.RestoreStorage(Storage.Axx.AppSettings, fileUrl))
                     await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DATABASE_DONE, user.Id));
                 else
                     await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DATABASE_PROBLEM, user.Id));
@@ -290,6 +292,7 @@ namespace teanicorns_art_trade_bot.Modules
             if (string.IsNullOrWhiteSpace(json) || json != "json")
             {
                 Storage.Axx.BackupStorage(Storage.Axx.AppData);
+                Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
                 await ReplyAsync(string.Format(Properties.Resources.TRADE_BACKUP_DONE, user.Id));
             }
             else
