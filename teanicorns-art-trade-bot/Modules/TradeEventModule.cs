@@ -113,7 +113,7 @@ namespace teanicorns_art_trade_bot.Modules
 
         [Command("start trade")]
         [Alias("st")]
-        [Summary("Sets the working channel for ATB.")]
+        [Summary("Sets the art trade boolean (silent).")]
         public async Task StartTrade(bool bStart)
         {
             var user = Context.Message.Author;
