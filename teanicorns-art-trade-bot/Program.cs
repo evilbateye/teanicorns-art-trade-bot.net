@@ -55,6 +55,8 @@ namespace teanicorns_art_trade_bot
             await _discord.LoginAsync(TokenType.Bot, Config.DiscordToken);
             await _discord.StartAsync();
 
+            Storage.Axx.Initialize();
+
             await GoogleDrive.SetupGoogleDrive(new DriveService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = Config.GoogleCred,
@@ -62,9 +64,7 @@ namespace teanicorns_art_trade_bot
             }));
 
             //Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("ja-JP");
-
-            Storage.Axx.Initialize();
-
+                        
             await Task.Delay(-1);
 		}
 
