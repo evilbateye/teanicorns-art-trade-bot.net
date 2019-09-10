@@ -102,7 +102,8 @@ namespace teanicorns_art_trade_bot
             catch (Exception)
             {
             }
-            
+
+            Storage.Axx.CreateEmptyIfNeeded(fileName);
             System.IO.FileStream file = new System.IO.FileStream(fileName, System.IO.FileMode.Truncate, System.IO.FileAccess.Write);
 
             try

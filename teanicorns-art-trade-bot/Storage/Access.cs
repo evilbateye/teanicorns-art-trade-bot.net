@@ -63,15 +63,25 @@ namespace teanicorns_art_trade_bot.Storage
             if (s == null)
                 return false;
 
-            if (!File.Exists(s.FileName()))
+            if (CreateEmptyIfNeeded(s.FileName()))
             {
-                File.WriteAllText(s.FileName(), "");
                 if (s.Count() > 0)
                     s.Save();
                 return false;
             }
 
             return true;
+        }
+
+        public static bool CreateEmptyIfNeeded(string filename)
+        {
+            if (!File.Exists(filename))
+            {
+                File.WriteAllText(filename, "");
+                return true;
+            }
+
+            return false;
         }
         
         public static void BackupStorage(IStorage s)
