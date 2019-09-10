@@ -111,6 +111,26 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync(string.Format(Properties.Resources.TRADE_THEME_PROBLEM, user.Id));
         }
 
+        [Command("start trade")]
+        [Alias("st")]
+        [Summary("Sets the working channel for ATB.")]
+        public async Task StartTrade(bool bStart)
+        {
+            var user = Context.Message.Author;
+            if (!Utils.IsAdminUser(user))
+            {
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
+                return;
+            }
+
+            Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
+
+            if (Storage.Axx.AppSettings.ActivateTrade(bStart))
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ACTIVE_SET, user.Id));
+            else
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ACTIVE_PROBLEM, user.Id));
+        }
+
         [Command("channel")]
         [Alias("ch")]
         [Summary("Sets the working channel for ATB.")]
