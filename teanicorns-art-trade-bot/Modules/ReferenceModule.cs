@@ -20,14 +20,14 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (Storage.Axx.AppData.ArtTradeActive)
             {
-                await ReplyAsync($"Sorry <@{user.Id}>. Art trade is currently taking place. Can't modify existing entries.");
+                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
             }
 
             var attachments = Context.Message.Attachments;
             if (attachments.Count <= 0 && string.IsNullOrWhiteSpace(description))
             {
-                await ReplyAsync($"Missing reference <@{user.Id}>. Please provide a description and/or embeded image.");
+                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_MISSING_REF, user.Id));
                 return;
             }
 
@@ -41,7 +41,7 @@ namespace teanicorns_art_trade_bot.Modules
             if (user is IGuildUser guildUser)
                 data.NickName = guildUser.Nickname;
             Storage.Axx.AppData.Set(data);
-            await ReplyAsync($"Your entry has been registered successfully <@{user.Id}>!");
+            await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REG_SUCC, user.Id));
         }
 
         [Command("get entry")]
@@ -63,8 +63,8 @@ namespace teanicorns_art_trade_bot.Modules
                     return;
                 }
             }
-
-            await ReplyAsync($"Sorry <@{user.Id}>, there is no reference registered.");
+            
+            await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
         }
 
         [Command("delete entry")]
@@ -75,14 +75,14 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (Storage.Axx.AppData.ArtTradeActive)
             {
-                await ReplyAsync($"Sorry <@{user.Id}>. Art trade is currently taking place. Can't modify existing entries.");
+                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
             }
-
+            
             if (Storage.Axx.AppData.Remove(user.Id))
-                await ReplyAsync($"<@{user.Id}> your reference has been removed.");
+                await ReplyAsync(string.Format(Properties.Resources.REF_REMOVED, user.Id));
             else
-                await ReplyAsync($"Sorry <@{user.Id}>, there is no reference registered.");
+                await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
         }
 
         [Command("show partner")]
@@ -93,7 +93,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Storage.Axx.AppData.ArtTradeActive)
             {
-                await ReplyAsync($"Sorry <@{user.Id}>. Entry week is currently taking place. Trade pairs are not formed until closed.");
+                await ReplyAsync(string.Format(Properties.Resources.REF_EW_TAKING_PLACE, user.Id));
                 return;
             }
 
@@ -101,10 +101,10 @@ namespace teanicorns_art_trade_bot.Modules
             if (Storage.Axx.AppData.Next(user.Id, out nextUser))
             {
                 if (!await SendPartnerResponse(nextUser, user))
-                    await ReplyAsync($"Sorry <@{user.Id}>, your art trade partner has no reference registered.");
+                    await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
             }
             else
-                await ReplyAsync($"Sorry <@{user.Id}>. Could not find an art trade partner for you.");
+                await ReplyAsync(string.Format(Properties.Resources.REF_MISSING_PARTNER, user.Id));
         }
 
         public static async Task<bool> SendPartnerResponse(Storage.UserData partnerData, Discord.WebSocket.SocketUser user)
@@ -116,11 +116,14 @@ namespace teanicorns_art_trade_bot.Modules
             if (string.IsNullOrWhiteSpace(partnerData.ReferenceDescription) && embed == null)
                 return false;
 
-            string message = $"Your art trade partner is.. {Format.Bold($"{partnerData.UserName}")}"
-                + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName}).");
+
+            string message = string.Format(Properties.Resources.REF_TRADE_PARTNER
+                , user.Id
+                , Format.Bold($"{partnerData.UserName}") + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})")) + "\n";
+
             if (!string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
-                message += $" Theme of this art trade is.. {Storage.Axx.AppData.Theme}.";
-            message += $" Have fun <@{user.Id}>!\n";
+                message += " " + string.Format(Properties.Resources.REF_TRADE_THEME, Storage.Axx.AppData.Theme) + "\n";
+
             if (!string.IsNullOrWhiteSpace(partnerData.ReferenceDescription))
                 message += $"\"{partnerData.ReferenceDescription}\"";
 
@@ -163,21 +166,21 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (bCurrentTrade && !Storage.Axx.AppData.ArtTradeActive)
             {
-                await ReplyAsync($"Sorry <@{user.Id}>. Entry week is currently taking place. Trade pairs are not formed until closed.");
+                await ReplyAsync(string.Format(Properties.Resources.REF_EW_TAKING_PLACE, user.Id));
                 return;
             }
 
             var attachments = Context.Message.Attachments;
             if (attachments.Count <= 0)
             {
-                await ReplyAsync($"Missing art reference <@{user.Id}>. Please provide an embeded image.");
+                await ReplyAsync(string.Format(Properties.Resources.REF_MISSING_ART, user.Id));
                 return;
             }
 
             var data = foundTrade.Get(user.Id);
             if (data == null)
             {
-                await ReplyAsync($"Sorry <@{user.Id}>, there is no reference registered.");
+                await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
                 return;
             }
 
@@ -186,27 +189,31 @@ namespace teanicorns_art_trade_bot.Modules
             {
                 data.ArtUrl = attachments.FirstOrDefault().Url;
                 foundTrade.Set(data);
-                string reply = $"Thank you for the reveal <@{user.Id}>!";
+
+                if (!bCurrentTrade)
+                    await GoogleDrive.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
+
+                string reply = string.Format(Properties.Resources.REF_REVEAL_THANKS, user.Id);
 
                 var client = Context.Client;
                 var nextUser = client.GetUser(nextUserData.UserId);
                 if (nextUser == null)
                 {
-                    await ReplyAsync(reply + " Sorry, but your partner did not received the notification.");
+                    await ReplyAsync(reply + " " + string.Format(Properties.Resources.REF_REVEAL_SORRY, user.Id));
                     return;
                 }
 
-                string monthTheme = "This month's";
+                string monthTheme = "";
                 if (!bCurrentTrade)
-                    monthTheme = $"\"{foundTrade.Theme}\" themed month's";
+                    monthTheme = foundTrade.Theme;
 
                 if (!await SendPartnerArtResponse(data, nextUser, monthTheme))
-                    await ReplyAsync(reply + " Sorry, but your partner did not received the notification.");
+                    await ReplyAsync(reply + " " + string.Format(Properties.Resources.REF_REVEAL_SORRY, user.Id));
                 else
-                    await ReplyAsync(reply + $" A notification was sent to your partner <@{nextUser.Id}>.");
+                    await ReplyAsync(reply + " " + string.Format(Properties.Resources.REF_REVEAL_NOTIFY, nextUser.Id));
             }
             else
-                await ReplyAsync($"Sorry <@{user.Id}>. Could not find your trade partner.");
+                await ReplyAsync(string.Format(Properties.Resources.REF_REVEAL_MISSING_PARTNER, user.Id));
         }
 
         public static async Task<bool> SendPartnerArtResponse(Storage.UserData partnerData, Discord.WebSocket.SocketUser user, string monthTheme)
@@ -218,8 +225,8 @@ namespace teanicorns_art_trade_bot.Modules
             if (embed == null)
                 return false;
 
-            string message = $"Hello <@{user.Id}>! {monthTheme} hidden art trade partner for you was {Format.Bold($"{partnerData.UserName}")}"
-                + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})") + " and they are ready to show you their work!!";
+            string message = string.Format(Properties.Resources.REF_REVEAL_FINAL, user.Id, partnerData.UserName
+                + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})"));
             await user.SendMessageAsync(message, false, embed);
             return true;
         }

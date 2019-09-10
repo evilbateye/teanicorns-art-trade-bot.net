@@ -21,17 +21,25 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
 
-            string artMissing = string.Join(", ", Storage.Axx.AppData.GetStorage().Select(x => $"{(string.IsNullOrWhiteSpace(x.ArtUrl) ? (string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName) : "")}"));
+            string artMissing = "";
+            foreach (Storage.UserData x in Storage.Axx.AppData.GetStorage())
+            {
+                if (string.IsNullOrWhiteSpace(x.ArtUrl))
+                {
+                    artMissing += (string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName) + ", ";
+                }
+            }
+
             Storage.Axx.BackupStorage(Storage.Axx.AppData);
 
             if (Storage.Axx.AppData.ActivateTrade(false))
             {
                 Storage.Axx.AppHistory.RecordTrade(Storage.Axx.AppData);
-
+                await GoogleDrive.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
                 Storage.Axx.ClearStorage(Storage.Axx.AppData);
 
                 if (string.IsNullOrWhiteSpace(theme))
@@ -39,12 +47,12 @@ namespace teanicorns_art_trade_bot.Modules
                 else
                     Storage.Axx.AppData.SetTheme(theme);
 
-                await ReplyAsync($"@everyone the {Format.Bold("entry week")} started. {Format.Bold("We are accepting new entries!")}\n"
-                    + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : $" Theme of this month's art trade is.. \"{Storage.Axx.AppData.Theme}\".")
-                    + (string.IsNullOrWhiteSpace(artMissing) ? "" : $" Following users did not reveal their art, please do so once you are ready (you can reveal it even after the trade ended): {artMissing}"));
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_NEW_ENTRIES) + "\n"
+                    + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n")
+                    + (string.IsNullOrWhiteSpace(artMissing) ? string.Format(Properties.Resources.TRADE_ART_ON_TIME) : string.Format(Properties.Resources.TRADE_ART_LATE, artMissing)));
             }
             else
-                await ReplyAsync($"<@{Context.Message.Author.Id}> the entry week is already in progress.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_EW_IN_PROGRESS, user.Id));
         }
 
         [Command("trade month")]
@@ -55,7 +63,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
 
@@ -67,12 +75,12 @@ namespace teanicorns_art_trade_bot.Modules
                     Storage.Axx.AppData.SetTheme(theme);
 
                 Storage.Axx.AppData.Shuffle();
-                await ReplyAsync($"@everyone the art {Format.Bold("trade month")} started. {Format.Bold("We are no longer accepting new entries!")}\n"
-                    + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : $" Theme of this art trade is.. \"{Storage.Axx.AppData.Theme}\"."));
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_NO_NEW_ENTRIES) + "\n"
+                    + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : " " + string.Format(Properties.Resources.REF_TRADE_THEME, Storage.Axx.AppData.Theme)));
                 await SendPartners();
             }
             else
-                await ReplyAsync($"<@{Context.Message.Author.Id}> the art trade month is already in progress.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ART_IN_PROGRESS, user.Id));
         }
 
         [Command("theme")]
@@ -83,24 +91,22 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(theme))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. The provided theme is null or whitespace.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_THEME_NULL, user.Id));
                 return;
             }
 
             Storage.Axx.BackupStorage(Storage.Axx.AppData);
 
             if (Storage.Axx.AppData.SetTheme(theme))
-            {
-                await ReplyAsync($"The theme has been set successfully <@{Context.Message.Author.Id}>!");
-            }
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_THEME_SET, user.Id));
             else
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. There has been a problem when setting the theme.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_THEME_PROBLEM, user.Id));
         }
 
         [Command("channel")]
@@ -111,18 +117,16 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
 
             Storage.Axx.BackupStorage(Storage.Axx.AppData);
 
             if (Storage.Axx.AppData.SetWorkingChannel(channel))
-            {
-                await ReplyAsync($"Channel has been set successfully <@{Context.Message.Author.Id}>.");
-            }
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_CHANNEL_SET, user.Id));
             else
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. Was not able to change the working channel. Current working channel is {Storage.Axx.AppData.WorkingChannel}.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_CHANNEL_PROBLEM, user.Id, Storage.Axx.AppData.WorkingChannel));
         }
 
         [Command("list")]
@@ -133,20 +137,16 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
 
-            string info = "Currently taking place.. ";
-            if (Storage.Axx.AppData.ArtTradeActive)
-                info += $"{Format.Bold("Trade month")}.\n";
-            else
-                info += $"{Format.Bold("Entry week")}.\n";
+            string info = (Storage.Axx.AppData.ArtTradeActive ? string.Format(Properties.Resources.TRADE_TAKING_PLACE_TM) : string.Format(Properties.Resources.TRADE_TAKING_PLACE_EW)) + "\n";
 
             if (!string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
-                info += $"This month's theme is.. \"{Storage.Axx.AppData.Theme}\".\n";
+                info += string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n";
 
-            string entries = $"Listing all entries <@{user.Id}>. Each next entry is the partner of the previous one.\n";
+            string entries = string.Format(Properties.Resources.TRADE_LISTING_ALL, user.Id) + "\n";
             if (string.IsNullOrWhiteSpace(all) || all != "all")
                 entries += string.Join("\n", Storage.Axx.AppData.GetStorage().Select(x => $"{x.UserName}" +
                 (string.IsNullOrWhiteSpace(x.NickName) ? "" : $" ({x.NickName})") +
@@ -168,13 +168,13 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
 
             Storage.Axx.BackupStorage(Storage.Axx.AppData);
             Storage.Axx.ClearStorage(Storage.Axx.AppData);
-            await ReplyAsync($"All entries successfully removed <@{user.Id}>. Backup file updated.");
+            await ReplyAsync(string.Format(Properties.Resources.TRADE_ENTRIES_CLEARED, user.Id));
         }
 
         [Command("shuffle")]
@@ -185,13 +185,13 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
 
             Storage.Axx.BackupStorage(Storage.Axx.AppData);
             Storage.Axx.AppData.Shuffle();
-            await ReplyAsync($"Entries have been shuffled successfully <@{user.Id}>.");
+            await ReplyAsync(string.Format(Properties.Resources.TRADE_ENTRIES_SHUFFLE, user.Id));
         }
                 
         [Command("swap")]
@@ -202,21 +202,21 @@ namespace teanicorns_art_trade_bot.Modules
             var ourUser = Context.Message.Author;
             if (!Utils.IsAdminUser(ourUser))
             {
-                await ReplyAsync($"Sorry <@{ourUser.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, ourUser.Id));
                 return;
             }
 
             var guild = Utils.FindGuild(ourUser);
             if (guild == null)
             {
-                await ReplyAsync($"Sorry <@{ourUser.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, ourUser.Id));
                 return;
             }
 
             SocketUser partner1 = Utils.FindUser(guild, partner1Name);
             if (partner1 == null)
             {
-                await ReplyAsync($"Sorry <@{ourUser.Id}>. Could not find the first partner.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_CHANGE_PAIR_MISSING_FIRST, ourUser.Id));
                 return;
             }
 
@@ -226,7 +226,7 @@ namespace teanicorns_art_trade_bot.Modules
                 partner2 = Utils.FindUser(guild, partner2Name);
                 if (partner2 == null)
                 {
-                    await ReplyAsync($"Sorry <@{ourUser.Id}>. Could not find the second partner.");
+                    await ReplyAsync(string.Format(Properties.Resources.TRADE_CHANGE_PAIR_MISSING_SECOND, ourUser.Id));
                     return;
                 }
             }
@@ -239,10 +239,10 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (Storage.Axx.AppData.ResetNext(partner2.Id, partner1.Id))
             {
-                await ourUser.SendMessageAsync($"Art trade partner of {Format.Bold(partner2.Username)} has been changed to {Format.Bold(partner1.Username)} <@{ourUser.Id}>.");
+                await ourUser.SendMessageAsync(string.Format(Properties.Resources.TRADE_CHANGE_PAIR_DONE, ourUser.Id, Format.Bold(partner2.Username), Format.Bold(partner1.Username)));
             }
             else
-                await ReplyAsync($"Could not change your art trade partner.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_CHANGE_PAIR_PROBLEM, ourUser.Id));
         }
 
         [Command("restore")]
@@ -253,7 +253,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
 
@@ -261,17 +261,17 @@ namespace teanicorns_art_trade_bot.Modules
             if (attachments.Count <= 0)
             {
                 if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData))
-                    await ReplyAsync($"All entries successfully restored <@{user.Id}>.");
+                    await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DONE, user.Id));
                 else
-                    await ReplyAsync($"Sorry <@{user.Id}>. No backup file found.");
+                    await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_NO_BACKUP, user.Id));
             }
             else
             {
                 string fileUrl = attachments.FirstOrDefault().Url;
                 if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData, fileUrl))
-                    await ReplyAsync($"The database has been loaded successfully <@{user.Id}>.");
+                    await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DATABASE_DONE, user.Id));
                 else
-                    await ReplyAsync($"Sorry <@{user.Id}>. There have been some problems when loading the databse.");
+                    await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DATABASE_PROBLEM, user.Id));
             }
         }
 
@@ -283,17 +283,17 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(json) || json != "json")
             {
                 Storage.Axx.BackupStorage(Storage.Axx.AppData);
-                await ReplyAsync($"Backup file has been updated successfully <@{Context.Message.Author.Id}>.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_BACKUP_DONE, user.Id));
             }
             else
-                await user.SendFileAsync(Storage.Axx.AppDataFileName, $"Sending the full database <@{Context.Message.Author.Id}>.");
+                await user.SendFileAsync(Storage.Axx.AppDataFileName, string.Format(Properties.Resources.TRADE_BACKUP_DATABASE_DONE, user.Id));
         }
 
         [Command("history")]
@@ -304,22 +304,22 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
 
             var attachments = Context.Message.Attachments;
             if (attachments.Count <= 0)
             {
-                await user.SendFileAsync(Storage.Axx.AppHistoryFileName, $"Sending the full history database <@{Context.Message.Author.Id}>.");
+                await user.SendFileAsync(Storage.Axx.AppHistoryFileName, string.Format(Properties.Resources.TRADE_BACKUP_HISTORY_DONE, user.Id));
             }
             else
             {
                 string fileUrl = attachments.FirstOrDefault().Url;
                 if (await Storage.Axx.RestoreStorage(Storage.Axx.AppHistory, fileUrl))
-                    await ReplyAsync($"The history has been loaded successfully <@{user.Id}>.");
+                    await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_HISTORY_DONE, user.Id));
                 else
-                    await ReplyAsync($"Sorry <@{user.Id}>. There have been some problems when loading the history.");
+                    await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_HISTORY_PROBLEM, user.Id));
             }
         }
 
@@ -331,7 +331,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync($"Sorry <@{Context.Message.Author.Id}>. You don't have required priviledges to run this command.");
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
 
@@ -371,14 +371,14 @@ namespace teanicorns_art_trade_bot.Modules
 
             string report = "";
             if (!string.IsNullOrWhiteSpace(report1))
-                report += "Could not find an art trade partner for: \n" + report1;
+                report += string.Format(Properties.Resources.TRADE_SEND_PARTNERS_MISSING) + " \n" + report1;
             if (!string.IsNullOrWhiteSpace(report2))
-                report += "Could not find any entry info for: \n" + report2;
+                report += string.Format(Properties.Resources.TRADE_SEND_ENTRIES_MISSING) + " \n" + report2;
             if (!string.IsNullOrWhiteSpace(report3))
-                report += "Users not found: \n" + report3;
+                report += string.Format(Properties.Resources.TRADE_SEND_USERS_MISSING) + " \n" + report3;
 
             if (string.IsNullOrWhiteSpace(report))
-                report = "All trade participants received their partners.";
+                report = string.Format(Properties.Resources.TRADE_SEND_PARTNERS_DONE);
 
             await user.SendMessageAsync(report);
         }

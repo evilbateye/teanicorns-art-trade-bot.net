@@ -20,6 +20,8 @@ using Google.Apis.Services;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Util.Store;
+using System.Threading;
+using System.Globalization;
 
 namespace teanicorns_art_trade_bot
 {
@@ -58,6 +60,8 @@ namespace teanicorns_art_trade_bot
                 HttpClientInitializer = Config.GoogleCred,
                 ApplicationName = "teanicorns-art-trade-bot",
             }));
+
+            //Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("ja-JP");
 
             Storage.Axx.Initialize();
 
