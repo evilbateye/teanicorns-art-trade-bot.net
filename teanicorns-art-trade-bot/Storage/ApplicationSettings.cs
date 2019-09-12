@@ -10,25 +10,49 @@ namespace teanicorns_art_trade_bot.Storage
     {
         public bool ArtTradeActive = false;
         public string WorkingChannel = "";
+        public DateTime TradeStart = DateTime.Now;
+        public uint TradeDays = 0;
+        public bool NotifyPending = false;
 
         // public methods
-        public bool ActivateTrade(bool b)
-        {
-            if (ArtTradeActive != b)
-            {
-                ArtTradeActive = b;
-                Save();
-                return true;
-            }
-
-            return false;
-        }
-
         public bool SetWorkingChannel(string channel)
         {
             WorkingChannel = channel;
             Save();
             return true;
+        }
+
+        public void SetTradeStartNow()
+        {
+            TradeStart = DateTime.Now;
+            Save();
+        }
+
+        public void SetTradeEnd(uint days)
+        {
+            TradeDays = days;
+            Save(); 
+        }
+
+        public void ActivateTrade(bool bStart, uint days)
+        {
+            ArtTradeActive = bStart;
+            TradeDays = days;
+            NotifyPending = bStart;
+            if (bStart)
+                TradeStart = DateTime.Now;
+            Save();
+        }
+
+        public DateTime GetTradeEnd(int shift = 0)
+        {
+            return TradeStart.AddDays(TradeDays + shift);
+        }
+
+        public void SetNotifyPending(bool bPending)
+        {
+            NotifyPending = bPending;
+            Save();
         }
 
         // IStorage methods

@@ -41,6 +41,39 @@ namespace teanicorns_art_trade_bot
         }
         private static async void OnPeriodicUpdate(object source, ElapsedEventArgs e)
         {
+            if (Storage.Axx.AppSettings.ArtTradeActive)
+            {
+                bool missingArt = false;
+                foreach (Storage.UserData x in Storage.Axx.AppData.GetStorage())
+                {
+                    if (string.IsNullOrWhiteSpace(x.ArtUrl))
+                    {
+                        missingArt = true;
+                        break;   
+                    }
+                }
+
+                if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
+                {
+                    if (missingArt) //todo: add force
+                    {
+                        // notify trade should have ended but we are waiting
+                    }
+                    else
+                    {
+                        // end the trade here
+                    }
+                }
+                else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-3)) > 0)
+                {
+                    if (Storage.Axx.AppSettings.NotifyPending)
+                    {
+                        Storage.Axx.AppSettings.SetNotifyPending(false);
+                        // notify trade ends soon
+                    }
+                }
+            }
+
             await UploadGoogleFile(Storage.Axx.AppDataFileName);
             await UploadGoogleFile(Storage.Axx.AppSettingsFileName);
         }

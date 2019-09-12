@@ -196,16 +196,7 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. There has been a problem during the setting of trade boolean..
-        /// </summary>
-        internal static string TRADE_ACTIVE_PROBLEM {
-            get {
-                return ResourceManager.GetString("TRADE_ACTIVE_PROBLEM", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;@{0}&gt; the trade boolean has been set..
+        ///   Looks up a localized string similar to &lt;@{0}&gt; the trade start info has been set..
         /// </summary>
         internal static string TRADE_ACTIVE_SET {
             get {
@@ -327,6 +318,15 @@ namespace teanicorns_art_trade_bot.Properties {
         internal static string TRADE_CHANNEL_SET {
             get {
                 return ResourceManager.GetString("TRADE_CHANNEL_SET", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The art trade ends on.. {0}..
+        /// </summary>
+        internal static string TRADE_ENDS_ON {
+            get {
+                return ResourceManager.GetString("TRADE_ENDS_ON", resourceCulture);
             }
         }
         

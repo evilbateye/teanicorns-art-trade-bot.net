@@ -162,11 +162,8 @@
   <data name="REF_TRADE_THEME" xml:space="preserve">
     <value>Theme of this art trade is.. \"{0}\"</value>
   </data>
-  <data name="TRADE_ACTIVE_PROBLEM" xml:space="preserve">
-    <value>Sorry &lt;@{0}&gt;. There has been a problem during the setting of trade boolean.</value>
-  </data>
   <data name="TRADE_ACTIVE_SET" xml:space="preserve">
-    <value>&lt;@{0}&gt; the trade boolean has been set.</value>
+    <value>&lt;@{0}&gt; the trade start info has been set.</value>
   </data>
   <data name="TRADE_ADMIN_BLOCK" xml:space="preserve">
     <value>Sorry &lt;@{0}&gt;. You don't have required priviledges to run this command.</value>
@@ -206,6 +203,9 @@
   </data>
   <data name="TRADE_CHANNEL_SET" xml:space="preserve">
     <value>Channel has been set successfully &lt;@{0}&gt;.</value>
+  </data>
+  <data name="TRADE_ENDS_ON" xml:space="preserve">
+    <value>The art trade ends on.. {0}.</value>
   </data>
   <data name="TRADE_ENTRIES_CLEARED" xml:space="preserve">
     <value>All entries successfully removed &lt;@{0}&gt;. Backup file updated.</value>
