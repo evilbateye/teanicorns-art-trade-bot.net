@@ -51,5 +51,28 @@ namespace teanicorns_art_trade_bot
 
             return user.MutualGuilds.FirstOrDefault();
         }
+
+        public static SocketGuild FindGuild(DiscordSocketClient socketClient)
+        {
+            return socketClient.Guilds.FirstOrDefault();
+        }
+
+        public static SocketTextChannel FindChannel(DiscordSocketClient socketClient, string channel)
+        {
+            if (string.IsNullOrWhiteSpace(channel))
+                return null;
+
+            SocketGuild guild = FindGuild(socketClient);
+            if (guild == null)
+                return null;
+
+            foreach (SocketTextChannel txtChannel in guild.TextChannels)
+            {
+                if (txtChannel.Name == channel)
+                    return txtChannel;
+            }
+
+            return null;
+        }
     }
 }

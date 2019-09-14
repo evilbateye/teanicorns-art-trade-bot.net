@@ -61,6 +61,24 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to @everyone the art **Trade month** will be ending in 3 days, please reveal your art submissions until then..
+        /// </summary>
+        internal static string GOOGLE_TRADE_ENDING_SOON {
+            get {
+                return ResourceManager.GetString("GOOGLE_TRADE_ENDING_SOON", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to @everyone the art **Trade month** should have ended today, but there are still some missing submissions..
+        /// </summary>
+        internal static string GOOGLE_TRADE_UNCLOSED {
+            get {
+                return ResourceManager.GetString("GOOGLE_TRADE_UNCLOSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. Entry week is currently taking place. Trade pairs are not formed until closed..
         /// </summary>
         internal static string REF_EW_TAKING_PLACE {

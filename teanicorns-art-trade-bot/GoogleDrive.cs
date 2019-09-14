@@ -10,18 +10,27 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 
+using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace teanicorns_art_trade_bot
 {
-    class GoogleDrive
+    public class GoogleDriveHandler
     {
         private static DriveService _service = null;
         private static string _filePrefix = "teanicorns_";
         private static Dictionary<string, File> _gFiles = new Dictionary<string, File>();
 
+        private static DiscordSocketClient _discord;
+        public GoogleDriveHandler(IServiceProvider services)
+        {
+            _discord = services.GetRequiredService<DiscordSocketClient>();
+        }
+
         public static async Task SetupGoogleDrive(DriveService service)
         {
             _service = service;
-
+            
             File f = await FetchGoogleFile(Storage.Axx.AppDataFileName);
             if (f != null)
                 _gFiles.Add(Storage.Axx.AppDataFileName, f);
@@ -33,43 +42,44 @@ namespace teanicorns_art_trade_bot
             f = await FetchGoogleFile(Storage.Axx.AppSettingsFileName);
             if (f != null)
                 _gFiles.Add(Storage.Axx.AppSettingsFileName, f);
-
+                
             System.Timers.Timer timer = new System.Timers.Timer();
             timer.Elapsed += new ElapsedEventHandler(OnPeriodicUpdate);
-            timer.Interval = 300000;
+            timer.Interval = 600000;
             timer.Enabled = true; 
         }
+
         private static async void OnPeriodicUpdate(object source, ElapsedEventArgs e)
         {
             if (Storage.Axx.AppSettings.ArtTradeActive)
             {
-                bool missingArt = false;
-                foreach (Storage.UserData x in Storage.Axx.AppData.GetStorage())
+                SocketTextChannel channel = Utils.FindChannel(_discord, Storage.Axx.AppSettings.WorkingChannel);
+                if (channel != null)
                 {
-                    if (string.IsNullOrWhiteSpace(x.ArtUrl))
-                    {
-                        missingArt = true;
-                        break;   
-                    }
-                }
+                    string artMissing = Modules.TradeEventModule.GetMissingArt();
 
-                if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
-                {
-                    if (missingArt) //todo: add force
+                    if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
                     {
-                        // notify trade should have ended but we are waiting
+                        if (string.IsNullOrWhiteSpace(artMissing) || Storage.Axx.AppSettings.ForceTradeEnd)
+                        {
+                            await Modules.TradeEventModule.StartEntryWeek(channel);
+                        }
+                        else if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
+                        {
+                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.Closing);
+
+                            await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_UNCLOSED) + "\n"
+                                + string.Format(Properties.Resources.TRADE_ART_LATE, artMissing));
+                        }
                     }
-                    else
+                    else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-3)) > 0)
                     {
-                        // end the trade here
-                    }
-                }
-                else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-3)) > 0)
-                {
-                    if (Storage.Axx.AppSettings.NotifyPending)
-                    {
-                        Storage.Axx.AppSettings.SetNotifyPending(false);
-                        // notify trade ends soon
+                        if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.FirstNotification))
+                        {
+                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.FirstNotification);
+
+                            await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON));
+                        }
                     }
                 }
             }

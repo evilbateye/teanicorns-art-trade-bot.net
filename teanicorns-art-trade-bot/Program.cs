@@ -55,7 +55,8 @@ namespace teanicorns_art_trade_bot
             await _discord.LoginAsync(TokenType.Bot, Config.DiscordToken);
             await _discord.StartAsync();
 
-            await GoogleDrive.SetupGoogleDrive(new DriveService(new BaseClientService.Initializer()
+            var google = services.GetRequiredService<GoogleDriveHandler>();
+            await GoogleDriveHandler.SetupGoogleDrive(new DriveService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = Config.GoogleCred,
                 ApplicationName = "teanicorns-art-trade-bot",
@@ -74,6 +75,7 @@ namespace teanicorns_art_trade_bot
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
+                .AddSingleton<GoogleDriveHandler>()
                 .BuildServiceProvider();
         }
 

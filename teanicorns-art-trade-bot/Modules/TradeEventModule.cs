@@ -13,18 +13,8 @@ namespace teanicorns_art_trade_bot.Modules
     //[Group(Utils.adminGroupId)]
     public class TradeEventModule : ModuleBase<SocketCommandContext>
     {
-        [Command("entry week")]
-        [Alias("ew")]
-        [Summary("Stops the art trade, clears all entries and theme, starts accepting entries.")]
-        public async Task EntryWeek(uint days = 0, [Remainder]string theme = null)
+        public static string GetMissingArt()
         {
-            var user = Context.Message.Author;
-            if (!Utils.IsAdminUser(user))
-            {
-                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
-                return;
-            }
-
             string artMissing = "";
             foreach (Storage.UserData x in Storage.Axx.AppData.GetStorage())
             {
@@ -33,25 +23,44 @@ namespace teanicorns_art_trade_bot.Modules
                     artMissing += (string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName) + ", ";
                 }
             }
+            return artMissing;
+        }
+        public static async Task StartEntryWeek(ISocketMessageChannel channel, uint? days = null, bool? force = null, [Remainder]string theme = null)
+        {
+            string artMissing = GetMissingArt();
+            Storage.Axx.AppHistory.RecordTrade(Storage.Axx.AppData);
+            await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
+            Storage.Axx.ClearStorage(Storage.Axx.AppData);
+            Storage.Axx.AppSettings.ActivateTrade(false, days, force);
+            if (string.IsNullOrWhiteSpace(theme))
+                Storage.Axx.AppData.SetTheme("");
+            else
+                Storage.Axx.AppData.SetTheme(theme);
+
+            await channel.SendMessageAsync(string.Format(Properties.Resources.TRADE_NEW_ENTRIES) + "\n"
+                + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n")
+                + (Storage.Axx.AppSettings.TradeDays == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.TradeStart.AddDays(Storage.Axx.AppSettings.TradeDays).ToString("dd-MMMM")) + "\n")
+                + (string.IsNullOrWhiteSpace(artMissing) ? string.Format(Properties.Resources.TRADE_ART_ON_TIME) : string.Format(Properties.Resources.TRADE_ART_LATE, artMissing)));
+        }
+
+        [Command("entry week")]
+        [Alias("ew")]
+        [Summary("Stops the art trade, clears all entries and theme, starts accepting entries.")]
+        public async Task EntryWeek(uint? days = null, bool? force = null, [Remainder]string theme = null)
+        {
+            var user = Context.Message.Author;
+            if (!Utils.IsAdminUser(user))
+            {
+                await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
+                return;
+            }
 
             Storage.Axx.BackupStorage(Storage.Axx.AppData);
             Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
 
             if (Storage.Axx.AppSettings.ArtTradeActive != false)
             {
-                Storage.Axx.AppHistory.RecordTrade(Storage.Axx.AppData);
-                await GoogleDrive.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
-                Storage.Axx.ClearStorage(Storage.Axx.AppData);
-                Storage.Axx.AppSettings.ActivateTrade(false, days);
-                if (string.IsNullOrWhiteSpace(theme))
-                    Storage.Axx.AppData.SetTheme("");
-                else
-                    Storage.Axx.AppData.SetTheme(theme);
-
-                await ReplyAsync(string.Format(Properties.Resources.TRADE_NEW_ENTRIES) + "\n"
-                    + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n")
-                    + (days == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.TradeStart.AddDays(days).ToString("dd-MMMM")) + "\n")
-                    + (string.IsNullOrWhiteSpace(artMissing) ? string.Format(Properties.Resources.TRADE_ART_ON_TIME) : string.Format(Properties.Resources.TRADE_ART_LATE, artMissing)));
+                await StartEntryWeek(Context.Channel, days, force, theme);
             }
             else
                 await ReplyAsync(string.Format(Properties.Resources.TRADE_EW_IN_PROGRESS, user.Id));
@@ -60,7 +69,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Command("trade month")]
         [Alias("tm")]
         [Summary("Starts the art trade, shuffles entries, sends all partners in a DM, stops accepting entries.")]
-        public async Task TradeMonth(uint days = 0, [Remainder]string theme = null)
+        public async Task TradeMonth(uint? days = null, bool? force = null, [Remainder]string theme = null)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -74,14 +83,14 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (Storage.Axx.AppSettings.ArtTradeActive != true)
             {
-                Storage.Axx.AppSettings.ActivateTrade(true, days);
+                Storage.Axx.AppSettings.ActivateTrade(true, days, force);
                 if (!string.IsNullOrWhiteSpace(theme))
                     Storage.Axx.AppData.SetTheme(theme);
                 Storage.Axx.AppData.Shuffle();
 
                 await ReplyAsync(string.Format(Properties.Resources.TRADE_NO_NEW_ENTRIES) + "\n"
                     + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.REF_TRADE_THEME, Storage.Axx.AppData.Theme) + "\n")
-                    + (days == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.TradeStart.AddDays(days).ToString("dd-MMMM"))));
+                    + (Storage.Axx.AppSettings.TradeDays == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.TradeStart.AddDays(Storage.Axx.AppSettings.TradeDays).ToString("dd-MMMM"))));
                 await SendPartners();
             }
             else
@@ -117,7 +126,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Command("start trade")]
         [Alias("st")]
         [Summary("Turns on/off the art trade (silent), sets start date to now, sets number of days until end.")]
-        public async Task StartTrade(bool bStart, uint days = uint.MaxValue)
+        public async Task StartTrade(bool bStart, uint? days = null, bool? force = null)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -127,9 +136,7 @@ namespace teanicorns_art_trade_bot.Modules
             }
 
             Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
-            if (days == uint.MaxValue)
-                days = Storage.Axx.AppSettings.TradeDays;
-            Storage.Axx.AppSettings.ActivateTrade(bStart, days);
+            Storage.Axx.AppSettings.ActivateTrade(bStart, days, force);
             await ReplyAsync(string.Format(Properties.Resources.TRADE_ACTIVE_SET, user.Id));
         }
 

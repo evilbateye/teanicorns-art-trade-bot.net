@@ -191,7 +191,7 @@ namespace teanicorns_art_trade_bot.Modules
                 foundTrade.Set(data);
 
                 if (!bCurrentTrade)
-                    await GoogleDrive.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
+                    await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
 
                 string reply = string.Format(Properties.Resources.REF_REVEAL_THANKS, user.Id);
 

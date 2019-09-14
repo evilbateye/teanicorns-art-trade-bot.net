@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="GOOGLE_TRADE_ENDING_SOON" xml:space="preserve">
+    <value>@everyone the art **Trade month** will be ending in 3 days, please reveal your art submissions until then.</value>
+  </data>
+  <data name="GOOGLE_TRADE_UNCLOSED" xml:space="preserve">
+    <value>@everyone the art **Trade month** should have ended today, but there are still some missing submissions.</value>
+  </data>
   <data name="REF_EW_TAKING_PLACE" xml:space="preserve">
     <value>Sorry &lt;@{0}&gt;. Entry week is currently taking place. Trade pairs are not formed until closed.</value>
   </data>

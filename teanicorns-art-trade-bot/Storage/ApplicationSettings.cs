@@ -8,13 +8,28 @@ namespace teanicorns_art_trade_bot.Storage
 {
     public class ApplicationSettings : IStorage
     {
+        [Flags]
+        public enum NofifyFlags
+        {
+            None = 0,
+            Closing = 1,
+            FirstNotification = 2,
+        }
+
         public bool ArtTradeActive = false;
         public string WorkingChannel = "";
         public DateTime TradeStart = DateTime.Now;
         public uint TradeDays = 0;
-        public bool NotifyPending = false;
+        public NofifyFlags Notified = NofifyFlags.None;
+        public bool ForceTradeEnd = false;
 
         // public methods
+        public void SetForceTradeEnd(bool b)
+        {
+            ForceTradeEnd = b;
+            Save();
+        }
+
         public bool SetWorkingChannel(string channel)
         {
             WorkingChannel = channel;
@@ -34,13 +49,18 @@ namespace teanicorns_art_trade_bot.Storage
             Save(); 
         }
 
-        public void ActivateTrade(bool bStart, uint days)
+        public void ActivateTrade(bool bStart, uint? days, bool? bForce)
         {
             ArtTradeActive = bStart;
-            TradeDays = days;
-            NotifyPending = bStart;
+            Notified = NofifyFlags.None;
+
             if (bStart)
                 TradeStart = DateTime.Now;
+            if (days.HasValue)
+                TradeDays = days.Value;
+            if (bForce.HasValue)
+                ForceTradeEnd = bForce.Value;
+
             Save();
         }
 
@@ -49,9 +69,9 @@ namespace teanicorns_art_trade_bot.Storage
             return TradeStart.AddDays(TradeDays + shift);
         }
 
-        public void SetNotifyPending(bool bPending)
+        public void SetNotifyDone(NofifyFlags flag)
         {
-            NotifyPending = bPending;
+            Notified |= flag;
             Save();
         }
 
