@@ -133,15 +133,6 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. Could not find your trade partner..
-        /// </summary>
-        internal static string REF_REVEAL_MISSING_PARTNER {
-            get {
-                return ResourceManager.GetString("REF_REVEAL_MISSING_PARTNER", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to A notification was sent to your partner &lt;@{0}&gt;..
         /// </summary>
         internal static string REF_REVEAL_NOTIFY {

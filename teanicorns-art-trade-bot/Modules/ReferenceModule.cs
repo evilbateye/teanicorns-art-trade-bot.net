@@ -213,7 +213,7 @@ namespace teanicorns_art_trade_bot.Modules
                     await ReplyAsync(reply + " " + string.Format(Properties.Resources.REF_REVEAL_NOTIFY, nextUser.Id));
             }
             else
-                await ReplyAsync(string.Format(Properties.Resources.REF_REVEAL_MISSING_PARTNER, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.REF_MISSING_PARTNER, user.Id));
         }
 
         public static async Task<bool> SendPartnerArtResponse(Storage.UserData partnerData, Discord.WebSocket.SocketUser user, string monthTheme)

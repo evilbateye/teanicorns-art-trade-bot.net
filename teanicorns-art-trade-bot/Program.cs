@@ -39,7 +39,8 @@ namespace teanicorns_art_trade_bot
 
 		public async Task MainAsync()
 		{
-            
+            Properties.Resources.Culture = CultureInfo.GetCultureInfo("ja-JP");
+
             var services = ConfigureServices();
 
             _discord = services.GetRequiredService<DiscordSocketClient>();
@@ -63,9 +64,7 @@ namespace teanicorns_art_trade_bot
             }));
 
             Storage.Axx.Initialize();
-
-            //Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("ja-JP");
-
+                        
             await Task.Delay(-1);
 		}
 
