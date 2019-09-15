@@ -376,6 +376,15 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Listing other info.. working channel is.. \&quot;{0}\&quot;, trade is taking place from.. {1} to {2} ({3} days), notify flags.. {4}, trade end forced.. {5}.
+        /// </summary>
+        internal static string TRADE_LIST_OTHER_INFO {
+            get {
+                return ResourceManager.GetString("TRADE_LIST_OTHER_INFO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Listing all entries &lt;@{0}&gt;. Each next entry is the partner of the previous one..
         /// </summary>
         internal static string TRADE_LISTING_ALL {

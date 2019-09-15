@@ -177,6 +177,14 @@ namespace teanicorns_art_trade_bot.Modules
             if (!string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
                 info += string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n";
 
+            info += string.Format(Properties.Resources.TRADE_LIST_OTHER_INFO
+                , Storage.Axx.AppSettings.WorkingChannel
+                , Storage.Axx.AppSettings.TradeStart.ToString("dd-MMMM")
+                , Storage.Axx.AppSettings.GetTradeEnd().ToString("dd-MMMM")
+                , Storage.Axx.AppSettings.TradeDays
+                , Storage.Axx.AppSettings.Notified
+                , Storage.Axx.AppSettings.ForceTradeEnd) + "\n";
+
             string entries = string.Format(Properties.Resources.TRADE_LISTING_ALL, user.Id) + "\n";
             if (string.IsNullOrWhiteSpace(all) || all != "all")
                 entries += string.Join("\n", Storage.Axx.AppData.GetStorage().Select(x => $"{x.UserName}" +
