@@ -322,7 +322,7 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Channel has been set successfully &lt;@{0}&gt;..
+        ///   Looks up a localized string similar to Channel has been set successfully..
         /// </summary>
         internal static string TRADE_CHANNEL_SET {
             get {

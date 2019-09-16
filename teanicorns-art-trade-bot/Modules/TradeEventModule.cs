@@ -154,8 +154,10 @@ namespace teanicorns_art_trade_bot.Modules
 
             Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
 
-            if (Storage.Axx.AppSettings.SetWorkingChannel(channel))
-                await ReplyAsync(string.Format(Properties.Resources.TRADE_CHANNEL_SET, user.Id));
+            var channelObj = Utils.FindChannel(Utils.FindGuild(user), channel);
+
+            if (channelObj != null && Storage.Axx.AppSettings.SetWorkingChannel(channel))
+                await channelObj.SendMessageAsync(string.Format(Properties.Resources.TRADE_CHANNEL_SET));
             else
                 await ReplyAsync(string.Format(Properties.Resources.TRADE_CHANNEL_PROBLEM, user.Id, Storage.Axx.AppSettings.WorkingChannel));
         }

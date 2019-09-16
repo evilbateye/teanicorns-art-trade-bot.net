@@ -66,6 +66,14 @@ namespace teanicorns_art_trade_bot
             if (guild == null)
                 return null;
 
+            return FindChannel(guild, channel);
+        }
+
+        public static SocketTextChannel FindChannel(SocketGuild guild, string channel)
+        {
+            if (guild == null)
+                return null;
+
             foreach (SocketTextChannel txtChannel in guild.TextChannels)
             {
                 if (txtChannel.Name == channel)

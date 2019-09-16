@@ -199,7 +199,7 @@
     <value>Beep boop ! &lt;@{0}&gt;. Was not able to change the working channel. Current working channel is {1}.</value>
   </data>
   <data name="TRADE_CHANNEL_SET" xml:space="preserve">
-    <value>What an amazing accomplishment wow ! uwu Channel has been set successfully &lt;@{0}&gt;.</value>
+    <value>@everyone Hewo uwu . My name is TEANI BOT or Bottie ! I'm a robo beeb boop, and I was assigned to assist you owo, lets be fwiends pwease!</value>
   </data>
   <data name="TRADE_ENDS_ON" xml:space="preserve">
     <value>The Art Trade event Ends on .. {0} ~ owo</value>
