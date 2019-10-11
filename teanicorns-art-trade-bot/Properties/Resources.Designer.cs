@@ -79,6 +79,15 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. {1} Please try \&quot;{2}about\&quot; for more info..
+        /// </summary>
+        internal static string MAIN_PROGRAM_MESSAGE_RECEIVED {
+            get {
+                return ResourceManager.GetString("MAIN_PROGRAM_MESSAGE_RECEIVED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. Entry week is currently taking place. Trade pairs are not formed until closed..
         /// </summary>
         internal static string REF_EW_TAKING_PLACE {

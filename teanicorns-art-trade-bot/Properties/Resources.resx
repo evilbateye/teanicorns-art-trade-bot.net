@@ -279,4 +279,7 @@
   <data name="TRADE_THIS_THEME" xml:space="preserve">
     <value>Theme of this month's art trade is.. \"{0}\".</value>
   </data>
+  <data name="MAIN_PROGRAM_MESSAGE_RECEIVED" xml:space="preserve">
+    <value>Sorry &lt;@{0}&gt;. {1} Please try \"{2}about\" for more info.</value>
+  </data>
 </root>

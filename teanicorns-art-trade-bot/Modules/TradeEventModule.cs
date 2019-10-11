@@ -289,7 +289,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Command("restore")]
         [Alias("rs")]
         [Summary("Restores art trade entries from backup file / embeded JSON file.")]
-        public async Task RestoreAll()
+        public async Task RestoreAll(bool? bAppData = null)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -301,25 +301,52 @@ namespace teanicorns_art_trade_bot.Modules
             var attachments = Context.Message.Attachments;
             if (attachments.Count <= 0)
             {
-                if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData) && await Storage.Axx.RestoreStorage(Storage.Axx.AppSettings))
-                    await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DONE, user.Id));
+                if (!bAppData.HasValue)
+                {
+                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData) && await Storage.Axx.RestoreStorage(Storage.Axx.AppSettings))
+                        await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DONE, user.Id));
+                    else
+                        await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_NO_BACKUP, user.Id));
+                }
+                else if (bAppData.Value)
+                {
+                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData))
+                        await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DONE, user.Id));
+                    else
+                        await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_NO_BACKUP, user.Id));
+                }
                 else
-                    await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_NO_BACKUP, user.Id));
+                {
+                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppSettings))
+                        await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DONE, user.Id));
+                    else
+                        await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_NO_BACKUP, user.Id));
+                }
             }
             else
             {
                 string fileUrl = attachments.FirstOrDefault().Url;
-                if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData, fileUrl) && await Storage.Axx.RestoreStorage(Storage.Axx.AppSettings, fileUrl))
-                    await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DATABASE_DONE, user.Id));
+                if (!bAppData.HasValue || bAppData.Value)
+                {
+                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData, fileUrl))
+                        await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DATABASE_DONE, user.Id));
+                    else
+                        await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DATABASE_PROBLEM, user.Id));
+                }
                 else
-                    await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DATABASE_PROBLEM, user.Id));
+                {
+                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppSettings, fileUrl))
+                        await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DATABASE_DONE, user.Id));
+                    else
+                        await ReplyAsync(string.Format(Properties.Resources.TRADE_RESTORE_DATABASE_PROBLEM, user.Id));
+                }
             }
         }
 
         [Command("backup")]
         [Alias("bp")]
         [Summary("Update backup file / flush entire ATB database in a DM as a JSON file.")]
-        public async Task FlushStorage(string json = "")
+        public async Task FlushStorage(bool? bAppData = null)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -328,14 +355,14 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(json) || json != "json")
+            if (!bAppData.HasValue)
             {
                 Storage.Axx.BackupStorage(Storage.Axx.AppData);
                 Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
                 await ReplyAsync(string.Format(Properties.Resources.TRADE_BACKUP_DONE, user.Id));
             }
             else
-                await user.SendFileAsync(Storage.Axx.AppDataFileName, string.Format(Properties.Resources.TRADE_BACKUP_DATABASE_DONE, user.Id));
+                await user.SendFileAsync(bAppData.Value ? Storage.Axx.AppDataFileName : Storage.Axx.AppSettingsFileName, string.Format(Properties.Resources.TRADE_BACKUP_DATABASE_DONE, user.Id));
         }
 
         [Command("history")]

@@ -134,7 +134,7 @@ namespace teanicorns_art_trade_bot
             
             if (!result.IsSuccess)
             {
-                await context.Channel.SendMessageAsync($"Sorry <@{message.Author.Id}>. {result.ErrorReason} Please try \"{Config.CmdPrefix}about\" for more info.");
+                await context.Channel.SendMessageAsync(string.Format(Properties.Resources.MAIN_PROGRAM_MESSAGE_RECEIVED, message.Author.Id, result.ErrorReason, Config.CmdPrefix));
             }
         }
     }

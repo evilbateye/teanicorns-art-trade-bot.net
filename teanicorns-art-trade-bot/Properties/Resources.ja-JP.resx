@@ -279,4 +279,7 @@
   <data name="GOOGLE_TRADE_UNCLOSED" xml:space="preserve">
     <value>OH NO ! TwT @everyone the art **Trade month** should have ended today, but not every pawticipant submitted their awt *cries*. PWEASE submit or I will be sad :'3 ~</value>
   </data>
+  <data name="MAIN_PROGRAM_MESSAGE_RECEIVED" xml:space="preserve">
+    <value>Oh noes &lt;@{0}&gt;: {1}! I don't know what happened, sowwy T.T pwease type  \"{2}about\" for more info.</value>
+  </data>
 </root>
