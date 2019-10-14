@@ -1,0 +1,285 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="GOOGLE_TRADE_ENDING_SOON" xml:space="preserve">
+    <value>@everyone **trade** ends in 3 days, please send me your art soon.. ówò</value>
+  </data>
+  <data name="GOOGLE_TRADE_UNCLOSED" xml:space="preserve">
+    <value>@everyone **trade** ended, but someone didn't send me their art.. òwó</value>
+  </data>
+  <data name="REF_EW_TAKING_PLACE" xml:space="preserve">
+    <value>&lt;@{0}&gt; others still send me their entries, I haven't assigned partners yet, please wait.. ówò</value>
+  </data>
+  <data name="REF_MISSING_ART" xml:space="preserve">
+    <value>&lt;@{0}&gt; I need embeded image, please send me again.. ówò</value>
+  </data>
+  <data name="REF_MISSING_PARTNER" xml:space="preserve">
+    <value>&lt;@{0}&gt; I couldn't find your partner, so sorry.. ówò</value>
+  </data>
+  <data name="REF_NOT_REG" xml:space="preserve">
+    <value>&lt;@{0}&gt; I couldn't find your entry, so sorry.. ówò</value>
+  </data>
+  <data name="REF_REMOVED" xml:space="preserve">
+    <value>&lt;@{0}&gt; I deleted your entry.. uwu</value>
+  </data>
+  <data name="REF_REVEAL_FINAL" xml:space="preserve">
+    <value>&lt;@{0}&gt; **{1}** made you some art.. UwU</value>
+  </data>
+  <data name="REF_REVEAL_NOTIFY" xml:space="preserve">
+    <value>&lt;@{0}&gt; your partner got the art.. uwu</value>
+  </data>
+  <data name="REF_REVEAL_SORRY" xml:space="preserve">
+    <value>&lt;@{0}&gt; your partner was not notified, so sorry.. ówò</value>
+  </data>
+  <data name="REF_REVEAL_THANKS" xml:space="preserve">
+    <value>&lt;@{0}&gt; thanks for the art.. uwu</value>
+  </data>
+  <data name="REF_TRADE_MISSING_REF" xml:space="preserve">
+    <value>&lt;@{0}&gt; I need description and/or embeded image, please send again.. ówò</value>
+  </data>
+  <data name="REF_TRADE_PARTNER" xml:space="preserve">
+    <value>&lt;@{0}&gt; **{1}** is your partner, good luck.. owo</value>
+  </data>
+  <data name="REF_TRADE_REG_SUCC" xml:space="preserve">
+    <value>&lt;@{0}&gt; I saved your entry.. uwu</value>
+  </data>
+  <data name="REF_TRADE_TAKING_PLACE" xml:space="preserve">
+    <value>&lt;@{0}&gt; **trade** already started, you can't change your entry no more..  òwó</value>
+  </data>
+  <data name="REF_TRADE_THEME" xml:space="preserve">
+    <value>the theme is.. **{0}**</value>
+  </data>
+  <data name="TRADE_ACTIVE_SET" xml:space="preserve">
+    <value>&lt;@{0}&gt; I set the info.. uwu</value>
+  </data>
+  <data name="TRADE_ADMIN_BLOCK" xml:space="preserve">
+    <value>&lt;@{0}&gt; I'm not supposed to let you run this command, so sorry.. ówò</value>
+  </data>
+  <data name="TRADE_ART_IN_PROGRESS" xml:space="preserve">
+    <value>&lt;@{0}&gt; trade was already set.. ówò</value>
+  </data>
+  <data name="TRADE_ART_LATE" xml:space="preserve">
+    <value>Naughty list: {0} .. òwó</value>
+  </data>
+  <data name="TRADE_ART_ON_TIME" xml:space="preserve">
+    <value>Naughty list: **empty**.. UwU</value>
+  </data>
+  <data name="TRADE_BACKUP_DATABASE_DONE" xml:space="preserve">
+    <value>&lt;@{0}&gt; here you go.. uwu</value>
+  </data>
+  <data name="TRADE_BACKUP_HISTORY_DONE" xml:space="preserve">
+    <value>&lt;@{0}&gt; here you go.. uwu</value>
+  </data>
+  <data name="TRADE_BACKUP_DONE" xml:space="preserve">
+    <value>&lt;@{0}&gt; backup done.. uwu</value>
+  </data>
+  <data name="TRADE_CHANGE_PAIR_DONE" xml:space="preserve">
+    <value>&lt;@{0}&gt; I switched  {1} and {2}.. uwu</value>
+  </data>
+  <data name="TRADE_CHANGE_PAIR_MISSING_FIRST" xml:space="preserve">
+    <value>&lt;@{0}&gt; Can't find the 1. partner.. ówò</value>
+  </data>
+  <data name="TRADE_CHANGE_PAIR_MISSING_SECOND" xml:space="preserve">
+    <value>&lt;@{0}&gt; Can't find the 2. partner.. ówò</value>
+  </data>
+  <data name="TRADE_CHANGE_PAIR_PROBLEM" xml:space="preserve">
+    <value>&lt;@{0}&gt; I can't switch you.. ówò</value>
+  </data>
+  <data name="TRADE_CHANNEL_PROBLEM" xml:space="preserve">
+    <value>&lt;@{0}&gt; I can't, the channel is still {1}.. ówò</value>
+  </data>
+  <data name="TRADE_CHANNEL_SET" xml:space="preserve">
+    <value>I changed the channel.. uwu</value>
+  </data>
+  <data name="TRADE_ENDS_ON" xml:space="preserve">
+    <value>trade ends.. **{0}**</value>
+  </data>
+  <data name="TRADE_ENTRIES_CLEARED" xml:space="preserve">
+    <value>&lt;@{0}&gt; I cleared all entries.. uwu</value>
+  </data>
+  <data name="TRADE_ENTRIES_SHUFFLE" xml:space="preserve">
+    <value>&lt;@{0}&gt; I shuffled all entries.. uwu</value>
+  </data>
+  <data name="TRADE_EW_IN_PROGRESS" xml:space="preserve">
+    <value>&lt;@{0}&gt; entry week was already set.. ówò</value>
+  </data>
+  <data name="TRADE_LISTING_ALL" xml:space="preserve">
+    <value>&lt;@{0}&gt; entries:</value>
+  </data>
+  <data name="TRADE_LIST_OTHER_INFO" xml:space="preserve">
+    <value>channel: **{0}**, trade from {1} to {2} ({3} days), flags: **{4}**, end forced: **{5}**</value>
+  </data>
+  <data name="TRADE_NEW_ENTRIES" xml:space="preserve">
+    <value>@everyone **trade** ended, I'm waiting for your new entries.. uwu</value>
+  </data>
+  <data name="TRADE_NO_NEW_ENTRIES" xml:space="preserve">
+    <value>@everyone **trade** starts, please don't send me more entries.. ówò</value>
+  </data>
+  <data name="TRADE_RESTORE_DATABASE_DONE" xml:space="preserve">
+    <value>&lt;@{0}&gt; I loaded the database.. uwu</value>
+  </data>
+  <data name="TRADE_RESTORE_DATABASE_PROBLEM" xml:space="preserve">
+    <value>&lt;@{0}&gt; I can't load the database.. ówò</value>
+  </data>
+  <data name="TRADE_RESTORE_DONE" xml:space="preserve">
+    <value>&lt;@{0}&gt; I loaded the backup.. uwu</value>
+  </data>
+  <data name="TRADE_RESTORE_HISTORY_DONE" xml:space="preserve">
+    <value>&lt;@{0}&gt; I loaded the history.. uwu</value>
+  </data>
+  <data name="TRADE_RESTORE_HISTORY_PROBLEM" xml:space="preserve">
+    <value>&lt;@{0}&gt; I can't load the history.. ówò</value>
+  </data>
+  <data name="TRADE_RESTORE_NO_BACKUP" xml:space="preserve">
+    <value>&lt;@{0}&gt; I can't find the backup.. ówò</value>
+  </data>
+  <data name="TRADE_SEND_ENTRIES_MISSING" xml:space="preserve">
+    <value>no entries:</value>
+  </data>
+  <data name="TRADE_SEND_PARTNERS_DONE" xml:space="preserve">
+    <value>everyone has a partner.. owo</value>
+  </data>
+  <data name="TRADE_SEND_PARTNERS_MISSING" xml:space="preserve">
+    <value>no partners:</value>
+  </data>
+  <data name="TRADE_SEND_USERS_MISSING" xml:space="preserve">
+    <value>no users:</value>
+  </data>
+  <data name="TRADE_TAKING_PLACE_EW" xml:space="preserve">
+    <value>**trade** is **on**</value>
+  </data>
+  <data name="TRADE_TAKING_PLACE_TM" xml:space="preserve">
+    <value>**trade** is **off**</value>
+  </data>
+  <data name="TRADE_THEME_NULL" xml:space="preserve">
+    <value>&lt;@{0}&gt; You gave me null or whitespace theme.. òwó</value>
+  </data>
+  <data name="TRADE_THEME_PROBLEM" xml:space="preserve">
+    <value>&lt;@{0}&gt; I can't set the theme.. ówò</value>
+  </data>
+  <data name="TRADE_THEME_SET" xml:space="preserve">
+    <value>&lt;@{0}&gt; I set the theme.. uwu</value>
+  </data>
+  <data name="TRADE_THIS_THEME" xml:space="preserve">
+    <value>theme is.. **{0}**</value>
+  </data>
+  <data name="MAIN_PROGRAM_MESSAGE_RECEIVED" xml:space="preserve">
+    <value>&lt;@{0}&gt; error: {1}{2}, so sorry.. ówò</value>
+  </data>
+</root>

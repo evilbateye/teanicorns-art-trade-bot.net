@@ -39,7 +39,7 @@ namespace teanicorns_art_trade_bot
 
 		public async Task MainAsync()
 		{
-            Properties.Resources.Culture = CultureInfo.GetCultureInfo("ja-JP");
+            Properties.Resources.Culture = CultureInfo.GetCultureInfo("en-GB");
 
             var services = ConfigureServices();
 
