@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://cdn.discordapp.com/avatars/568733620383121408/47178cf7aded1cd84daffcaea33981bd.png?size=256" style="border-radius: 28%" alt="Haruna Logo" height="128px" width="128px"></img>
+    <img src="https://cdn.discordapp.com/avatars/568733620383121408/d84d22800eb003c91af0a8e9ea195bd0.png?size=256" style="border-radius: 28%" alt="Teanibot Logo" height="128px" width="128px"></img>
 </p>
 
 # Teanicorns Art Trade BOT
