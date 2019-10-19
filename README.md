@@ -31,25 +31,25 @@ The admin may shuffle or cherry pick the trade partners if they are unsatisfied 
 The list of commands expands over time, use the about command to get the most accurate list of your teanicorn bot version.
 
 ## Command list:
-about | a : Show info about this bot.
-set entry | se : Set your trade entry. (entry week only)
-get entry | ge : Get your trade entry.
-delete entry | de : Remove your trade entry. (entry week only)
-show partner | sp : Sends you your trade partner's entry in a DM. (trade month only)
-reveal art | ra : Registers your finished art, sends DM with the art to your trade partner. (trade month only)
+about | a : Show info about this bot.\
+set entry | se : Set your trade entry. (entry week only)\
+get entry | ge : Get your trade entry.\
+delete entry | de : Remove your trade entry. (entry week only)\
+show partner | sp : Sends you your trade partner's entry in a DM. (trade month only)\
+reveal art | ra : Registers your finished art, sends DM with the art to your trade partner. (trade month only)\
 
 ## Admin only commands:
-entry week | ew : Stops the art trade, clears all entries and theme, starts accepting entries.
-trade month | tm : Starts the art trade, shuffles entries, sends all partners in a DM, stops accepting entries.
-theme | th : Set the art trade theme.
-start trade | st : Turns on/off the art trade (silent), sets start date to now, sets number of days until end.
-channel | ch : Sets the working channel for ATB.
-list | l : Sends you a list of all entries in a DM.
-clear | cl : Delete all art trade entries.
-shuffle | sf : Randomly shuffle art trade entries.
-swap | sw : Changes your art trade partner.
-restore | rs : Restores art trade entries from backup file / embeded JSON file.
-backup | bp : Update backup file / flush entire ATB database in a DM as a JSON file.
-history | hi : Show entire ATB database history in a DM as a JSON file.
+entry week | ew : Stops the art trade, clears all entries and theme, starts accepting entries.\
+trade month | tm : Starts the art trade, shuffles entries, sends all partners in a DM, stops accepting entries.\
+theme | th : Set the art trade theme.\
+start trade | st : Turns on/off the art trade (silent), sets start date to now, sets number of days until end.\
+channel | ch : Sets the working channel for ATB.\
+list | l : Sends you a list of all entries in a DM.\
+clear | cl : Delete all art trade entries.\
+shuffle | sf : Randomly shuffle art trade entries.\
+swap | sw : Changes your art trade partner.\
+restore | rs : Restores art trade entries from backup file / embeded JSON file.\
+backup | bp : Update backup file / flush entire ATB database in a DM as a JSON file.\
+history | hi : Show entire ATB database history in a DM as a JSON file.\
 send partners | sps : Send to all participants their trade partner's entry in a DM.
 
