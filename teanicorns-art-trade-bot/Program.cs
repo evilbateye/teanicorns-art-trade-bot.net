@@ -132,7 +132,7 @@ namespace teanicorns_art_trade_bot
             var context = new SocketCommandContext(_discord, message);
             var result = await _commands.ExecuteAsync(context, argPos, _services);
             
-            if (!result.IsSuccess)
+            if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
             {
                 await context.Channel.SendMessageAsync(string.Format(Properties.Resources.MAIN_PROGRAM_MESSAGE_RECEIVED, message.Author.Id, result.ErrorReason, Config.CmdPrefix));
             }
