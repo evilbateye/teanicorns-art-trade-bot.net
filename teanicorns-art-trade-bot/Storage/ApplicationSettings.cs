@@ -14,6 +14,8 @@ namespace teanicorns_art_trade_bot.Storage
             None = 0,
             Closing = 1,
             FirstNotification = 2,
+            SecondNotification = 4,
+            ThirdNotification = 8,
         }
 
         public bool ArtTradeActive = false;

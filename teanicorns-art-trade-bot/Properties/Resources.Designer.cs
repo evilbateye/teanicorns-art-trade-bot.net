@@ -61,11 +61,29 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to @everyone the art **Trade month** will be ending in 7 days, please reveal your art submissions until then..
+        /// </summary>
+        internal static string GOOGLE_TRADE_ENDING_SOON1 {
+            get {
+                return ResourceManager.GetString("GOOGLE_TRADE_ENDING_SOON1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to @everyone the art **Trade month** will be ending in 3 days, please reveal your art submissions until then..
         /// </summary>
-        internal static string GOOGLE_TRADE_ENDING_SOON {
+        internal static string GOOGLE_TRADE_ENDING_SOON2 {
             get {
-                return ResourceManager.GetString("GOOGLE_TRADE_ENDING_SOON", resourceCulture);
+                return ResourceManager.GetString("GOOGLE_TRADE_ENDING_SOON2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to @everyone the art **Trade month** will be ending in 1 day, please reveal your art submissions until then..
+        /// </summary>
+        internal static string GOOGLE_TRADE_ENDING_SOON3 {
+            get {
+                return ResourceManager.GetString("GOOGLE_TRADE_ENDING_SOON3", resourceCulture);
             }
         }
         

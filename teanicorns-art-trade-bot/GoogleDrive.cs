@@ -72,13 +72,31 @@ namespace teanicorns_art_trade_bot
                                 + string.Format(Properties.Resources.TRADE_ART_LATE, artMissing));
                         }
                     }
+                    else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-1)) > 0)
+                    {
+                        if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.ThirdNotification))
+                        {
+                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThirdNotification);
+
+                            await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON3));
+                        }
+                    }
                     else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-3)) > 0)
+                    {
+                        if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.SecondNotification))
+                        {
+                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.SecondNotification);
+
+                            await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON2));
+                        }
+                    }
+                    else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-7)) > 0)
                     {
                         if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.FirstNotification))
                         {
                             Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.FirstNotification);
 
-                            await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON));
+                            await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON1));
                         }
                     }
                 }

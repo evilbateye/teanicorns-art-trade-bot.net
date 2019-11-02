@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="GOOGLE_TRADE_ENDING_SOON" xml:space="preserve">
+  <data name="GOOGLE_TRADE_ENDING_SOON2" xml:space="preserve">
     <value>@everyone the art **Trade month** will be ending in 3 days, please reveal your art submissions until then.</value>
   </data>
   <data name="GOOGLE_TRADE_UNCLOSED" xml:space="preserve">
@@ -281,5 +281,11 @@
   </data>
   <data name="MAIN_PROGRAM_MESSAGE_RECEIVED" xml:space="preserve">
     <value>Sorry &lt;@{0}&gt;. {1} Please try \"{2}about\" for more info.</value>
+  </data>
+  <data name="GOOGLE_TRADE_ENDING_SOON3" xml:space="preserve">
+    <value>@everyone the art **Trade month** will be ending in 1 day, please reveal your art submissions until then.</value>
+  </data>
+  <data name="GOOGLE_TRADE_ENDING_SOON1" xml:space="preserve">
+    <value>@everyone the art **Trade month** will be ending in 7 days, please reveal your art submissions until then.</value>
   </data>
 </root>

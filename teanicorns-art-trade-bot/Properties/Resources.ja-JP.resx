@@ -273,7 +273,7 @@
   <data name="TRADE_THIS_THEME" xml:space="preserve">
     <value>Oooh Daddy ~ This months theme is .. \"{0}\" ~ Am I a good girl ? Will I get head pats ? uwu</value>
   </data>
-  <data name="GOOGLE_TRADE_ENDING_SOON" xml:space="preserve">
+  <data name="GOOGLE_TRADE_ENDING_SOON2" xml:space="preserve">
     <value>Hewo ~ @everyone the art **Trade month** will be ending in 3 days, pweeasee reveal your art until then or there will be grave consequences OwO !!!</value>
   </data>
   <data name="GOOGLE_TRADE_UNCLOSED" xml:space="preserve">
@@ -281,5 +281,11 @@
   </data>
   <data name="MAIN_PROGRAM_MESSAGE_RECEIVED" xml:space="preserve">
     <value>Oh noes &lt;@{0}&gt;: {1}! I don't know what happened, sowwy T.T pwease type  \"{2}about\" for more info.</value>
+  </data>
+  <data name="GOOGLE_TRADE_ENDING_SOON3" xml:space="preserve">
+    <value>Hewo ~ @everyone the art **Trade month** will be ending in 1 day, pweeasee reveal your art until then or there will be grave consequences OwO !!!</value>
+  </data>
+  <data name="GOOGLE_TRADE_ENDING_SOON1" xml:space="preserve">
+    <value>Hewo ~ @everyone the art **Trade month** will be ending in 7 days, pweeasee reveal your art until then or there will be grave consequences OwO !!!</value>
   </data>
 </root>
