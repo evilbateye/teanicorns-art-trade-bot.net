@@ -13,25 +13,35 @@ namespace teanicorns_art_trade_bot.Modules
     //[Group(Utils.adminGroupId)]
     public class TradeEventModule : ModuleBase<SocketCommandContext>
     {
-        public static string GetMissingArt()
+        public static List<Storage.UserData> GetMissingArtUserData()
         {
-            string artMissing = "";
+            List<Storage.UserData> ret = new List<Storage.UserData>();
             foreach (Storage.UserData x in Storage.Axx.AppData.GetStorage())
             {
                 if (string.IsNullOrWhiteSpace(x.ArtUrl))
                 {
-                    artMissing += (string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName) + ", ";
+                    ret.Add(x);
                 }
             }
-            return artMissing;
+            return ret;
         }
+        public static string GetMissingArtStr()
+        {
+            return string.Join(", ", GetMissingArtUserData().Select(x => string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName));
+        }
+
+        
         public static async Task StartEntryWeek(ISocketMessageChannel channel, uint? days = null, bool? force = null, [Remainder]string theme = null)
         {
-            string artMissing = GetMissingArt();
+            string artMissing = GetMissingArtStr();
             Storage.Axx.AppHistory.RecordTrade(Storage.Axx.AppData);
             await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
             Storage.Axx.ClearStorage(Storage.Axx.AppData);
+
+            if (!days.HasValue)
+                Storage.Axx.AppSettings.TradeDays = 0;
             Storage.Axx.AppSettings.ActivateTrade(false, days, force);
+
             if (string.IsNullOrWhiteSpace(theme))
                 Storage.Axx.AppData.SetTheme("");
             else
@@ -180,7 +190,7 @@ namespace teanicorns_art_trade_bot.Modules
                 info += string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n";
 
             info += string.Format(Properties.Resources.TRADE_LIST_OTHER_INFO
-                , Storage.Axx.AppSettings.WorkingChannel
+                , !string.IsNullOrWhiteSpace(Storage.Axx.AppSettings.WorkingChannel) ? Storage.Axx.AppSettings.WorkingChannel : "empty"
                 , Storage.Axx.AppSettings.TradeStart.ToString("dd-MMMM")
                 , Storage.Axx.AppSettings.GetTradeEnd().ToString("dd-MMMM")
                 , Storage.Axx.AppSettings.TradeDays

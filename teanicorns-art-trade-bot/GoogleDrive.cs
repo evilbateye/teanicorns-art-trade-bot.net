@@ -56,7 +56,7 @@ namespace teanicorns_art_trade_bot
                 SocketTextChannel channel = Utils.FindChannel(_discord, Storage.Axx.AppSettings.WorkingChannel);
                 if (channel != null)
                 {
-                    string artMissing = Modules.TradeEventModule.GetMissingArt();
+                    string artMissing = Modules.TradeEventModule.GetMissingArtStr();
 
                     if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
                     {
