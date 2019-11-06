@@ -288,4 +288,13 @@
   <data name="GOOGLE_TRADE_ENDING_SOON1" xml:space="preserve">
     <value>@everyone the art **Trade month** will be ending in 7 days, please reveal your art submissions until then.</value>
   </data>
+  <data name="TRADE_ART_LATE_1" xml:space="preserve">
+    <value>Following users did not reveal their art for the previous trade (themed {0}): {1}</value>
+  </data>
+  <data name="TRADE_ART_LATE_2" xml:space="preserve">
+    <value>Following users did not reveal their art for the previous trade (themed {0}): {1}</value>
+  </data>
+  <data name="TRADE_ART_LATE_DM" xml:space="preserve">
+    <value>Hello &lt;@{0}&gt;the current trade ({1} themed) is ending but you did not reveal your art in time, please do so as soon as you have the time, thanks!</value>
+  </data>
 </root>

@@ -13,27 +13,42 @@ namespace teanicorns_art_trade_bot.Modules
     //[Group(Utils.adminGroupId)]
     public class TradeEventModule : ModuleBase<SocketCommandContext>
     {
-        public static List<Storage.UserData> GetMissingArtUserData()
+        public static List<Storage.UserData> GetMissingArt(Storage.ApplicationData appData)
         {
             List<Storage.UserData> ret = new List<Storage.UserData>();
-            foreach (Storage.UserData x in Storage.Axx.AppData.GetStorage())
+            if (appData == null)
+                return ret;
+
+            foreach (Storage.UserData x in appData.GetStorage())
             {
                 if (string.IsNullOrWhiteSpace(x.ArtUrl))
-                {
                     ret.Add(x);
-                }
             }
             return ret;
         }
-        public static string GetMissingArtStr()
+
+        public static Storage.ApplicationData GetAppDataFromHistory(int level)
         {
-            return string.Join(", ", GetMissingArtUserData().Select(x => string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName));
+            if (level < Storage.Axx.AppHistory.Count())
+                return Storage.Axx.AppHistory.History[level];
+            return null;
+        }
+        public static List<Storage.UserData> GetMissingArt(int? level = null)
+        {
+            if (!level.HasValue)
+                return GetMissingArt(Storage.Axx.AppData);
+            return GetMissingArt(GetAppDataFromHistory(level.Value));
         }
 
-        
-        public static async Task StartEntryWeek(ISocketMessageChannel channel, uint? days = null, bool? force = null, [Remainder]string theme = null)
+        public static string GetMissingArtToStr(Storage.ApplicationData appData)
         {
-            string artMissing = GetMissingArtStr();
+            if (appData == null)
+                return "";
+            return string.Join(", ", appData.GetStorage().Select(x => string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName));
+        }
+
+        public static async Task StartEntryWeek(DiscordSocketClient client, uint? days = null, bool? force = null, [Remainder]string theme = null)
+        {
             Storage.Axx.AppHistory.RecordTrade(Storage.Axx.AppData);
             await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
             Storage.Axx.ClearStorage(Storage.Axx.AppData);
@@ -47,10 +62,39 @@ namespace teanicorns_art_trade_bot.Modules
             else
                 Storage.Axx.AppData.SetTheme(theme);
 
-            await channel.SendMessageAsync(string.Format(Properties.Resources.TRADE_NEW_ENTRIES) + "\n"
-                + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n")
-                + (Storage.Axx.AppSettings.TradeDays == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.TradeStart.AddDays(Storage.Axx.AppSettings.TradeDays).ToString("dd-MMMM")) + "\n")
-                + (string.IsNullOrWhiteSpace(artMissing) ? string.Format(Properties.Resources.TRADE_ART_ON_TIME) : string.Format(Properties.Resources.TRADE_ART_LATE, artMissing)));
+            SocketTextChannel channel = Utils.FindChannel(client, Storage.Axx.AppSettings.WorkingChannel);
+            if (channel != null)
+            {
+                string artMissing = "";
+                Storage.ApplicationData artHistory0 = GetAppDataFromHistory(0);
+                if (artHistory0 != null)
+                    artMissing = GetMissingArtToStr(artHistory0);
+
+                string artMissingHistory1 = "";
+                Storage.ApplicationData artHistory1 = GetAppDataFromHistory(1);
+                if (artHistory1 != null)
+                    artMissingHistory1 = GetMissingArtToStr(artHistory1);
+
+                string artMissingHistory2 = "";
+                Storage.ApplicationData artHistory2 = GetAppDataFromHistory(2);
+                if (artHistory2 != null)
+                    artMissingHistory2 = GetMissingArtToStr(artHistory2);
+
+                await channel.SendMessageAsync(string.Format(Properties.Resources.TRADE_NEW_ENTRIES) + "\n"
+                    + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n")
+                    + (Storage.Axx.AppSettings.TradeDays == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.TradeStart.AddDays(Storage.Axx.AppSettings.TradeDays).ToString("dd-MMMM")) + "\n")
+                    + (string.IsNullOrWhiteSpace(artMissing) ? string.Format(Properties.Resources.TRADE_ART_ON_TIME) : string.Format(Properties.Resources.TRADE_ART_LATE, artMissing))
+                    + (string.IsNullOrWhiteSpace(artMissingHistory1) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_1, artHistory1.Theme, artMissingHistory1))
+                    + (string.IsNullOrWhiteSpace(artMissingHistory2) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_2, artHistory2.Theme, artMissingHistory2))
+                    );
+
+                foreach (Storage.UserData user in GetMissingArt(artHistory0))
+                {
+                    SocketUser su = client.GetUser(user.UserId);
+                    if (su != null)
+                        await su.SendMessageAsync(string.Format(Properties.Resources.TRADE_ART_LATE_DM, user.UserId, artHistory2.Theme));
+                }
+            }
         }
 
         [Command("entry week")]
@@ -70,7 +114,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (Storage.Axx.AppSettings.ArtTradeActive != false)
             {
-                await StartEntryWeek(Context.Channel, days, force, theme);
+                await StartEntryWeek(Context.Client, days, force, theme);
             }
             else
                 await ReplyAsync(string.Format(Properties.Resources.TRADE_EW_IN_PROGRESS, user.Id));

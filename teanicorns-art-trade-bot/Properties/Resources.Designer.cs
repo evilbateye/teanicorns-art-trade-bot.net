@@ -268,6 +268,33 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Following users did not reveal their art for the previous trade (themed {0}): {1}.
+        /// </summary>
+        internal static string TRADE_ART_LATE_1 {
+            get {
+                return ResourceManager.GetString("TRADE_ART_LATE_1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Following users did not reveal their art for the previous trade (themed {0}): {1}.
+        /// </summary>
+        internal static string TRADE_ART_LATE_2 {
+            get {
+                return ResourceManager.GetString("TRADE_ART_LATE_2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hello &lt;@{0}&gt;the current trade ({1} themed) is ending but you did not reveal your art in time, please do so as soon as you have the time, thanks!.
+        /// </summary>
+        internal static string TRADE_ART_LATE_DM {
+            get {
+                return ResourceManager.GetString("TRADE_ART_LATE_DM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Everyone submitted their art on time!.
         /// </summary>
         internal static string TRADE_ART_ON_TIME {

@@ -56,13 +56,13 @@ namespace teanicorns_art_trade_bot
                 SocketTextChannel channel = Utils.FindChannel(_discord, Storage.Axx.AppSettings.WorkingChannel);
                 if (channel != null)
                 {
-                    string artMissing = Modules.TradeEventModule.GetMissingArtStr();
+                    string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
 
                     if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
                     {
                         if (string.IsNullOrWhiteSpace(artMissing) || Storage.Axx.AppSettings.ForceTradeEnd)
                         {
-                            await Modules.TradeEventModule.StartEntryWeek(channel);
+                            await Modules.TradeEventModule.StartEntryWeek(_discord);
                         }
                         else if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
                         {

@@ -288,4 +288,13 @@
   <data name="GOOGLE_TRADE_ENDING_SOON1" xml:space="preserve">
     <value>@everyone **trade** ends in 7 days.. ^•^ </value>
   </data>
+  <data name="TRADE_ART_LATE_1" xml:space="preserve">
+    <value>Previous naughty list (\"{0}\" theme): {1} .. Òwó</value>
+  </data>
+  <data name="TRADE_ART_LATE_2" xml:space="preserve">
+    <value>Previous previous naughty list (\"{0}\" theme): {1} .. ÒWÓ</value>
+  </data>
+  <data name="TRADE_ART_LATE_DM" xml:space="preserve">
+    <value>&lt;@{0}&gt; this month's trade ended (\"{1}\" theme), will I be seeing your art soon friend?.. ówò</value>
+  </data>
 </root>

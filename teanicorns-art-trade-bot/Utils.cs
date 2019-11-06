@@ -59,13 +59,11 @@ namespace teanicorns_art_trade_bot
 
         public static SocketTextChannel FindChannel(DiscordSocketClient socketClient, string channel)
         {
-            if (string.IsNullOrWhiteSpace(channel))
-                return null;
-
             SocketGuild guild = FindGuild(socketClient);
             if (guild == null)
                 return null;
-
+            if (string.IsNullOrWhiteSpace(channel))
+                channel = "general";
             return FindChannel(guild, channel);
         }
 
