@@ -44,7 +44,12 @@ namespace teanicorns_art_trade_bot.Modules
         {
             if (appData == null)
                 return "";
-            return string.Join(", ", appData.GetStorage().Select(x => string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName));
+
+            List<Storage.UserData> userDataList = GetMissingArt(appData);
+            if (userDataList == null)
+                return "";
+
+            return string.Join(", ", userDataList.Select(x => string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName));
         }
 
         public static async Task StartEntryWeek(DiscordSocketClient client, uint? days = null, bool? force = null, [Remainder]string theme = null)
