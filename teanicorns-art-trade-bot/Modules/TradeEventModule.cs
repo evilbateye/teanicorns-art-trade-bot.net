@@ -105,7 +105,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Command("entry week")]
         [Alias("ew")]
         [Summary("Stops the art trade, clears all entries and theme, starts accepting entries.")]
-        public async Task EntryWeek(uint? days = null, bool? force = null, [Remainder]string theme = null)
+        public async Task EntryWeek(uint? days = null, [Remainder]string theme = null, bool? force = null)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -128,7 +128,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Command("trade month")]
         [Alias("tm")]
         [Summary("Starts the art trade, shuffles entries, sends all partners in a DM, stops accepting entries.")]
-        public async Task TradeMonth(uint? days = null, bool? force = null, [Remainder]string theme = null)
+        public async Task TradeMonth(uint? days = null, [Remainder]string theme = null, bool? force = null)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -280,7 +280,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Command("shuffle")]
         [Alias("sf")]
         [Summary("Randomly shuffle art trade entries.")]
-        public async Task Shuffle()
+        public async Task Shuffle(bool notify = false)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -292,6 +292,8 @@ namespace teanicorns_art_trade_bot.Modules
             Storage.Axx.BackupStorage(Storage.Axx.AppData);
             Storage.Axx.AppData.Shuffle();
             await ReplyAsync(string.Format(Properties.Resources.TRADE_ENTRIES_SHUFFLE, user.Id));
+            if (notify)
+                await SendPartners();
         }
                 
         [Command("swap")]
