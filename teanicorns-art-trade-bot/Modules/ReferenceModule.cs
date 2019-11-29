@@ -24,6 +24,17 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
+            Storage.ApplicationData artHistory0 = TradeEventModule.GetAppDataFromHistory(0);
+            if (artHistory0 != null)
+            {
+                Storage.UserData userData = TradeEventModule.GetMissingArt(artHistory0).Find(x => x.UserId == user.Id);
+                if (userData != null)
+                {
+                    await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_LAST_MONTH_ART_MISSING, user.Id));
+                    return;
+                }
+            }
+
             var attachments = Context.Message.Attachments;
             if (attachments.Count <= 0 && string.IsNullOrWhiteSpace(description))
             {

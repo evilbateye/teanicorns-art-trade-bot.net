@@ -187,6 +187,15 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt; but you did not commit the art for the last trade, you cannot enter the current trade..
+        /// </summary>
+        internal static string REF_TRADE_LAST_MONTH_ART_MISSING {
+            get {
+                return ResourceManager.GetString("REF_TRADE_LAST_MONTH_ART_MISSING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Missing reference &lt;@{0}&gt;. Please provide a description and/or embeded image..
         /// </summary>
         internal static string REF_TRADE_MISSING_REF {

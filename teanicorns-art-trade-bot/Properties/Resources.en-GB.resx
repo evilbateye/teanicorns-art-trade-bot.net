@@ -297,4 +297,7 @@
   <data name="TRADE_ART_LATE_DM" xml:space="preserve">
     <value>&lt;@{0}&gt; this month's trade ended (\"{1}\" theme), will I be seeing your art soon friend?.. ówò</value>
   </data>
+  <data name="REF_TRADE_LAST_MONTH_ART_MISSING" xml:space="preserve">
+    <value>&lt;@{0}&gt; you didn't send me the art for the last trade, you can't enter this month.. òwó</value>
+  </data>
 </root>
