@@ -283,7 +283,7 @@
     <value>&lt;@{0}&gt; error: {1}{2}, so sorry.. ówò</value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_SOON3" xml:space="preserve">
-    <value>@everyone **trade** ends **~~! tomorrow !~~**.. ^•^ </value>
+    <value>@everyone **trade** ends **! tomorrow !**.. ^•^ </value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_SOON1" xml:space="preserve">
     <value>@everyone **trade** ends in 7 days.. ^•^ </value>
