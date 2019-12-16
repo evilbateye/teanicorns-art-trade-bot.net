@@ -105,7 +105,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Command("entry week")]
         [Alias("ew")]
         [Summary("Stops the art trade, clears all entries and theme, starts accepting entries.")]
-        public async Task EntryWeek(uint? days = null, [Remainder]string theme = null, bool? force = null)
+        public async Task EntryWeek(uint? days = null, bool? force = null, [Remainder]string theme = null)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -128,7 +128,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Command("trade month")]
         [Alias("tm")]
         [Summary("Starts the art trade, shuffles entries, sends all partners in a DM, stops accepting entries.")]
-        public async Task TradeMonth(uint? days = null, [Remainder]string theme = null, bool? force = null)
+        public async Task TradeMonth(uint? days = null, bool? force = null, [Remainder]string theme = null)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
