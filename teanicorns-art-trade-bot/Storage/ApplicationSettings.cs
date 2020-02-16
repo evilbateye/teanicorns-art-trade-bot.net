@@ -60,6 +60,8 @@ namespace teanicorns_art_trade_bot.Storage
                 TradeStart = DateTime.Now;
             if (days.HasValue)
                 TradeDays = days.Value;
+            else
+                TradeDays = 21; // 1 month
             if (bForce.HasValue)
                 ForceTradeEnd = bForce.Value;
 

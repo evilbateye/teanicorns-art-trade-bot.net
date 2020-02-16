@@ -58,45 +58,48 @@ namespace teanicorns_art_trade_bot
                 {
                     string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
 
-                    if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
+                    if (Storage.Axx.AppSettings.TradeDays > 0)
                     {
-                        if (string.IsNullOrWhiteSpace(artMissing) || Storage.Axx.AppSettings.ForceTradeEnd)
+                        if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
                         {
-                            await Modules.TradeEventModule.StartEntryWeek(_discord);
-                        }
-                        else if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
-                        {
-                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.Closing);
+                            if (string.IsNullOrWhiteSpace(artMissing) || Storage.Axx.AppSettings.ForceTradeEnd)
+                            {
+                                await Modules.TradeEventModule.StartEntryWeek(_discord);
+                            }
+                            else if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
+                            {
+                                Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.Closing);
 
-                            await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_UNCLOSED) + "\n"
-                                + string.Format(Properties.Resources.TRADE_ART_LATE, artMissing));
+                                await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_UNCLOSED) + "\n"
+                                    + string.Format(Properties.Resources.TRADE_ART_LATE, artMissing));
+                            }
                         }
-                    }
-                    else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-1)) > 0)
-                    {
-                        if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.ThirdNotification))
+                        else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-1)) > 0)
                         {
-                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThirdNotification);
+                            if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.ThirdNotification))
+                            {
+                                Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThirdNotification);
 
-                            await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON3));
+                                await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON3));
+                            }
                         }
-                    }
-                    else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-3)) > 0)
-                    {
-                        if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.SecondNotification))
+                        else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-3)) > 0)
                         {
-                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.SecondNotification);
+                            if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.SecondNotification))
+                            {
+                                Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.SecondNotification);
 
-                            await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON2));
+                                await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON2));
+                            }
                         }
-                    }
-                    else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-7)) > 0)
-                    {
-                        if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.FirstNotification))
+                        else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-7)) > 0)
                         {
-                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.FirstNotification);
+                            if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.FirstNotification))
+                            {
+                                Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.FirstNotification);
 
-                            await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON1));
+                                await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON1));
+                            }
                         }
                     }
                 }
