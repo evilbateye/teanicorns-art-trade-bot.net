@@ -145,7 +145,7 @@ namespace teanicorns_art_trade_bot.Modules
                 Storage.Axx.AppSettings.ActivateTrade(true, days, force);
                 if (!string.IsNullOrWhiteSpace(theme))
                     Storage.Axx.AppData.SetTheme(theme);
-                Storage.Axx.AppData.Shuffle();
+                Storage.Axx.AppData.Shuffle(Storage.Axx.AppHistory);
 
                 await ReplyAsync(string.Format(Properties.Resources.TRADE_NO_NEW_ENTRIES) + "\n"
                     + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.REF_TRADE_THEME, Storage.Axx.AppData.Theme) + "\n")
@@ -290,7 +290,7 @@ namespace teanicorns_art_trade_bot.Modules
             }
 
             Storage.Axx.BackupStorage(Storage.Axx.AppData);
-            Storage.Axx.AppData.Shuffle();
+            Storage.Axx.AppData.Shuffle(Storage.Axx.AppHistory);
             await ReplyAsync(string.Format(Properties.Resources.TRADE_ENTRIES_SHUFFLE, user.Id));
             if (notify)
                 await SendPartners();

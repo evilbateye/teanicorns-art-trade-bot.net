@@ -13,7 +13,7 @@ namespace teanicorns_art_trade_bot.Storage
     {
         public string Theme = "";
         public List<UserData> Storage = new List<UserData>();
-        
+        private Shuffle m_shuffle = new Shuffle();
         public UserData TryGetValue(ulong userId, out int index)
         {
             index = Storage.FindIndex(x => x.UserId == userId);
@@ -125,9 +125,10 @@ namespace teanicorns_art_trade_bot.Storage
 
             return false;
         }
-        public void Shuffle()
+        public void Shuffle(ApplicationHistory history)
         {
-            Storage = Storage.OrderBy(x => Guid.NewGuid()).ToList();
+            if (!m_shuffle.Compute(this, history))
+                Storage = Storage.OrderBy(x => Guid.NewGuid()).ToList();
             Save();
         }
         public bool Next(ulong userId, out UserData nextUser)
@@ -166,15 +167,15 @@ namespace teanicorns_art_trade_bot.Storage
         }
         public void Save()
         {
-            if (this == Axx.AppData)
-            {
+            //if (this == Axx.AppData)
+            //{
                 string json = JsonConvert.SerializeObject(Axx.AppData, Formatting.Indented);
                 File.WriteAllText(Axx.AppDataFileName, json);
-            }
-            else
-            {
-                Axx.AppHistory.Save();
-            }
+            //}
+            //else
+            //{
+                //Axx.AppHistory.Save();
+            //}
         }
 
         // IClonable
