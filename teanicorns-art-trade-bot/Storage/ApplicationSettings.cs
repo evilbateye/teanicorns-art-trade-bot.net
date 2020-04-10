@@ -51,17 +51,22 @@ namespace teanicorns_art_trade_bot.Storage
             Save(); 
         }
 
-        public void ActivateTrade(bool bStart, uint? days, bool? bForce)
+        public void ActivateTrade(bool bStart, uint? days2start, uint ? days2end, bool? bForce)
         {
             ArtTradeActive = bStart;
             Notified = NofifyFlags.None;
+            TradeStart = DateTime.Now;
 
-            if (bStart)
-                TradeStart = DateTime.Now;
-            if (days.HasValue)
-                TradeDays = days.Value;
+            if (days2start.HasValue)
+                TradeStart.AddDays(days2start.Value);
+            else if (!bStart)
+                TradeStart.AddDays(7); // 1 week
+
+            if (days2end.HasValue)
+                TradeDays = days2end.Value;
             else
                 TradeDays = 21; // 1 month
+
             if (bForce.HasValue)
                 ForceTradeEnd = bForce.Value;
 
