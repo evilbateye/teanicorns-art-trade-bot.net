@@ -12,7 +12,7 @@ COPY --from=build-env /app/teanicorns-art-trade-bot/Build ./
 
 RUN apt-get update && apt-get install curl liblttng-ust0 libssl1.0.0 libkrb5-3 zlib1g libicu60 libgdiplus libunwind8 icu-devtools tar -y
 
-RUN curl -L --http1.1 http://download.icu-project.org/files/icu4c/62.1/icu4c-62_1-Ubuntu-18.04-x64.tgz --output icu.tgz \
+RUN curl -L --http1.1 https://sourceforge.net/projects/icu/files/ICU4C/62.1/icu4c-62_1-Ubuntu-18.04-x64.tgz/download --output icu.tgz \
     && tar -xf icu.tgz -C / \
     && export LD_LIBRARY_PATH=/usr/local/lib \
     && rm icu.tgz
