@@ -82,7 +82,7 @@ namespace teanicorns_art_trade_bot.Modules
                 if (artHistory2 != null)
                     artMissingHistory2 = GetMissingArtToStr(artHistory2);
 
-                await channel.SendMessageAsync(string.Format(Properties.Resources.TRADE_NEW_ENTRIES) + "\n"
+                await channel.SendMessageAsync(string.Format(Properties.Resources.TRADE_NEW_ENTRIES, Config.CmdPrefix, Config.CmdPrefix) + "\n"
                     + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n")
                     + (Storage.Axx.AppSettings.TradeDays == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.TradeStart.AddDays(Storage.Axx.AppSettings.TradeDays).ToString("dd-MMMM")) + "\n")
                     + (string.IsNullOrWhiteSpace(artMissing) ? string.Format(Properties.Resources.TRADE_ART_ON_TIME) : string.Format(Properties.Resources.TRADE_ART_LATE, artMissing))

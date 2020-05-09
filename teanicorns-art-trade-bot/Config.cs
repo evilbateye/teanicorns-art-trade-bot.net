@@ -38,11 +38,12 @@ namespace teanicorns_art_trade_bot
 
             string localGAccountEmail = Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_EMAIL");
             string localGAccountPrivateKey = Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY");
-            localGAccountPrivateKey = localGAccountPrivateKey.Replace("\\n", "\n");
 
             if (!string.IsNullOrWhiteSpace(localGAccountEmail) && !string.IsNullOrWhiteSpace(localGAccountPrivateKey))
             {
-                _bot.GoogleCred = new ServiceAccountCredential(
+				localGAccountPrivateKey = localGAccountPrivateKey.Replace("\\n", "\n");
+
+				_bot.GoogleCred = new ServiceAccountCredential(
                     new ServiceAccountCredential.Initializer(localGAccountEmail)
                     {
                         Scopes = scopes

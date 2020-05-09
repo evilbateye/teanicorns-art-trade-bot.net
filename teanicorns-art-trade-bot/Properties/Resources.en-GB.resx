@@ -118,106 +118,106 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="GOOGLE_TRADE_ENDING_SOON2" xml:space="preserve">
-    <value>@everyone **trade** ends in **3** days.. ^•^ </value>
+    <value>@everyone **trade** ends in **3** days.. (^•^)</value>
   </data>
   <data name="GOOGLE_TRADE_UNCLOSED" xml:space="preserve">
-    <value>@everyone **trade** ended, but someone didn't send me their art.. òwó</value>
+    <value>@everyone **trade** ended, but someone didn't send me their art! [òwó]</value>
   </data>
   <data name="REF_EW_TAKING_PLACE" xml:space="preserve">
-    <value>&lt;@{0}&gt; others still send me their entries, I haven't assigned partners yet, please wait.. ówò</value>
+    <value>&lt;@{0}&gt; others still send me their entries, I haven't assigned partners yet, please wait (ówò)</value>
   </data>
   <data name="REF_MISSING_ART" xml:space="preserve">
-    <value>&lt;@{0}&gt; I need embeded image, please send me again.. ówò</value>
+    <value>&lt;@{0}&gt; I need embeded image, please send me again (ówò)</value>
   </data>
   <data name="REF_MISSING_PARTNER" xml:space="preserve">
-    <value>&lt;@{0}&gt; I couldn't find your partner, sorry.. ówò</value>
+    <value>&lt;@{0}&gt; I couldn't find your partner, sorry (ówò)</value>
   </data>
   <data name="REF_NOT_REG" xml:space="preserve">
-    <value>&lt;@{0}&gt; I couldn't find your entry, sorry.. ówò</value>
+    <value>&lt;@{0}&gt; I couldn't find your entry, sorry (ówò)</value>
   </data>
   <data name="REF_REMOVED" xml:space="preserve">
-    <value>&lt;@{0}&gt; I deleted your entry.. ^•^ </value>
+    <value>&lt;@{0}&gt; I deleted your entry (^•^)</value>
   </data>
   <data name="REF_REVEAL_FINAL" xml:space="preserve">
-    <value>&lt;@{0}&gt; **{1}** made you some art.. ^•^ </value>
+    <value>&lt;@{0}&gt; **{1}** made you some art (^•^)</value>
   </data>
   <data name="REF_REVEAL_NOTIFY" xml:space="preserve">
-    <value>you made me and &lt;@{0}&gt; happy.. ^•^ </value>
+    <value>you made me and &lt;@{0}&gt; happy (^•^)</value>
   </data>
   <data name="REF_REVEAL_SORRY" xml:space="preserve">
-    <value>&lt;@{0}&gt; your partner was not notified, so sorry.. ówò</value>
+    <value>&lt;@{0}&gt; your partner was not notified, sorry something went wrong (ówò)</value>
   </data>
   <data name="REF_REVEAL_THANKS" xml:space="preserve">
     <value>Thanks &lt;@{0}&gt;,</value>
   </data>
   <data name="REF_TRADE_MISSING_REF" xml:space="preserve">
-    <value>&lt;@{0}&gt; I need description and/or embeded image, please send again.. ówò</value>
+    <value>&lt;@{0}&gt; I need description and/or embeded image, please send again (ówò)</value>
   </data>
   <data name="REF_TRADE_PARTNER" xml:space="preserve">
-    <value>&lt;@{0}&gt; your partner is **{1}** , Have Fun!.. ^•^ </value>
+    <value>&lt;@{0}&gt; your partner is **{1}** , Have Fun! (^•^)</value>
   </data>
   <data name="REF_TRADE_REG_SUCC" xml:space="preserve">
-    <value>&lt;@{0}&gt; I saved your entry.. ^•^ </value>
+    <value>&lt;@{0}&gt; I saved your entry (^•^)</value>
   </data>
   <data name="REF_TRADE_TAKING_PLACE" xml:space="preserve">
-    <value>&lt;@{0}&gt; **trade** already started, you can't change your entry no more..  òwó</value>
+    <value>&lt;@{0}&gt; **trade** already started, you can't change your entry no more [òwó]</value>
   </data>
   <data name="REF_TRADE_THEME" xml:space="preserve">
     <value>the theme is.. **{0}**</value>
   </data>
   <data name="TRADE_ACTIVE_SET" xml:space="preserve">
-    <value>&lt;@{0}&gt; I set the info.. ^•^ </value>
+    <value>&lt;@{0}&gt; I've set the info (^•^)</value>
   </data>
   <data name="TRADE_ADMIN_BLOCK" xml:space="preserve">
-    <value>&lt;@{0}&gt; I'm not supposed to let you run this command, sorry!.. ówò</value>
+    <value>&lt;@{0}&gt; I'm not supposed to let you run this command, sorry! (ówò)</value>
   </data>
   <data name="TRADE_ART_IN_PROGRESS" xml:space="preserve">
-    <value>&lt;@{0}&gt; trade was already set.. ówò</value>
+    <value>&lt;@{0}&gt; trade was already set (ówò)</value>
   </data>
   <data name="TRADE_ART_LATE" xml:space="preserve">
-    <value>Naughty list: {0} .. òwó</value>
+    <value>Naughty list: {0} [òwó]</value>
   </data>
   <data name="TRADE_ART_ON_TIME" xml:space="preserve">
-    <value>Naughty list: **empty**.. ＼(◎o◎)／！I'm so proud you guys！</value>
+    <value>Naughty list: **empty!** I'm so happy you guys (^•^)</value>
   </data>
   <data name="TRADE_BACKUP_DATABASE_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; here you go.. ^•^ </value>
+    <value>&lt;@{0}&gt; here you go (^•^)</value>
   </data>
   <data name="TRADE_BACKUP_HISTORY_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; here you go.. ^•^ </value>
+    <value>&lt;@{0}&gt; here you go (^•^)</value>
   </data>
   <data name="TRADE_BACKUP_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; backup done.. ^•^ </value>
+    <value>&lt;@{0}&gt; backup done (^•^)</value>
   </data>
   <data name="TRADE_CHANGE_PAIR_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; I switched  {1} and {2}.. ^•^ </value>
+    <value>&lt;@{0}&gt; I switched  {1} and {2} (^•^)</value>
   </data>
   <data name="TRADE_CHANGE_PAIR_MISSING_FIRST" xml:space="preserve">
-    <value>&lt;@{0}&gt; Can't find the 1. partner.. ówò</value>
+    <value>&lt;@{0}&gt; Can't find the 1. partner (ówò)</value>
   </data>
   <data name="TRADE_CHANGE_PAIR_MISSING_SECOND" xml:space="preserve">
-    <value>&lt;@{0}&gt; Can't find the 2. partner.. ówò</value>
+    <value>&lt;@{0}&gt; Can't find the 2. partner (ówò)</value>
   </data>
   <data name="TRADE_CHANGE_PAIR_PROBLEM" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't switch you.. ówò</value>
+    <value>&lt;@{0}&gt; I can't switch you (ówò)</value>
   </data>
   <data name="TRADE_CHANNEL_PROBLEM" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't, the channel is still {1}.. ówò</value>
+    <value>&lt;@{0}&gt; I can't, the channel is still {1} (ówò)</value>
   </data>
   <data name="TRADE_CHANNEL_SET" xml:space="preserve">
-    <value>I changed the channel.. ^•^ </value>
+    <value>I changed the channel (^•^)</value>
   </data>
   <data name="TRADE_ENDS_ON" xml:space="preserve">
-    <value>The trade will be ending on.. **{0}**.. ^•^ </value>
+    <value>The trade will be ending on.. **{0}**</value>
   </data>
   <data name="TRADE_ENTRIES_CLEARED" xml:space="preserve">
-    <value>&lt;@{0}&gt; I cleared all entries.. ^•^ </value>
+    <value>&lt;@{0}&gt; I cleared all entries (^•^)</value>
   </data>
   <data name="TRADE_ENTRIES_SHUFFLE" xml:space="preserve">
-    <value>&lt;@{0}&gt; I shuffled all entries.. ^•^ </value>
+    <value>&lt;@{0}&gt; I shuffled all entries (^•^)</value>
   </data>
   <data name="TRADE_EW_IN_PROGRESS" xml:space="preserve">
-    <value>&lt;@{0}&gt; entry week was already set.. ówò</value>
+    <value>&lt;@{0}&gt; entry week was already set (ówò)</value>
   </data>
   <data name="TRADE_LISTING_ALL" xml:space="preserve">
     <value>&lt;@{0}&gt; entries:</value>
@@ -226,34 +226,34 @@
     <value>channel: **{0}**, trade from {1} to {2} ({3} days), flags: **{4}**, end forced: **{5}**</value>
   </data>
   <data name="TRADE_NEW_ENTRIES" xml:space="preserve">
-    <value>@everyone the **entry week** started. **We are accepting new entries!**.. ^•^ </value>
+    <value>@everyone the **entry week** started. **We are accepting new entries!**, please use the \"{0}se\" or \"{1}set entry\" cmd to register! (^•^)</value>
   </data>
   <data name="TRADE_NO_NEW_ENTRIES" xml:space="preserve">
-    <value>@everyone the **trade month** started. **We are no longer accepting new entries!**.. ówò</value>
+    <value>@everyone the **trade month** started. **We are no longer accepting new entries!** (ówò)</value>
   </data>
   <data name="TRADE_RESTORE_DATABASE_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; I loaded the database.. ^•^ </value>
+    <value>&lt;@{0}&gt; I loaded the database (^•^)</value>
   </data>
   <data name="TRADE_RESTORE_DATABASE_PROBLEM" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't load the database.. ówò</value>
+    <value>&lt;@{0}&gt; I can't load the database (ówò)</value>
   </data>
   <data name="TRADE_RESTORE_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; I loaded the backup.. ^•^ </value>
+    <value>&lt;@{0}&gt; I loaded the backup (^•^)</value>
   </data>
   <data name="TRADE_RESTORE_HISTORY_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; I loaded the history.. ^•^ </value>
+    <value>&lt;@{0}&gt; I loaded the history (^•^)</value>
   </data>
   <data name="TRADE_RESTORE_HISTORY_PROBLEM" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't load the history.. ówò</value>
+    <value>&lt;@{0}&gt; I can't load the history (ówò)</value>
   </data>
   <data name="TRADE_RESTORE_NO_BACKUP" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't find the backup.. ówò</value>
+    <value>&lt;@{0}&gt; I can't find the backup (ówò)</value>
   </data>
   <data name="TRADE_SEND_ENTRIES_MISSING" xml:space="preserve">
     <value>no entries:</value>
   </data>
   <data name="TRADE_SEND_PARTNERS_DONE" xml:space="preserve">
-    <value>everyone has a partner.. owo</value>
+    <value>everyone has a partner  (^•^)</value>
   </data>
   <data name="TRADE_SEND_PARTNERS_MISSING" xml:space="preserve">
     <value>no partners:</value>
@@ -268,36 +268,39 @@
     <value>**trade** is **ON**</value>
   </data>
   <data name="TRADE_THEME_NULL" xml:space="preserve">
-    <value>&lt;@{0}&gt; You gave me null or whitespace theme.. òwó</value>
+    <value>&lt;@{0}&gt; You gave me null or whitespace theme [òwó]</value>
   </data>
   <data name="TRADE_THEME_PROBLEM" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't set the theme.. ówò</value>
+    <value>&lt;@{0}&gt; I can't set the theme (ówò)</value>
   </data>
   <data name="TRADE_THEME_SET" xml:space="preserve">
-    <value>&lt;@{0}&gt; I set the theme.. ^•^ </value>
+    <value>&lt;@{0}&gt; I've set the theme (^•^)</value>
   </data>
   <data name="TRADE_THIS_THEME" xml:space="preserve">
     <value>theme is.. **{0}**</value>
   </data>
   <data name="MAIN_PROGRAM_MESSAGE_RECEIVED" xml:space="preserve">
-    <value>&lt;@{0}&gt; error: {1}{2}, so sorry.. ówò</value>
+    <value>&lt;@{0}&gt; error: {1}{2} hupsie (ówò)</value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_SOON3" xml:space="preserve">
-    <value>@everyone **trade** ends **! tomorrow !**.. ^•^ </value>
+    <value>@everyone **trade** ends **! tomorrow !** (^•^)</value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_SOON1" xml:space="preserve">
-    <value>@everyone **trade** ends in 7 days.. ^•^ </value>
+    <value>@everyone **trade** ends in 7 days! (^•^)</value>
   </data>
   <data name="TRADE_ART_LATE_1" xml:space="preserve">
-    <value>Previous naughty list (\"{0}\" theme): {1} .. Òwó</value>
+    <value>Previous naughty list (\"{0}\" theme): {1} [òwó]</value>
   </data>
   <data name="TRADE_ART_LATE_2" xml:space="preserve">
-    <value>Previous previous naughty list (\"{0}\" theme): {1} .. ÒWÓ</value>
+    <value>Previous previous naughty list (\"{0}\" theme): {1} [ÒWÓ]</value>
   </data>
   <data name="TRADE_ART_LATE_DM" xml:space="preserve">
-    <value>&lt;@{0}&gt; this month's trade ended (\"{1}\" theme), will I be seeing your art soon friend?.. ówò</value>
+    <value>&lt;@{0}&gt; this month's trade ended (\"{1}\" theme), will I be seeing your art soon friend? (ówò)</value>
   </data>
   <data name="REF_TRADE_LAST_MONTH_ART_MISSING" xml:space="preserve">
-    <value>&lt;@{0}&gt; you didn't send me the art for the last trade, you can't enter this month.. òwó</value>
+    <value>&lt;@{0}&gt; you didn't send me the art for the previous trade, I'm sorry but I'm not supposed to let you enter this month's trade! (ówò)</value>
+  </data>
+  <data name="GOOGLE_TRADE_ENDING_NOW" xml:space="preserve">
+    <value>@everyone the **trade** is ending, please send me your art using the \"{0}ra\" or \"{1}reveal art\" cmd! (ówò)</value>
   </data>
 </root>

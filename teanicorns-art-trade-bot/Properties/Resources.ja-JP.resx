@@ -220,7 +220,7 @@
     <value>Listing all entries &lt;@{0}&gt;. Each next entry is the partner of the previous one, okaaay ? owo ~</value>
   </data>
   <data name="TRADE_NEW_ENTRIES" xml:space="preserve">
-    <value>ATTENTION PWEASE uwu ! @everyone the **entry week** started. **We are accepting new entries pwease join soon fren &lt;3 !**</value>
+    <value>ATTENTION PWEASE uwu ! @everyone the **entry week** started. **We are accepting new entries pwease join soon fren &lt;3 !** \"{0}se\" or \"{1}set entry\"</value>
   </data>
   <data name="TRADE_NO_NEW_ENTRIES" xml:space="preserve">
     <value>PWEASE GIB ME YOUR ATTENTION ! @everyone the art **trade month** started. **We are no longer accepting new entries :/ sowwy!**</value>
@@ -299,5 +299,8 @@
   </data>
   <data name="REF_TRADE_LAST_MONTH_ART_MISSING" xml:space="preserve">
     <value>Sorry &lt;@{0}&gt; but you did not commit the art for the last trade, you cannot enter the current trade.</value>
+  </data>
+  <data name="GOOGLE_TRADE_ENDING_NOW" xml:space="preserve">
+    <value>@everyone the **trade** is ending, please send me your wonderful art using the \"{0}ra\" or \"{1}reveal art\" cmd! .. ówò</value>
   </data>
 </root>

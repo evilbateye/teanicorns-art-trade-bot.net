@@ -226,7 +226,7 @@
     <value>Listing other info.. working channel is.. \"{0}\", trade is taking place from.. {1} to {2} ({3} days), notify flags.. {4}, trade end forced.. {5}</value>
   </data>
   <data name="TRADE_NEW_ENTRIES" xml:space="preserve">
-    <value>@everyone the **entry week** started. **We are accepting new entries!**</value>
+    <value>@everyone the **entry week** started. **We are accepting new entries!** Please use the \"{0}se\" or \"{1}set entry\" cmd.</value>
   </data>
   <data name="TRADE_NO_NEW_ENTRIES" xml:space="preserve">
     <value>@everyone the art **trade month** started. **We are no longer accepting new entries!**</value>
@@ -299,5 +299,8 @@
   </data>
   <data name="REF_TRADE_LAST_MONTH_ART_MISSING" xml:space="preserve">
     <value>Sorry &lt;@{0}&gt; but you did not commit the art for the last trade, you cannot enter the current trade.</value>
+  </data>
+  <data name="GOOGLE_TRADE_ENDING_NOW" xml:space="preserve">
+    <value>@everyone the **trade** is ending, please send me your wonderful art using the \"{0}ra\" or \"{1}reveal art\" cmd! .. ówò</value>
   </data>
 </root>
