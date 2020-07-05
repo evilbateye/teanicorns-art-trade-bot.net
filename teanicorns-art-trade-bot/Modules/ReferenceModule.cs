@@ -14,8 +14,11 @@ namespace teanicorns_art_trade_bot.Modules
     {
         [Command("set entry")]
         [Alias("se")]
-        [Summary("Set your trade entry. (entry week only)")]
-        public async Task SetEntry([Remainder]string description = null)
+        [Summary("set your trade entry (entry week only)")]
+        [InfoModule.SummaryDetail("available only when entry week is currently taking place" +
+            "\nyou can add an image for the entry by embedding it into the message" +
+            "\nyou can also add optional text description")]
+        public async Task SetEntry([Remainder][Summary("description of your art trade entry (optional)")]string description = null)
         {
             var user = Context.Message.Author;
             if (Storage.Axx.AppSettings.ArtTradeActive)
@@ -57,7 +60,8 @@ namespace teanicorns_art_trade_bot.Modules
 
         [Command("get entry")]
         [Alias("ge")]
-        [Summary("Get your trade entry.")]
+        [Summary("get your trade entry")]
+        [InfoModule.SummaryDetail("shows you the image and/or description that you have set as your trade entry")]
         public async Task GetEntry()
         {
             var user = Context.Message.Author;
@@ -79,8 +83,11 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("delete entry")]
-        [Alias("de")]
-        [Summary("Remove your trade entry. (entry week only)")]
+        [Alias("de", "remove entry", "rm")]
+        [Summary("remove your trade entry (entry week only)")]
+        [InfoModule.SummaryDetail("available only when entry week is currently taking place" +
+            "\nremoves the image and/or description that you have set as your trade entry" +
+            "\nusefull if you decide not to participate in the trade")]
         public async Task DeleteEntry()
         {
             var user = Context.Message.Author;
@@ -98,7 +105,10 @@ namespace teanicorns_art_trade_bot.Modules
 
         [Command("show partner")]
         [Alias("sp")]
-        [Summary("Sends you your trade partner's entry in a DM. (trade month only)")]
+        [Summary("sends you your trade partner's entry in a DM (trade month only)")]
+        [InfoModule.SummaryDetail("available only when trade month is currently taking place" +
+            "\nsends you the image and/or description that your randomly selected trade partner has set for his trade" +
+            "\nthe information is send using a direct message so that your partner won't see this")]
         public async Task ShowPartner()
         {
             var user = Context.Message.Author;
@@ -130,13 +140,13 @@ namespace teanicorns_art_trade_bot.Modules
 
             string message = string.Format(Properties.Resources.REF_TRADE_PARTNER
                 , user.Id
-                , Format.Bold($"{partnerData.UserName}") + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})")) + "\n";
+                , $"**{partnerData.UserName}**" + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})")) + "\n";
 
             if (!string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
-                message += " " + string.Format(Properties.Resources.REF_TRADE_THEME, Storage.Axx.AppData.Theme) + "\n";
+                message += $" {string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme)}\n";
 
             if (!string.IsNullOrWhiteSpace(partnerData.ReferenceDescription))
-                message += $"\"{partnerData.ReferenceDescription}\"";
+                message += $"`{partnerData.ReferenceDescription}`";
 
             await user.SendMessageAsync(message, false, embed);
             return true;
@@ -144,15 +154,20 @@ namespace teanicorns_art_trade_bot.Modules
 
         [Command("reveal art")]
         [Alias("ra")]
-        [Summary("Registers your finished art, sends DM with the art to your trade partner. (trade month only)")]
-        public async Task RevealArt([Remainder]string text = null)
+        [Summary("registers your finished art, sends DM with the art to your trade partner (trade month only)")]
+        [InfoModule.SummaryDetail("available only when trade month is currently taking place" +
+            "\nyou can add an image for the art by embedding it into the message" +
+            "\nyou can also add optional text param specifying the trade's theme" +
+            "\nthis is usefull if you won't be able to submit the art on time, and another trade already started, you can specify the theme of the previous trade so that the bot understands where to register your art" +
+            "\nthe art is sent to your trade partner in a direct message")]
+        public async Task RevealArt([Remainder][Summary("theme of the art trade to which you want to register your art (optional)")]string theme = null)
         {
             var user = Context.Message.Author;
             Storage.ApplicationData foundTrade = null;
 
-            if (!string.IsNullOrWhiteSpace(text))
+            if (!string.IsNullOrWhiteSpace(theme))
             {
-                text = text.ToLower();
+                theme = theme.ToLower();
 
                 for (int i = 0; i < Storage.Axx.AppHistory.History.Count && i < 3; ++i)
                 {
@@ -160,7 +175,7 @@ namespace teanicorns_art_trade_bot.Modules
 
                     if (string.IsNullOrWhiteSpace(d.Theme))
                         continue;
-                    if (text.Contains(d.Theme.ToLower().Trim()))
+                    if (theme.Contains(d.Theme.ToLower().Trim()))
                     {
                         foundTrade = d;
                         break;

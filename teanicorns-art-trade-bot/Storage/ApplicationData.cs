@@ -83,9 +83,9 @@ namespace teanicorns_art_trade_bot.Storage
 
         public bool SetNextValue(ulong ourId, ulong theirId)
         {
-            int prevIndex;
-            UserData prevUser = GetPreviousValue(theirId, out prevIndex);
-            if (prevUser == null)
+            int theirIndex;
+            UserData theirUser = TryGetValue(theirId, out theirIndex);
+            if (theirUser == null)
                 return false;
 
             int ourIndex;
@@ -93,8 +93,8 @@ namespace teanicorns_art_trade_bot.Storage
             if (ourUser == null)
                 return false;
 
-            Storage[prevIndex] = ourUser;
-            Storage[ourIndex] = prevUser;
+            Storage[theirIndex] = ourUser;
+            Storage[ourIndex] = theirUser;
             return true;
         }
 
@@ -143,9 +143,94 @@ namespace teanicorns_art_trade_bot.Storage
             previousUser = GetPreviousValue(userId, out index);
             return previousUser != null;
         }
-        public bool ResetNext(ulong ourId, ulong theirId)
+        public bool ResetNext(ulong ourId, ulong theirId, ulong? thirdId, out List<UserData> needNotify)
         {
-            SetNextValue(ourId, theirId);
+            needNotify = new List<UserData>();
+
+            if (!thirdId.HasValue)
+            {
+                if (Storage.Count < 2)
+                    return false;
+
+                HashSet<UserData> needNotifySet = new HashSet<UserData>();
+
+                UserData user = null;
+                if (!Next(ourId, out user))
+                    return false;
+                needNotifySet.Add(user);
+
+                if (!Next(theirId, out user))
+                    return false;
+                needNotifySet.Add(user);
+
+                user = Get(ourId);
+                if (user == null)
+                    return false;
+                needNotifySet.Add(user);
+
+                user = Get(theirId);
+                if (user == null)
+                    return false;
+                needNotifySet.Add(user);
+
+                needNotify = needNotifySet.ToList();
+
+                SetNextValue(ourId, theirId);
+            }
+            else
+            {
+                if (Storage.Count < 3)
+                    return false;
+
+                LinkedList<UserData> linkedList = new LinkedList<UserData>(Storage);
+
+                Func<LinkedListNode<UserData>, ulong, (LinkedListNode<UserData>, ulong)> FindNode = (start, id) =>
+                {
+                    ulong distance = 0;
+                    var node = start;
+                    while (node != null)
+                    {
+                        if (node.Value.UserId == id)
+                            break;
+                        node = node.Next;
+                        distance += 1;
+                    }
+                    return (node, distance);
+                };
+
+                List<(LinkedListNode<UserData>, ulong)> nodeDistPairs = new List<(LinkedListNode<UserData>, ulong)>();
+                var foundNode = FindNode(linkedList.First, ourId);
+                if (foundNode.Item1 == null)
+                    return false;
+                nodeDistPairs.Add(foundNode);
+                needNotify.Add(foundNode.Item1.Value);
+
+                foundNode = FindNode(linkedList.First, theirId);
+                if (foundNode.Item1 == null)
+                    return false;
+                nodeDistPairs.Add(foundNode);
+                needNotify.Add(foundNode.Item1.Value);
+
+                foundNode = FindNode(linkedList.First, thirdId.Value);
+                if (foundNode.Item1 == null)
+                    return false;
+                nodeDistPairs.Add(foundNode);
+                needNotify.Add(foundNode.Item1.Value);
+
+                nodeDistPairs = nodeDistPairs.OrderBy(x => x.Item2).ToList();
+
+                var iNode = nodeDistPairs[1].Item1;
+                while (iNode.Value.UserId != nodeDistPairs[0].Item1.Value.UserId)
+                {
+                    var prevNode = iNode.Previous;
+                    linkedList.Remove(iNode);
+                    linkedList.AddAfter(nodeDistPairs[2].Item1, iNode);
+                    iNode = prevNode;
+                }
+
+                Storage = linkedList.ToList();
+            }
+
             Save();
             return true;
         }

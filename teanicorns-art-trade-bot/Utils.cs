@@ -35,13 +35,17 @@ namespace teanicorns_art_trade_bot
             return cmd.Module.Name == "TradeEventModule";
         }
 
-        public static SocketUser FindUser(SocketGuild guild, string userName)
+        public static SocketUser FindUser(SocketGuild guild, string userId)
         {
+            int index = -1;
             var userList = guild.Users.ToList();
-            int index = userList.FindIndex(x => x.Username == userName);
-            if (index == -1)
-                return null;
-            return userList[index];
+            
+            if (UInt64.TryParse(userId, out ulong numericId))
+                index = userList.FindIndex(x => x.Id == numericId);
+            else
+                index = userList.FindIndex(x => x.Username == userId || x.Nickname == userId);
+
+            return index == -1 ? null : userList[index];
         }
 
         public static SocketGuild FindGuild(SocketUser user)

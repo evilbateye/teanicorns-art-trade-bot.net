@@ -58,24 +58,25 @@ namespace teanicorns_art_trade_bot
                 {
                     if (Storage.Axx.AppSettings.TradeDays > 0)
                     {
-                        if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
+                        if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(3)) > 0)
+                        {
+                            string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
+                            if (Storage.Axx.AppSettings.ForceTradeEnd || string.IsNullOrWhiteSpace(artMissing))
+                            {
+                                await Modules.TradeEventModule.StartEntryWeek(_discord);
+                            }
+                        }
+                        else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
                         {
 							if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
 							{
 								Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.Closing);
-								
-								if (Storage.Axx.AppSettings.ForceTradeEnd)
-								{
-									await Modules.TradeEventModule.StartEntryWeek(_discord);
-								}
-								else
-								{
-									await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_NOW, Config.CmdPrefix, Config.CmdPrefix));
-									//string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
-									//string.IsNullOrWhiteSpace(artMissing)
-									//await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_UNCLOSED) + "\n"
-									//+ string.Format(Properties.Resources.TRADE_ART_LATE, artMissing));
-								}
+
+                                string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
+                                if (string.IsNullOrWhiteSpace(artMissing))
+                                    await Modules.TradeEventModule.StartEntryWeek(_discord);
+                                else
+                                    await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_NOW, Config.CmdPrefix, "reveal art", "about"));
 							}
                         }
                         else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-1)) > 0)

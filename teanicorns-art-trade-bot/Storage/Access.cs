@@ -28,9 +28,13 @@ namespace teanicorns_art_trade_bot.Storage
 
         static Axx()
         {
-            Console.WriteLine("Axx: Constructor");
             Validate(AppData);
             Validate(AppHistory);
+            Validate(AppSettings);
+
+            BackupStorage(AppData);
+            BackupStorage(AppHistory);
+            BackupStorage(AppSettings);
         }
 
         public static void Initialize()

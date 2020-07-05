@@ -55,17 +55,15 @@ namespace teanicorns_art_trade_bot.Storage
         {
             ArtTradeActive = bStart;
             Notified = NofifyFlags.None;
-            TradeStart = DateTime.Now;
+
+            if (bStart)
+                TradeStart = DateTime.Now;
 
             if (days2start.HasValue)
                 TradeStart.AddDays(days2start.Value);
-            else if (!bStart)
-                TradeStart.AddDays(7); // 1 week
 
             if (days2end.HasValue)
                 TradeDays = days2end.Value;
-            else
-                TradeDays = 21; // 1 month
 
             if (bForce.HasValue)
                 ForceTradeEnd = bForce.Value;

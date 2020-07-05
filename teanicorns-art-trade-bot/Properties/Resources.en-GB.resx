@@ -118,10 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="GOOGLE_TRADE_ENDING_SOON2" xml:space="preserve">
-    <value>@everyone **trade** ends in **3** days.. (^•^)</value>
-  </data>
-  <data name="GOOGLE_TRADE_UNCLOSED" xml:space="preserve">
-    <value>@everyone **trade** ended, but someone didn't send me their art! [òwó]</value>
+    <value>@everyone **trade** ends in `3` days! (^•^)</value>
   </data>
   <data name="REF_EW_TAKING_PLACE" xml:space="preserve">
     <value>&lt;@{0}&gt; others still send me their entries, I haven't assigned partners yet, please wait (ówò)</value>
@@ -154,7 +151,7 @@
     <value>&lt;@{0}&gt; I need description and/or embeded image, please send again (ówò)</value>
   </data>
   <data name="REF_TRADE_PARTNER" xml:space="preserve">
-    <value>&lt;@{0}&gt; your partner is **{1}** , Have Fun! (^•^)</value>
+    <value>&lt;@{0}&gt; your partner is {1} , Have Fun! (^•^)</value>
   </data>
   <data name="REF_TRADE_REG_SUCC" xml:space="preserve">
     <value>&lt;@{0}&gt; I saved your entry (^•^)</value>
@@ -162,98 +159,47 @@
   <data name="REF_TRADE_TAKING_PLACE" xml:space="preserve">
     <value>&lt;@{0}&gt; **trade** already started, you can't change your entry no more [òwó]</value>
   </data>
-  <data name="REF_TRADE_THEME" xml:space="preserve">
-    <value>the theme is.. **{0}**</value>
-  </data>
-  <data name="TRADE_ACTIVE_SET" xml:space="preserve">
-    <value>&lt;@{0}&gt; I've set the info (^•^)</value>
+  <data name="GLOBAL_REQUEST_DONE" xml:space="preserve">
+    <value>&lt;@{0}&gt; your request has been completed (^•^)</value>
   </data>
   <data name="TRADE_ADMIN_BLOCK" xml:space="preserve">
     <value>&lt;@{0}&gt; I'm not supposed to let you run this command, sorry! (ówò)</value>
-  </data>
-  <data name="TRADE_ART_IN_PROGRESS" xml:space="preserve">
-    <value>&lt;@{0}&gt; trade was already set (ówò)</value>
   </data>
   <data name="TRADE_ART_LATE" xml:space="preserve">
     <value>Naughty list: {0} [òwó]</value>
   </data>
   <data name="TRADE_ART_ON_TIME" xml:space="preserve">
-    <value>Naughty list: **empty!** I'm so happy you guys (^•^)</value>
-  </data>
-  <data name="TRADE_BACKUP_DATABASE_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; here you go (^•^)</value>
+    <value>Naughty list: **empty!** (^•^)</value>
   </data>
   <data name="TRADE_BACKUP_HISTORY_DONE" xml:space="preserve">
     <value>&lt;@{0}&gt; here you go (^•^)</value>
   </data>
-  <data name="TRADE_BACKUP_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; backup done (^•^)</value>
-  </data>
-  <data name="TRADE_CHANGE_PAIR_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; I switched  {1} and {2} (^•^)</value>
-  </data>
-  <data name="TRADE_CHANGE_PAIR_MISSING_FIRST" xml:space="preserve">
-    <value>&lt;@{0}&gt; Can't find the 1. partner (ówò)</value>
-  </data>
-  <data name="TRADE_CHANGE_PAIR_MISSING_SECOND" xml:space="preserve">
-    <value>&lt;@{0}&gt; Can't find the 2. partner (ówò)</value>
-  </data>
-  <data name="TRADE_CHANGE_PAIR_PROBLEM" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't switch you (ówò)</value>
-  </data>
-  <data name="TRADE_CHANNEL_PROBLEM" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't, the channel is still {1} (ówò)</value>
-  </data>
-  <data name="TRADE_CHANNEL_SET" xml:space="preserve">
-    <value>I changed the channel (^•^)</value>
-  </data>
   <data name="TRADE_ENDS_ON" xml:space="preserve">
-    <value>The trade will be ending on.. **{0}**</value>
-  </data>
-  <data name="TRADE_ENTRIES_CLEARED" xml:space="preserve">
-    <value>&lt;@{0}&gt; I cleared all entries (^•^)</value>
+    <value>trade will be ending in `{0}` days `{1}`</value>
   </data>
   <data name="TRADE_ENTRIES_SHUFFLE" xml:space="preserve">
     <value>&lt;@{0}&gt; I shuffled all entries (^•^)</value>
   </data>
-  <data name="TRADE_EW_IN_PROGRESS" xml:space="preserve">
-    <value>&lt;@{0}&gt; entry week was already set (ówò)</value>
+  <data name="GLOBAL_IN_PROGRESS" xml:space="preserve">
+    <value>&lt;@{0}&gt; {1} was already set (ówò)</value>
   </data>
-  <data name="TRADE_LISTING_ALL" xml:space="preserve">
-    <value>&lt;@{0}&gt; entries:</value>
+  <data name="TRADE_LIST_ENTRIES" xml:space="preserve">
+    <value>**Entries**</value>
   </data>
-  <data name="TRADE_LIST_OTHER_INFO" xml:space="preserve">
-    <value>channel: **{0}**, trade from {1} to {2} ({3} days), flags: **{4}**, end forced: **{5}**</value>
+  <data name="TRADE_LIST_SETTINGS" xml:space="preserve">
+    <value>channel: `{0}`, trade from `{1}` to `{2}` (`{3}` days), flags: `{4}`, end forced: `{5}`</value>
   </data>
   <data name="TRADE_NEW_ENTRIES" xml:space="preserve">
-    <value>@everyone the **entry week** started. **We are accepting new entries!**, please use the \"{0}se\" or \"{1}set entry\" cmd to register! (^•^)</value>
+    <value>@everyone the **entry week** started. **I'm accepting new entries!**
+please use `{0}{1}`  to register or use `{0}{2}` if you need more info (^•^)</value>
   </data>
   <data name="TRADE_NO_NEW_ENTRIES" xml:space="preserve">
-    <value>@everyone the **trade month** started. **We are no longer accepting new entries!** (ówò)</value>
-  </data>
-  <data name="TRADE_RESTORE_DATABASE_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; I loaded the database (^•^)</value>
-  </data>
-  <data name="TRADE_RESTORE_DATABASE_PROBLEM" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't load the database (ówò)</value>
-  </data>
-  <data name="TRADE_RESTORE_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; I loaded the backup (^•^)</value>
-  </data>
-  <data name="TRADE_RESTORE_HISTORY_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; I loaded the history (^•^)</value>
-  </data>
-  <data name="TRADE_RESTORE_HISTORY_PROBLEM" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't load the history (ówò)</value>
-  </data>
-  <data name="TRADE_RESTORE_NO_BACKUP" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't find the backup (ówò)</value>
+    <value>@everyone the **trade month** started. **I'm no longer accepting new entries!**
+please use `{0}{1}` to show your finished art piece or use `{0}{2}` if you need more info
+but please wait until the end of the trade when everybody has fihisned their art too, thanks! (^•^)</value>
   </data>
   <data name="TRADE_SEND_ENTRIES_MISSING" xml:space="preserve">
     <value>no entries:</value>
-  </data>
-  <data name="TRADE_SEND_PARTNERS_DONE" xml:space="preserve">
-    <value>everyone has a partner  (^•^)</value>
   </data>
   <data name="TRADE_SEND_PARTNERS_MISSING" xml:space="preserve">
     <value>no partners:</value>
@@ -261,46 +207,51 @@
   <data name="TRADE_SEND_USERS_MISSING" xml:space="preserve">
     <value>no users:</value>
   </data>
-  <data name="TRADE_TAKING_PLACE_EW" xml:space="preserve">
-    <value>**trade** is **OFF**</value>
-  </data>
-  <data name="TRADE_TAKING_PLACE_TM" xml:space="preserve">
-    <value>**trade** is **ON**</value>
-  </data>
-  <data name="TRADE_THEME_NULL" xml:space="preserve">
-    <value>&lt;@{0}&gt; You gave me null or whitespace theme [òwó]</value>
-  </data>
-  <data name="TRADE_THEME_PROBLEM" xml:space="preserve">
-    <value>&lt;@{0}&gt; I can't set the theme (ówò)</value>
-  </data>
-  <data name="TRADE_THEME_SET" xml:space="preserve">
-    <value>&lt;@{0}&gt; I've set the theme (^•^)</value>
-  </data>
   <data name="TRADE_THIS_THEME" xml:space="preserve">
-    <value>theme is.. **{0}**</value>
+    <value>this month's art trade theme is **{0}**</value>
   </data>
   <data name="MAIN_PROGRAM_MESSAGE_RECEIVED" xml:space="preserve">
     <value>&lt;@{0}&gt; error: {1}{2} hupsie (ówò)</value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_SOON3" xml:space="preserve">
-    <value>@everyone **trade** ends **! tomorrow !** (^•^)</value>
+    <value>@everyone **trade** ends `! tomorrow !` (^•^)</value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_SOON1" xml:space="preserve">
-    <value>@everyone **trade** ends in 7 days! (^•^)</value>
+    <value>@everyone **trade** ends in `7` days! (^•^)</value>
   </data>
   <data name="TRADE_ART_LATE_1" xml:space="preserve">
-    <value>Previous naughty list (\"{0}\" theme): {1} [òwó]</value>
+    <value>Previous naughty list (`{0}` theme): {1} [ówò]</value>
   </data>
   <data name="TRADE_ART_LATE_2" xml:space="preserve">
-    <value>Previous previous naughty list (\"{0}\" theme): {1} [ÒWÓ]</value>
+    <value>Previous previous naughty list (`{0}` theme): {1} [ÓwÒ]</value>
   </data>
   <data name="TRADE_ART_LATE_DM" xml:space="preserve">
-    <value>&lt;@{0}&gt; this month's trade ended (\"{1}\" theme), will I be seeing your art soon friend? (ówò)</value>
+    <value>&lt;@{0}&gt; this month's trade ended (`{1}` theme), will I be seeing your art soon? (ówò)</value>
   </data>
   <data name="REF_TRADE_LAST_MONTH_ART_MISSING" xml:space="preserve">
     <value>&lt;@{0}&gt; you didn't send me the art for the previous trade, I'm sorry but I'm not supposed to let you enter this month's trade! (ówò)</value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_NOW" xml:space="preserve">
-    <value>@everyone the **trade** is ending, please send me your art using the \"{0}ra\" or \"{1}reveal art\" cmd! (ówò)</value>
+    <value>@everyone the **trade** is ending, please send me your art using the `{0}{1}` command or use `{0}{2}` if you need more info  (^•^)</value>
+  </data>
+  <data name="INFO_ADMIN_CMD_LIST" xml:space="preserve">
+    <value>**Admin Commands**</value>
+  </data>
+  <data name="INFO_CMD_LIST" xml:space="preserve">
+    <value>**User Commands**</value>
+  </data>
+  <data name="INFO_INTRO" xml:space="preserve">
+    <value>hello &lt;@{0}&gt;, my name is Bottie the art-trade-bot and I'm written in Discord.Net {1}
+for more info about a specific command please type `{2}{3}` followed by the command name at the end
+for example `{2}{3} {4}`</value>
+  </data>
+  <data name="GLOBAL_UNKNOW_ARG" xml:space="preserve">
+    <value>&lt;@{0}&gt; I don't understand or I'm missing a command argument (ówò)</value>
+  </data>
+  <data name="GLOBAL_REQUEST_FAIL" xml:space="preserve">
+    <value>&lt;@{0}&gt; your request has failed (ówò)</value>
+  </data>
+  <data name="TRADE_LIST_ONOFF" xml:space="preserve">
+    <value>`{0}` is currently active</value>
   </data>
 </root>
