@@ -175,7 +175,7 @@
     <value>&lt;@{0}&gt; here you go (^•^)</value>
   </data>
   <data name="TRADE_ENDS_ON" xml:space="preserve">
-    <value>trade will be ending in `{0}` days `{1}`</value>
+    <value>trade will be ending in `{0}` days on `{1}`</value>
   </data>
   <data name="TRADE_ENTRIES_SHUFFLE" xml:space="preserve">
     <value>&lt;@{0}&gt; I shuffled all entries (^•^)</value>
@@ -196,7 +196,7 @@ please use `{0}{1}`  to register or use `{0}{2}` if you need more info (^•^)</
   <data name="TRADE_NO_NEW_ENTRIES" xml:space="preserve">
     <value>@everyone the **trade month** started. **I'm no longer accepting new entries!**
 please use `{0}{1}` to show your finished art piece or use `{0}{2}` if you need more info
-but please wait until the end of the trade when everybody has fihisned their art too, thanks! (^•^)</value>
+but please wait until the end of the trade when everybody has finisned their art too, thanks! (^•^)</value>
   </data>
   <data name="TRADE_SEND_ENTRIES_MISSING" xml:space="preserve">
     <value>no entries:</value>
@@ -208,7 +208,7 @@ but please wait until the end of the trade when everybody has fihisned their art
     <value>no users:</value>
   </data>
   <data name="TRADE_THIS_THEME" xml:space="preserve">
-    <value>this month's art trade theme is **{0}**</value>
+    <value>this month's art trade theme is `{0}`</value>
   </data>
   <data name="MAIN_PROGRAM_MESSAGE_RECEIVED" xml:space="preserve">
     <value>&lt;@{0}&gt; error: {1}{2} hupsie (ówò)</value>

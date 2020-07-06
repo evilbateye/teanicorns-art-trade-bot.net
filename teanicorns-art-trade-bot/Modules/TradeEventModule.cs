@@ -52,7 +52,7 @@ namespace teanicorns_art_trade_bot.Modules
             return string.Join(", ", userDataList.Select(x => string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName));
         }
 
-        public static async Task StartEntryWeek(DiscordSocketClient client, uint? days2end = null, bool? force = null, [Remainder]string theme = null)
+        public static async Task StartEntryWeek(DiscordSocketClient client, double? days2end = null, bool? force = null, [Remainder]string theme = null)
         {
             Storage.Axx.AppHistory.RecordTrade(Storage.Axx.AppData);
             await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
@@ -106,7 +106,7 @@ namespace teanicorns_art_trade_bot.Modules
             "\nafter that the entries and trade theme are cleared" +
             "\nlist of members that did not submit their art on time is printed into the working channel (dating 3 trades back)" +
             "\nthe latest members with missing art are contacted using a direct message")]
-        public async Task EntryWeek([Summary("number of days until the next trade ends (the duration of the trade month) (optional)")]uint ? days2end = null
+        public async Task EntryWeek([Summary("number of days until the next trade ends (the duration of the trade month) (optional)")]double? days2end = null
             , [Summary("bool flag indicating if the next trade should be forced to end automatically at the end (optional)")]bool? force = null
             , [Summary("theme that will be set for the next art trade (optional)")][Remainder]string theme = null)
         {
@@ -135,7 +135,7 @@ namespace teanicorns_art_trade_bot.Modules
             "\nthe chain goes only one way, meaning that for each entry there is a next entry, and the next entry is the first entry's partner" +
             "\nbut the first entry does not see it's previous entry, so they do not know who has them as their partner" +
             "\na direct message is sent to each participant containing their partner's information")]
-        public async Task TradeMonth([Summary("number of days until the next trade ends (the duration of the trade month) (optional)")]uint ? days2end = null
+        public async Task TradeMonth([Summary("number of days until the next trade ends (the duration of the trade month) (optional)")]double? days2end = null
             , [Summary("bool flag indicating if the next trade should be forced to end automatically at the end (optional)")]bool? force = null
             , [Summary("theme that will be set for the next art trade (optional)")][Remainder]string theme = null)
         {
@@ -151,14 +151,21 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (Storage.Axx.AppSettings.ArtTradeActive != true)
             {
-                Storage.Axx.AppSettings.ActivateTrade(true, 0/*days2start*/, days2end, force);
+                Storage.Axx.AppSettings.ActivateTrade(true, 0.0/*days2start*/, days2end, force);
                 if (!string.IsNullOrWhiteSpace(theme))
                     Storage.Axx.AppData.SetTheme(theme);
                 Storage.Axx.AppData.Shuffle(Storage.Axx.AppHistory);
 
-                await ReplyAsync(string.Format(Properties.Resources.TRADE_NO_NEW_ENTRIES, Config.CmdPrefix, "reveal art", "about") + "\n"
+                string notifycation = string.Format(Properties.Resources.TRADE_NO_NEW_ENTRIES, Config.CmdPrefix, "reveal art", "about") + "\n"
                     + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n")
-                    + (Storage.Axx.AppSettings.TradeDays == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.TradeDays, Storage.Axx.AppSettings.TradeStart.AddDays(Storage.Axx.AppSettings.TradeDays).ToString("dd-MMMM"))));
+                    + (Storage.Axx.AppSettings.TradeDays == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.TradeDays, Storage.Axx.AppSettings.TradeStart.AddDays(Storage.Axx.AppSettings.TradeDays).ToString("dd-MMMM")));
+
+                SocketTextChannel channel = Utils.FindChannel(Context.Client, Storage.Axx.AppSettings.WorkingChannel);
+                if (channel != null)
+                    await channel.SendMessageAsync(notifycation);
+                else
+                    await ReplyAsync(notifycation);
+
                 await SendPartners();
             }
             else
@@ -196,9 +203,9 @@ namespace teanicorns_art_trade_bot.Modules
         [InfoModule.SummaryDetail("you can silently turn the art trade on/off" +
             "\nchange the start date of the trade and number of days until the trade ends" +
             "\nyou can also modify the force flag, or change the active trading channel")]
-        public async Task ChangeSettings([Summary("bool flag indicating trade start/end")]bool bStart
-            , [Summary("number of days until the next trade starts (the duration of the entry week) (optional)")]uint? days2start = null
-            , [Summary("number of days until the next trade ends (the duration of the trade month) (optional)")]uint ? days2end = null
+        public async Task ChangeSettings([Summary("bool flag indicating trade start/end")]bool? bStart
+            , [Summary("number of days until the next trade starts (the duration of the entry week) (optional)")]double? days2start = null
+            , [Summary("number of days until the next trade ends (the duration of the trade month) (optional)")]double? days2end = null
             , [Summary("bool flag indicating if the next trade should be forced to end automatically at the end (optional)")] bool? force = null
             , [Summary("name of the only channel where the art trade bot listens for user input")][Remainder]string channel = null)
         {

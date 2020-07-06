@@ -45,7 +45,7 @@ namespace teanicorns_art_trade_bot
                 
             System.Timers.Timer timer = new System.Timers.Timer();
             timer.Elapsed += new ElapsedEventHandler(OnPeriodicUpdate);
-            timer.Interval = 600000;
+            timer.Interval = 6000;
             timer.Enabled = true; 
         }
 
@@ -68,16 +68,18 @@ namespace teanicorns_art_trade_bot
                         }
                         else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
                         {
-							if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
+                            string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
+
+                            if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
 							{
 								Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.Closing);
-
-                                string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
-                                if (string.IsNullOrWhiteSpace(artMissing))
-                                    await Modules.TradeEventModule.StartEntryWeek(_discord);
-                                else
+                                
+                                if (!string.IsNullOrWhiteSpace(artMissing))
                                     await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_NOW, Config.CmdPrefix, "reveal art", "about"));
 							}
+
+                            if (string.IsNullOrWhiteSpace(artMissing))
+                                await Modules.TradeEventModule.StartEntryWeek(_discord);
                         }
                         else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-1)) > 0)
                         {

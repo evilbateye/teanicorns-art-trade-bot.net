@@ -21,7 +21,7 @@ namespace teanicorns_art_trade_bot.Storage
         public bool ArtTradeActive = false;
         public string WorkingChannel = "";
         public DateTime TradeStart = DateTime.Now;
-        public uint TradeDays = 0;
+        public double TradeDays = 0.0;
         public NofifyFlags Notified = NofifyFlags.None;
         public bool ForceTradeEnd = false;
 
@@ -45,22 +45,24 @@ namespace teanicorns_art_trade_bot.Storage
             Save();
         }
 
-        public void SetTradeEnd(uint days)
+        public void SetTradeEnd(double days)
         {
             TradeDays = days;
             Save(); 
         }
 
-        public void ActivateTrade(bool bStart, uint? days2start, uint ? days2end, bool? bForce)
+        public void ActivateTrade(bool? bStart, double? days2start, double? days2end, bool? bForce)
         {
-            ArtTradeActive = bStart;
+            if (bStart.HasValue)
+                ArtTradeActive = bStart.Value;
+
             Notified = NofifyFlags.None;
 
-            if (bStart)
+            if (ArtTradeActive)
                 TradeStart = DateTime.Now;
 
             if (days2start.HasValue)
-                TradeStart.AddDays(days2start.Value);
+                TradeStart = TradeStart.AddDays(days2start.Value);
 
             if (days2end.HasValue)
                 TradeDays = days2end.Value;
@@ -71,7 +73,7 @@ namespace teanicorns_art_trade_bot.Storage
             Save();
         }
 
-        public DateTime GetTradeEnd(int shift = 0)
+        public DateTime GetTradeEnd(double shift = 0)
         {
             return TradeStart.AddDays(TradeDays + shift);
         }
