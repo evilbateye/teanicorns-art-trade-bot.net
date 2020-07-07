@@ -132,20 +132,14 @@
   <data name="REF_NOT_REG" xml:space="preserve">
     <value>Sorry &lt;@{0}&gt;. There is no reference registered.</value>
   </data>
-  <data name="REF_REMOVED" xml:space="preserve">
-    <value>&lt;@{0}&gt; your reference has been removed.</value>
-  </data>
   <data name="REF_REVEAL_FINAL" xml:space="preserve">
     <value>Hello &lt;@{0}&gt;! Your hidden art trade partner was **{1}** and they are ready to show you their work!!</value>
   </data>
   <data name="REF_REVEAL_NOTIFY" xml:space="preserve">
-    <value>A notification was sent to your partner &lt;@{0}&gt;.</value>
+    <value>Thank you for the reveal &lt;@{0}&gt; A notification was sent to your partner &lt;@{1}&gt;.</value>
   </data>
   <data name="REF_REVEAL_SORRY" xml:space="preserve">
     <value>Sorry &lt;@{0}&gt;. But your partner did not receive the notification.</value>
-  </data>
-  <data name="REF_REVEAL_THANKS" xml:space="preserve">
-    <value>Thank you for the art reveal &lt;@{0}&gt;!</value>
   </data>
   <data name="REF_TRADE_MISSING_REF" xml:space="preserve">
     <value>Missing reference &lt;@{0}&gt;. Please provide a description and/or embeded image.</value>
@@ -256,5 +250,11 @@ For example `{2}{3} {4}`</value>
   </data>
   <data name="TRADE_LIST_ONOFF" xml:space="preserve">
     <value>`{0}` is currently active</value>
+  </data>
+  <data name="REF_TRADE_REGISTER_FIRST" xml:space="preserve">
+    <value>Sorry &lt;@{0}&gt;. please register to the art trade first.</value>
+  </data>
+  <data name="REF_TRADE_THEME_POOL" xml:space="preserve">
+    <value>&lt;@{0}&gt; here is a list of your registered themes:</value>
   </data>
 </root>

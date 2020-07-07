@@ -98,7 +98,7 @@ namespace teanicorns_art_trade_bot.Modules
             }
             
             if (Storage.Axx.AppData.Remove(user.Id))
-                await ReplyAsync(string.Format(Properties.Resources.REF_REMOVED, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             else
                 await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
         }
@@ -219,13 +219,11 @@ namespace teanicorns_art_trade_bot.Modules
                 if (!bCurrentTrade)
                     await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
 
-                string reply = string.Format(Properties.Resources.REF_REVEAL_THANKS, user.Id);
-
                 var client = Context.Client;
                 var nextUser = client.GetUser(nextUserData.UserId);
                 if (nextUser == null)
                 {
-                    await ReplyAsync(reply + " " + string.Format(Properties.Resources.REF_REVEAL_SORRY, user.Id));
+                    await ReplyAsync(string.Format(Properties.Resources.REF_REVEAL_SORRY, user.Id));
                     return;
                 }
 
@@ -233,10 +231,10 @@ namespace teanicorns_art_trade_bot.Modules
                 if (!bCurrentTrade)
                     monthTheme = foundTrade.Theme;
 
-                if (!await SendPartnerArtResponse(data, nextUser, monthTheme))
-                    await ReplyAsync(reply + " " + string.Format(Properties.Resources.REF_REVEAL_SORRY, user.Id));
+                if (await SendPartnerArtResponse(data, nextUser, monthTheme))
+                    await ReplyAsync(string.Format(Properties.Resources.REF_REVEAL_NOTIFY, user.Id, nextUser.Id));
                 else
-                    await ReplyAsync(reply + " " + string.Format(Properties.Resources.REF_REVEAL_NOTIFY, nextUser.Id));
+                    await ReplyAsync(string.Format(Properties.Resources.REF_REVEAL_SORRY, user.Id));
             }
             else
                 await ReplyAsync(string.Format(Properties.Resources.REF_MISSING_PARTNER, user.Id));
@@ -255,6 +253,75 @@ namespace teanicorns_art_trade_bot.Modules
                 + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})"));
             await user.SendMessageAsync(message, false, embed);
             return true;
+        }
+
+        [Command("set theme")]
+        [Alias("seth", "add theme", "ath")]
+        [Summary("adds a theme to the theme pool (entry week only)")]
+        [InfoModule.SummaryDetail("available only when entry week is currently taking place" +
+           "\nonce the trade month starts there will be a poll and the trade participants will choose which theme they like the most" +
+           "\nthe poll will take 1 day, theme with the most votes wins" +
+           "\nif there is more then 1 theme with the most ammount of votes, then the theme is chosen by random")]
+        public async Task AddTheme([Summary("the theme name (changed to lowercase and trimmed)")][Remainder]string theme)
+        {
+            var user = Context.Message.Author;
+            if (Storage.Axx.AppSettings.ArtTradeActive)
+            {
+                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
+                return;
+            }
+
+            Storage.UserData userData = Storage.Axx.AppData.TryGetValue(user.Id, out int index);
+            if (userData == null)
+            {
+                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REGISTER_FIRST, user.Id));
+                return;
+            }
+
+            userData.ThemePool.Add(theme.ToLower().Trim());
+            await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+        }
+
+        [Command("delete theme")]
+        [Alias("delth", "remove theme", "rmth")]
+        [Summary("removes a theme from your theme pool (entry week only)")]
+        public async Task DeleteTheme([Summary("the name of the theme to be removed")][Remainder]string theme)
+        {
+            var user = Context.Message.Author;
+            if (Storage.Axx.AppSettings.ArtTradeActive)
+            {
+                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
+                return;
+            }
+
+            Storage.UserData userData = Storage.Axx.AppData.TryGetValue(user.Id, out int index);
+            if (userData == null)
+            {
+                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REGISTER_FIRST, user.Id));
+                return;
+            }
+
+            theme = theme.ToLower().Trim();
+            if (userData.ThemePool.Remove(theme))
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+            else
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
+        }
+
+        [Command("show themes")]
+        [Alias("list themes", "lth")]
+        [Summary("shows you a list of your registered themes")]
+        public async Task ShowThemes()
+        {
+            var user = Context.Message.Author;
+            Storage.UserData userData = Storage.Axx.AppData.TryGetValue(user.Id, out int index);
+            if (userData == null)
+            {
+                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REGISTER_FIRST, user.Id));
+                return;
+            }
+
+            await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_THEME_POOL, user.Id) + string.Join(", ", userData.ThemePool.Select(x => $"`{x}`")));
         }
     }
 }

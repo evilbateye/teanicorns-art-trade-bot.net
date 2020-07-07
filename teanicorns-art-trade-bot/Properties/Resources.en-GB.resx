@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="GOOGLE_TRADE_ENDING_SOON2" xml:space="preserve">
-    <value>@everyone **trade** ends in `3` days! (^•^)</value>
+    <value>@everyone `art trade` ends in `3` days! (^•^)</value>
   </data>
   <data name="REF_EW_TAKING_PLACE" xml:space="preserve">
     <value>&lt;@{0}&gt; others still send me their entries, I haven't assigned partners yet, please wait (ówò)</value>
@@ -132,20 +132,14 @@
   <data name="REF_NOT_REG" xml:space="preserve">
     <value>&lt;@{0}&gt; I couldn't find your entry, sorry (ówò)</value>
   </data>
-  <data name="REF_REMOVED" xml:space="preserve">
-    <value>&lt;@{0}&gt; I deleted your entry (^•^)</value>
-  </data>
   <data name="REF_REVEAL_FINAL" xml:space="preserve">
-    <value>&lt;@{0}&gt; **{1}** made you some art (^•^)</value>
+    <value>&lt;@{0}&gt; `{1}` made you some art (^•^)</value>
   </data>
   <data name="REF_REVEAL_NOTIFY" xml:space="preserve">
-    <value>you made me and &lt;@{0}&gt; happy (^•^)</value>
+    <value>thanks &lt;@{0}&gt;, you made me and &lt;@{1}&gt; happy (^•^)</value>
   </data>
   <data name="REF_REVEAL_SORRY" xml:space="preserve">
     <value>&lt;@{0}&gt; your partner was not notified, sorry something went wrong (ówò)</value>
-  </data>
-  <data name="REF_REVEAL_THANKS" xml:space="preserve">
-    <value>Thanks &lt;@{0}&gt;,</value>
   </data>
   <data name="REF_TRADE_MISSING_REF" xml:space="preserve">
     <value>&lt;@{0}&gt; I need description and/or embeded image, please send again (ówò)</value>
@@ -160,7 +154,7 @@
     <value>&lt;@{0}&gt; **trade** already started, you can't change your entry no more [òwó]</value>
   </data>
   <data name="GLOBAL_REQUEST_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; your request has been completed (^•^)</value>
+    <value>&lt;@{0}&gt; your request is done (^•^)</value>
   </data>
   <data name="TRADE_ADMIN_BLOCK" xml:space="preserve">
     <value>&lt;@{0}&gt; I'm not supposed to let you run this command, sorry! (ówò)</value>
@@ -187,14 +181,19 @@
     <value>**Entries**</value>
   </data>
   <data name="TRADE_LIST_SETTINGS" xml:space="preserve">
-    <value>channel: `{0}`, trade from `{1}` to `{2}` (`{3}` days), flags: `{4}`, end forced: `{5}`</value>
+    <value>channel: `{0}`
+trade from `{1}` to `{2}` (`{3}` days)
+flags: `{4}`
+end forced: `{5}`</value>
   </data>
   <data name="TRADE_NEW_ENTRIES" xml:space="preserve">
-    <value>@everyone the **entry week** started. **I'm accepting new entries!**
+    <value>@everyone the `entry week` started
+`I'm accepting new entries!`
 please use `{0}{1}`  to register or use `{0}{2}` if you need more info (^•^)</value>
   </data>
   <data name="TRADE_NO_NEW_ENTRIES" xml:space="preserve">
-    <value>@everyone the **trade month** started. **I'm no longer accepting new entries!**
+    <value>@everyone the `trade month` started
+`I'm no longer accepting new entries!`
 please use `{0}{1}` to show your finished art piece or use `{0}{2}` if you need more info
 but please wait until the end of the trade when everybody has finisned their art too, thanks! (^•^)</value>
   </data>
@@ -211,13 +210,13 @@ but please wait until the end of the trade when everybody has finisned their art
     <value>this month's art trade theme is `{0}`</value>
   </data>
   <data name="MAIN_PROGRAM_MESSAGE_RECEIVED" xml:space="preserve">
-    <value>&lt;@{0}&gt; error: {1}{2} hupsie (ówò)</value>
+    <value>&lt;@{0}&gt; error: {1}{2} oh no (ówò)</value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_SOON3" xml:space="preserve">
-    <value>@everyone **trade** ends `! tomorrow !` (^•^)</value>
+    <value>@everyone `art trade` ends `tomorrow` (^•^)</value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_SOON1" xml:space="preserve">
-    <value>@everyone **trade** ends in `7` days! (^•^)</value>
+    <value>@everyone `art trade` ends in `7` days! (^•^)</value>
   </data>
   <data name="TRADE_ART_LATE_1" xml:space="preserve">
     <value>Previous naughty list (`{0}` theme): {1} [ówò]</value>
@@ -241,17 +240,23 @@ but please wait until the end of the trade when everybody has finisned their art
     <value>**User Commands**</value>
   </data>
   <data name="INFO_INTRO" xml:space="preserve">
-    <value>hello &lt;@{0}&gt;, my name is Bottie the art-trade-bot and I'm written in Discord.Net {1}
-for more info about a specific command please type `{2}{3}` followed by the command name at the end
-for example `{2}{3} {4}`</value>
+    <value>hello &lt;@{0}&gt;, my name is Bottie the art trade bot and I'm written in Discord.Net {1}
+for more info about a specific command please type `{2}{3}` followed by the command name at the end for example `{2}{3} {4}`
+you can type it to the channel or send me a direct message</value>
   </data>
   <data name="GLOBAL_UNKNOW_ARG" xml:space="preserve">
-    <value>&lt;@{0}&gt; I don't understand or I'm missing a command argument (ówò)</value>
+    <value>&lt;@{0}&gt; unknown or missing command argument (ówò)</value>
   </data>
   <data name="GLOBAL_REQUEST_FAIL" xml:space="preserve">
     <value>&lt;@{0}&gt; your request has failed (ówò)</value>
   </data>
   <data name="TRADE_LIST_ONOFF" xml:space="preserve">
     <value>`{0}` is currently active</value>
+  </data>
+  <data name="REF_TRADE_REGISTER_FIRST" xml:space="preserve">
+    <value>&lt;@{0}&gt; please register your trade entry first (ówò)</value>
+  </data>
+  <data name="REF_TRADE_THEME_POOL" xml:space="preserve">
+    <value>&lt;@{0}&gt; here is a list of your registered themes (^•^)</value>
   </data>
 </root>

@@ -45,7 +45,7 @@ namespace teanicorns_art_trade_bot
                 
             System.Timers.Timer timer = new System.Timers.Timer();
             timer.Elapsed += new ElapsedEventHandler(OnPeriodicUpdate);
-            timer.Interval = 6000;
+            timer.Interval = 600000;
             timer.Enabled = true; 
         }
 

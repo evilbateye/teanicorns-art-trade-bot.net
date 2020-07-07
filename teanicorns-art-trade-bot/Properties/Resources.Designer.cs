@@ -216,15 +216,6 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;@{0}&gt; your reference has been removed..
-        /// </summary>
-        internal static string REF_REMOVED {
-            get {
-                return ResourceManager.GetString("REF_REMOVED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Hello &lt;@{0}&gt;! Your hidden art trade partner was **{1}** and they are ready to show you their work!!.
         /// </summary>
         internal static string REF_REVEAL_FINAL {
@@ -234,7 +225,7 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A notification was sent to your partner &lt;@{0}&gt;..
+        ///   Looks up a localized string similar to Thank you for the reveal &lt;@{0}&gt; A notification was sent to your partner &lt;@{1}&gt;..
         /// </summary>
         internal static string REF_REVEAL_NOTIFY {
             get {
@@ -248,15 +239,6 @@ namespace teanicorns_art_trade_bot.Properties {
         internal static string REF_REVEAL_SORRY {
             get {
                 return ResourceManager.GetString("REF_REVEAL_SORRY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Thank you for the art reveal &lt;@{0}&gt;!.
-        /// </summary>
-        internal static string REF_REVEAL_THANKS {
-            get {
-                return ResourceManager.GetString("REF_REVEAL_THANKS", resourceCulture);
             }
         }
         
@@ -297,11 +279,29 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. please register to the art trade first..
+        /// </summary>
+        internal static string REF_TRADE_REGISTER_FIRST {
+            get {
+                return ResourceManager.GetString("REF_TRADE_REGISTER_FIRST", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. Art trade is currently taking place. Can&apos;t modify existing entries.
         /// </summary>
         internal static string REF_TRADE_TAKING_PLACE {
             get {
                 return ResourceManager.GetString("REF_TRADE_TAKING_PLACE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;@{0}&gt; here is a list of your registered themes:.
+        /// </summary>
+        internal static string REF_TRADE_THEME_POOL {
+            get {
+                return ResourceManager.GetString("REF_TRADE_THEME_POOL", resourceCulture);
             }
         }
         

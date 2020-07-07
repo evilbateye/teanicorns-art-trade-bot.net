@@ -12,11 +12,14 @@ namespace teanicorns_art_trade_bot.Storage
         public string ReferenceDescription;
         public string NickName;
         public string ArtUrl;
+        public List<string> ThemePool = new List<string>();
 
         // ICloneable
         public object Clone()
         {
-            return MemberwiseClone();
+            UserData clone = (UserData)MemberwiseClone();
+            clone.ThemePool = new List<string>(ThemePool);
+            return clone;
         }
     }
 }

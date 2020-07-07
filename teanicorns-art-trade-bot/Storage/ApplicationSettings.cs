@@ -24,7 +24,7 @@ namespace teanicorns_art_trade_bot.Storage
         public double TradeDays = 0.0;
         public NofifyFlags Notified = NofifyFlags.None;
         public bool ForceTradeEnd = false;
-
+        
         // public methods
         public void SetForceTradeEnd(bool b)
         {
@@ -87,7 +87,9 @@ namespace teanicorns_art_trade_bot.Storage
         // IStorage methods
         public string FileName() { return Axx.AppSettingsFileName; }
         public int Count() { return 1; }
-        public void Clear() {}
+        public void Clear()
+        {
+        }
         public void Load(string fileName)
         {
             string json = File.ReadAllText(fileName);

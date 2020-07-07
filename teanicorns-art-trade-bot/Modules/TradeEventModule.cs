@@ -57,6 +57,7 @@ namespace teanicorns_art_trade_bot.Modules
             Storage.Axx.AppHistory.RecordTrade(Storage.Axx.AppData);
             await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
             Storage.Axx.ClearStorage(Storage.Axx.AppData);
+            Storage.Axx.ClearStorage(Storage.Axx.AppSettings);
             Storage.Axx.AppSettings.ActivateTrade(false, null/*days2start*/, days2end, force);
 
             if (string.IsNullOrWhiteSpace(theme))
