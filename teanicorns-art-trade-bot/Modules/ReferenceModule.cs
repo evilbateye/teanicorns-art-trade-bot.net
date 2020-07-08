@@ -268,7 +268,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Summary("adds a theme to the theme pool (entry week only)")]
         [InfoModule.SummaryDetail("available only when entry week is currently taking place" +
            "\nonce the trade month starts there will be a poll and the trade participants will choose which theme they like the most" +
-           "\nthe poll will take 1 day, theme with the most votes wins" +
+           "\nthe poll will take 2 days, theme with the most votes wins" +
            "\nif there is more then 1 theme with the most ammount of votes, then the theme is chosen by random")]
         public async Task AddTheme([Summary("the theme name (changed to lowercase and trimmed)")][Remainder]string theme)
         {

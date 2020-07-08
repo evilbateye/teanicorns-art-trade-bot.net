@@ -647,7 +647,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Summary("send to all participants their trade partner's entry in a DM")]
         [InfoModule.SummaryDetail("sends a direct message to all art trade participants containing the entry information of their trade partner" +
             "\nthis is done automatically when the trade month starts, so there is usually no need to call this manually")]
-        public async Task SendPartners([Summary("bool flag specifies if only the current trade info should be resent (optional)")]bool bThemeOnly = false)
+        public async Task SendPartners([Summary("bool flag specifies if only the current theme info should be resent (optional)")]bool bThemeOnly = false)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
