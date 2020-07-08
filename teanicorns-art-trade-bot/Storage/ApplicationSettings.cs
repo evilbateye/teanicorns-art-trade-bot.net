@@ -16,6 +16,7 @@ namespace teanicorns_art_trade_bot.Storage
             FirstNotification = 2,
             SecondNotification = 4,
             ThirdNotification = 8,
+            ThemePollNotification = 16,
         }
 
         public bool ArtTradeActive = false;
@@ -24,7 +25,14 @@ namespace teanicorns_art_trade_bot.Storage
         public double TradeDays = 0.0;
         public NofifyFlags Notified = NofifyFlags.None;
         public bool ForceTradeEnd = false;
-        
+        public ulong ThemePollID = 0;
+
+        public void SetThemePollID(ulong id)
+        {
+            ThemePollID = id;
+            Save();
+        }
+
         // public methods
         public void SetForceTradeEnd(bool b)
         {
@@ -59,7 +67,13 @@ namespace teanicorns_art_trade_bot.Storage
             Notified = NofifyFlags.None;
 
             if (ArtTradeActive)
+            {
                 TradeStart = DateTime.Now;
+            }
+            else
+            {
+                ThemePollID = 0;
+            }
 
             if (days2start.HasValue)
                 TradeStart = TradeStart.AddDays(days2start.Value);
@@ -76,6 +90,11 @@ namespace teanicorns_art_trade_bot.Storage
         public DateTime GetTradeEnd(double shift = 0)
         {
             return TradeStart.AddDays(TradeDays + shift);
+        }
+
+        public DateTime GetTradeStart(double shift = 0)
+        {
+            return TradeStart.AddDays(shift);
         }
 
         public void SetNotifyDone(NofifyFlags flag)

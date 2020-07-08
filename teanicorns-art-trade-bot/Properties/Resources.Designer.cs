@@ -61,6 +61,15 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;@{0}&gt; there already is a {1} with this name registered.
+        /// </summary>
+        internal static string GLOBAL_DUPLICAT_ARG {
+            get {
+                return ResourceManager.GetString("GLOBAL_DUPLICAT_ARG", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;@{0}&gt; {1} is already in progress..
         /// </summary>
         internal static string GLOBAL_IN_PROGRESS {
@@ -129,6 +138,15 @@ namespace teanicorns_art_trade_bot.Properties {
         internal static string GOOGLE_TRADE_ENDING_SOON3 {
             get {
                 return ResourceManager.GetString("GOOGLE_TRADE_ENDING_SOON3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to @everyone there results of the themes poll are here, this mont&apos;s theme is {0}, good luck everyone! .
+        /// </summary>
+        internal static string GOOGLE_TRADE_THEME_POLL_RESULTS {
+            get {
+                return ResourceManager.GetString("GOOGLE_TRADE_THEME_POLL_RESULTS", resourceCulture);
             }
         }
         
@@ -458,6 +476,15 @@ namespace teanicorns_art_trade_bot.Properties {
         internal static string TRADE_SEND_USERS_MISSING {
             get {
                 return ResourceManager.GetString("TRADE_SEND_USERS_MISSING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to please choose which theme you&apos;d like for this month&apos;s art trade.
+        /// </summary>
+        internal static string TRADE_THEME_POOL_START {
+            get {
+                return ResourceManager.GetString("TRADE_THEME_POOL_START", resourceCulture);
             }
         }
         

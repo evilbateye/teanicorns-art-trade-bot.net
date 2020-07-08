@@ -128,27 +128,35 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync(string.Format(Properties.Resources.REF_MISSING_PARTNER, user.Id));
         }
 
-        public static async Task<bool> SendPartnerResponse(Storage.UserData partnerData, Discord.WebSocket.SocketUser user)
+        public static async Task<bool> SendPartnerResponse(Storage.UserData partnerData, Discord.WebSocket.SocketUser user, bool bThemeOnly = false)
         {
-            Embed embed = null;
-            if (!string.IsNullOrWhiteSpace(partnerData.ReferenceUrl))
-                embed = new EmbedBuilder().WithImageUrl(partnerData.ReferenceUrl).Build();
+            if (bThemeOnly)
+            {
+                var message = (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "`none`" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme)) + "\n"; 
+                await user.SendMessageAsync(message);
+            }
+            else
+            {
+                Embed embed = null;
+                if (!string.IsNullOrWhiteSpace(partnerData.ReferenceUrl))
+                    embed = new EmbedBuilder().WithImageUrl(partnerData.ReferenceUrl).Build();
 
-            if (string.IsNullOrWhiteSpace(partnerData.ReferenceDescription) && embed == null)
-                return false;
+                if (string.IsNullOrWhiteSpace(partnerData.ReferenceDescription) && embed == null)
+                    return false;
 
+                string message = string.Format(Properties.Resources.REF_TRADE_PARTNER
+                    , user.Id
+                    , $"{partnerData.UserName}" + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})")) + "\n";
 
-            string message = string.Format(Properties.Resources.REF_TRADE_PARTNER
-                , user.Id
-                , $"**{partnerData.UserName}**" + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})")) + "\n";
+                if (!string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
+                    message += $" {string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme)}\n";
 
-            if (!string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
-                message += $" {string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme)}\n";
+                if (!string.IsNullOrWhiteSpace(partnerData.ReferenceDescription))
+                    message += $"`{partnerData.ReferenceDescription}`";
 
-            if (!string.IsNullOrWhiteSpace(partnerData.ReferenceDescription))
-                message += $"`{partnerData.ReferenceDescription}`";
+                await user.SendMessageAsync(message, false, embed);
+            }
 
-            await user.SendMessageAsync(message, false, embed);
             return true;
         }
 
@@ -278,8 +286,15 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            userData.ThemePool.Add(theme.ToLower().Trim());
-            await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+            theme = theme.ToLower().Trim();
+            if (!userData.ThemePool.Contains(theme))
+            {
+                userData.ThemePool.Add(theme);
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+            }
+            else
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_DUPLICAT_ARG, user.Id, "theme"));
+            
         }
 
         [Command("delete theme")]
@@ -320,8 +335,9 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REGISTER_FIRST, user.Id));
                 return;
             }
-
-            await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_THEME_POOL, user.Id) + string.Join(", ", userData.ThemePool.Select(x => $"`{x}`")));
+                        
+            await ReplyAsync($"{string.Format(Properties.Resources.REF_TRADE_THEME_POOL, user.Id)}: " +
+                (userData.ThemePool.Count > 0 ? string.Join(", ", userData.ThemePool.Select(x => $"`{x}`")) : "`none`"));
         }
     }
 }

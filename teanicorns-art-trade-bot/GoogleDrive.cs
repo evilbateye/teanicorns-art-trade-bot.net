@@ -71,12 +71,12 @@ namespace teanicorns_art_trade_bot
                             string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
 
                             if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
-							{
-								Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.Closing);
-                                
+                            {
+                                Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.Closing);
+
                                 if (!string.IsNullOrWhiteSpace(artMissing))
                                     await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_NOW, Config.CmdPrefix, "reveal art", "about"));
-							}
+                            }
 
                             if (string.IsNullOrWhiteSpace(artMissing))
                                 await Modules.TradeEventModule.StartEntryWeek(_discord);
@@ -106,6 +106,23 @@ namespace teanicorns_art_trade_bot
                                 Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.FirstNotification);
 
                                 await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON1));
+                            }
+                        }
+                        else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeStart(2)) > 0)
+                        {
+                            if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.ThemePollNotification))
+                            {
+                                Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThemePollNotification);
+
+                                string theme = await Utils.GetThemePollResult(channel);
+                                if (!string.IsNullOrWhiteSpace(theme))
+                                {
+                                    Storage.Axx.AppData.SetTheme(theme);
+
+                                    await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_THEME_POLL_RESULTS, theme));
+
+                                    await Modules.TradeEventModule.SendPartnersResponseStatic(_discord, Storage.Axx.AppData.Storage, true /*bThemeOnly*/);
+                                }
                             }
                         }
                     }

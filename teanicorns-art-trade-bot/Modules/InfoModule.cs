@@ -23,7 +23,7 @@ namespace teanicorns_art_trade_bot.Modules
         public CommandService CommandService { get; set; }
 
         [Command("about")]
-        [Alias("a")]
+        [Alias("a", "help", "h")]
         [Summary("show info about the art trade bot")]
         public async Task ShowInfo([Remainder][Summary("name of the command you want more detailed info about (optional)")]string cmd_name = null)
         {
