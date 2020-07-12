@@ -290,6 +290,7 @@ namespace teanicorns_art_trade_bot.Modules
             if (!userData.ThemePool.Contains(theme))
             {
                 userData.ThemePool.Add(theme);
+                Storage.Axx.AppData.Save();
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             }
             else
@@ -318,7 +319,10 @@ namespace teanicorns_art_trade_bot.Modules
 
             theme = theme.ToLower().Trim();
             if (userData.ThemePool.Remove(theme))
+            {
+                Storage.Axx.AppData.Save();
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+            }
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
         }

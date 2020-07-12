@@ -252,15 +252,15 @@ namespace teanicorns_art_trade_bot.Storage
         }
         public void Save()
         {
-            //if (this == Axx.AppData)
-            //{
+            if (this == Axx.AppData)
+            {
                 string json = JsonConvert.SerializeObject(Axx.AppData, Formatting.Indented);
                 File.WriteAllText(Axx.AppDataFileName, json);
-            //}
-            //else
-            //{
-                //Axx.AppHistory.Save();
-            //}
+            }
+            else
+            {
+                Axx.AppHistory.Save(); // RevealArt with theme set case
+            }
         }
 
         // IClonable
