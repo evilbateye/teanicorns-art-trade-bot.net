@@ -187,7 +187,7 @@ flags: `{4}`
 end forced: `{5}`</value>
   </data>
   <data name="TRADE_NEW_ENTRIES" xml:space="preserve">
-    <value>@everyone the `entry week` started
+    <value>the `entry week` started
 `I'm accepting new entries!`
 please use `{0}{1}`  to register or use `{0}{2}` if you need more info (^•^)</value>
   </data>

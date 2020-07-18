@@ -432,7 +432,7 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to @everyone the **entry week** started. **We are accepting new entries!**
+        ///   Looks up a localized string similar to the **entry week** started. **We are accepting new entries!**
         ///please use `{0}{1}`  to register or use `{0}{2}` if you need more info.
         /// </summary>
         internal static string TRADE_NEW_ENTRIES {

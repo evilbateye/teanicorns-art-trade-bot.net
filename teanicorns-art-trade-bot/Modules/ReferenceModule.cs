@@ -78,7 +78,7 @@ namespace teanicorns_art_trade_bot.Modules
                     return;
                 }
             }
-            
+
             await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
         }
 
@@ -96,7 +96,7 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
             }
-            
+
             if (Storage.Axx.AppData.Remove(user.Id))
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             else
@@ -132,7 +132,7 @@ namespace teanicorns_art_trade_bot.Modules
         {
             if (bThemeOnly)
             {
-                var message = (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "`none`" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme)) + "\n"; 
+                var message = (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "`none`" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme)) + "\n";
                 await user.SendMessageAsync(message);
             }
             else
@@ -286,16 +286,11 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            theme = theme.ToLower().Trim();
-            if (!userData.ThemePool.Contains(theme))
-            {
-                userData.ThemePool.Add(theme);
-                Storage.Axx.AppData.Save();
+            if (Storage.Axx.AppData.AddThemeToPool(user.Id, theme))
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
-            }
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_DUPLICAT_ARG, user.Id, "theme"));
-            
+
         }
 
         [Command("delete theme")]
@@ -317,12 +312,8 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            theme = theme.ToLower().Trim();
-            if (userData.ThemePool.Remove(theme))
-            {
-                Storage.Axx.AppData.Save();
+            if (Storage.Axx.AppData.RemoveThemeFromPool(user.Id, theme))
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
-            }
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
         }
@@ -339,9 +330,22 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REGISTER_FIRST, user.Id));
                 return;
             }
-                        
+
             await ReplyAsync($"{string.Format(Properties.Resources.REF_TRADE_THEME_POOL, user.Id)}: " +
                 (userData.ThemePool.Count > 0 ? string.Join(", ", userData.ThemePool.Select(x => $"`{x}`")) : "`none`"));
+        }
+
+        [Command("subscribe")]
+        [Alias("sub")]
+        [Summary("subscribe for trade notifications")]
+        [InfoModule.SummaryDetail("subscribers will be notified by a direct message every time the bot sends an important announcement")]
+        public async Task Notify([Summary("true = turn on notifications, false = turn them off, no argument = toggle")]bool? bOnOff = null)
+        {
+            var user = Context.Message.Author;
+            if (Storage.Axx.AppSettings.ChangeSubscription(user.Id, bOnOff))
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+            else
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
         }
     }
 }

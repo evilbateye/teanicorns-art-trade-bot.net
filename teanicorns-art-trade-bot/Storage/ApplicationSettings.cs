@@ -26,6 +26,32 @@ namespace teanicorns_art_trade_bot.Storage
         public NofifyFlags Notified = NofifyFlags.None;
         public bool ForceTradeEnd = false;
         public ulong ThemePollID = 0;
+        public List<ulong> Subscribers = new List<ulong>();
+
+        public bool ChangeSubscription(ulong userID, bool ? bOnOff)
+        {
+            if (bOnOff.HasValue)
+            {
+                if (bOnOff.Value)
+                {
+                    if (Subscribers.Contains(userID))
+                        return false;
+                    Subscribers.Add(userID);
+                }
+                else
+                {
+                    if (!Subscribers.Remove(userID))
+                        return false;
+                }
+            }
+            else if (Subscribers.Contains(userID))
+                Subscribers.Remove(userID);
+            else
+                Subscribers.Add(userID);
+
+            Save();
+            return true;
+        }
 
         public void SetThemePollID(ulong id)
         {
