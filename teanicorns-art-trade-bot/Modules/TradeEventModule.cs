@@ -138,9 +138,27 @@ namespace teanicorns_art_trade_bot.Modules
 
         public async Task<bool> CreateThemePoll()
         {
-            var themePool = Storage.Axx.AppData.GetStorage().SelectMany(x => x.ThemePool).ToList();
-            if (themePool.Count == 0)
+            List<string> themePool = new List<string>();
+            var thPools = Storage.Axx.AppData.GetStorage().Select(x => new List<string>(x.ThemePool)).ToList();
+            while (thPools.Count > 0)
+            {
+                for (int i = thPools.Count - 1; i >= 0; --i)
+                {
+                    var thPool = thPools[i];
+                    if (thPool.Count <= 0)
+                    {
+                        thPools.RemoveAt(i);
+                        continue;
+                    }
+
+                    themePool.Add(thPool[0]);
+                    thPool.RemoveAt(0);
+                }
+            }
+
+            if (themePool.Count <= 0)
                 return false;
+
             if (themePool.Count > 10)
                 themePool.RemoveRange(10, themePool.Count - 10);
 
@@ -325,7 +343,7 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync(string.Format(Properties.Resources.TRADE_ADMIN_BLOCK, user.Id));
                 return;
             }
-
+                        
             string info = (Storage.Axx.AppSettings.ArtTradeActive ? string.Format(Properties.Resources.TRADE_LIST_ONOFF, "trade month") : string.Format(Properties.Resources.TRADE_LIST_ONOFF, "entry week")) + "\n";
             
             info += string.Format(Properties.Resources.TRADE_THIS_THEME, string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "`none`" : Storage.Axx.AppData.Theme) + "\n";
