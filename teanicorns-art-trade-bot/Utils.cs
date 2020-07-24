@@ -124,12 +124,37 @@ namespace teanicorns_art_trade_bot
             if (winnerIdx < 0 || winnerIdx > 9)
                 return "";
 
-            var themePool = Storage.Axx.AppData.GetStorage().SelectMany(x => x.ThemePool).ToList();
-            if (themePool.Count > 10)
-                themePool.RemoveRange(10, themePool.Count - 10);
+            var themePool = GetThemePoolOrdered();
+            if (themePool.Count <= 0)
+                return "";
 
             await channel.DeleteMessageAsync(msg);
             return themePool[winnerIdx];
+        }
+
+        public static List<string> GetThemePoolOrdered()
+        {
+            List<string> themePool = new List<string>();
+            var pools2darr = Storage.Axx.AppData.GetStorage().Select(x => new List<string>(x.ThemePool)).ToList();
+            while (pools2darr.Count > 0)
+            {
+                for (int i = pools2darr.Count - 1; i >= 0; --i)
+                {
+                    if (pools2darr[i].Count <= 0)
+                    {
+                        pools2darr.RemoveAt(i);
+                        continue;
+                    }
+
+                    themePool.Add(pools2darr[i][0]);
+                    pools2darr[i].RemoveAt(0);
+                }
+            }
+
+            if (themePool.Count > 10)
+                themePool.RemoveRange(10, themePool.Count - 10);
+
+            return themePool;
         }
 
         public static List<string> EmojiCodes = new List<string>() { "\u0030\u20E3" /*:zero:*/, "\u0031\u20E3" /*:one:*/, "\u0032\u20E3" /*:two:*/

@@ -138,29 +138,10 @@ namespace teanicorns_art_trade_bot.Modules
 
         public async Task<bool> CreateThemePoll()
         {
-            List<string> themePool = new List<string>();
-            var thPools = Storage.Axx.AppData.GetStorage().Select(x => new List<string>(x.ThemePool)).ToList();
-            while (thPools.Count > 0)
-            {
-                for (int i = thPools.Count - 1; i >= 0; --i)
-                {
-                    var thPool = thPools[i];
-                    if (thPool.Count <= 0)
-                    {
-                        thPools.RemoveAt(i);
-                        continue;
-                    }
-
-                    themePool.Add(thPool[0]);
-                    thPool.RemoveAt(0);
-                }
-            }
+            List<string> themePool = Utils.GetThemePoolOrdered();
 
             if (themePool.Count <= 0)
                 return false;
-
-            if (themePool.Count > 10)
-                themePool.RemoveRange(10, themePool.Count - 10);
 
             var reply = $"\n{string.Format(Properties.Resources.TRADE_THEME_POOL_START)}\n";
             Encoding unicode = Encoding.Unicode;
