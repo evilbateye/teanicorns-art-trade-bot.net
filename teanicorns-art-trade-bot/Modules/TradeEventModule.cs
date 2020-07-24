@@ -89,7 +89,7 @@ namespace teanicorns_art_trade_bot.Modules
                     + (string.IsNullOrWhiteSpace(artMissingHistory1) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_1, artHistory1.Theme, artMissingHistory1))
                     + (string.IsNullOrWhiteSpace(artMissingHistory2) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_2, artHistory2.Theme, artMissingHistory2)));
 
-                var subscribers = Storage.Axx.AppSettings.Subscribers;
+                var subscribers = new List<ulong>(Storage.Axx.AppSettings.Subscribers);
 
                 // notify those that did not send their art on time
                 foreach (Storage.UserData user in GetMissingArt(artHistory0))
