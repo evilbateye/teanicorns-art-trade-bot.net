@@ -102,12 +102,7 @@ namespace teanicorns_art_trade_bot.Modules
                 }
 
                 // notify those that subscribed for notifications
-                foreach (ulong userID in subscribers)
-                {
-                    SocketUser su = client.GetUser(userID);
-                    if (su != null)
-                        await su.SendMessageAsync($"<@{userID}> {string.Format(Properties.Resources.TRADE_NEW_ENTRIES, Config.CmdPrefix, "set entry", "about")}");
-                }
+                await Utils.NotifySubscribers(client, string.Format(Properties.Resources.TRADE_NEW_ENTRIES, Config.CmdPrefix, "set entry", "about"), subscribers);
             }
         }
 
@@ -170,11 +165,13 @@ namespace teanicorns_art_trade_bot.Modules
                 reply += $"\n{emojiCode} : `{theme}`";
             }
             
-
             SocketTextChannel channel = Utils.FindChannel(Context.Client, Storage.Axx.AppSettings.WorkingChannel);
             if (channel != null)
             {
                 var msg = await channel.SendMessageAsync(reply);
+
+                await Utils.NotifySubscribers(Context.Client, string.Format(Properties.Resources.TRADE_THEME_POOL_START));
+
                 foreach (var emoji in emojiObjs)
                     await msg.AddReactionAsync(emoji);
                 Storage.Axx.AppSettings.SetThemePollID(msg.Id);

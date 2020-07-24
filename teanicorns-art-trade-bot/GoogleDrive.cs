@@ -11,7 +11,6 @@ using Google.Apis.Services;
 using Google.Apis.Util.Store;
 
 using Discord.WebSocket;
-using Discord;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace teanicorns_art_trade_bot
@@ -48,16 +47,6 @@ namespace teanicorns_art_trade_bot
             timer.Elapsed += new ElapsedEventHandler(OnPeriodicUpdate);
             timer.Interval = 600000;
             timer.Enabled = true; 
-        }
-
-        private static async Task NotifySubscribers(string message)
-        {
-            foreach (ulong userId in Storage.Axx.AppSettings.Subscribers)
-            {
-                SocketUser su = _discord.GetUser(userId);
-                if (su != null)
-                    await su.SendMessageAsync(message);
-            }
         }
 
         private static async void OnPeriodicUpdate(object source, ElapsedEventArgs e)
@@ -102,7 +91,7 @@ namespace teanicorns_art_trade_bot
 
                                 await channel.SendMessageAsync(message);
 
-                                await NotifySubscribers(message);
+                                await Utils.NotifySubscribers(_discord, message);
                             }
                         }
                         else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-3)) > 0)
@@ -115,7 +104,7 @@ namespace teanicorns_art_trade_bot
 
                                 await channel.SendMessageAsync(message);
 
-                                await NotifySubscribers(message);
+                                await Utils.NotifySubscribers(_discord, message);
                             }
                         }
                         else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-7)) > 0)
@@ -128,7 +117,7 @@ namespace teanicorns_art_trade_bot
 
                                 await channel.SendMessageAsync(message);
 
-                                await NotifySubscribers(message);
+                                await Utils.NotifySubscribers(_discord, message);
                             }
                         }
                         else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeStart(3)) > 0)

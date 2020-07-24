@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using Discord.Commands;
+using Discord;
 
 namespace teanicorns_art_trade_bot
 {
@@ -134,5 +135,18 @@ namespace teanicorns_art_trade_bot
         public static List<string> EmojiCodes = new List<string>() { "\u0030\u20E3" /*:zero:*/, "\u0031\u20E3" /*:one:*/, "\u0032\u20E3" /*:two:*/
             , "\u0033\u20E3" /*:three:*/, "\u0034\u20E3" /*:four:*/, "\u0035\u20E3" /*:five:*/, "\u0036\u20E3" /*:six:*/, "\u0037\u20E3" /*:seven:*/
             , "\u0038\u20E3" /*:eight:*/, "\u0039\u20E3" /*:nine:*/};
+
+        public static async Task NotifySubscribers(DiscordSocketClient client, string message, List<ulong> subscribers = null)
+        {
+            if (subscribers == null)
+                subscribers = Storage.Axx.AppSettings.Subscribers;
+
+            foreach (ulong userId in subscribers)
+            {
+                SocketUser su = client.GetUser(userId);
+                if (su != null)
+                    await su.SendMessageAsync($"<@{userId}> " + message);
+            }
+        }
     }
 }
