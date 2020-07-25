@@ -11,10 +11,26 @@ namespace teanicorns_art_trade_bot.Storage
 {
     public class ApplicationData : IStorage, ICloneable
     {
-        public string Theme = "";
-        public List<UserData> Storage = new List<UserData>();
-        private Shuffle m_shuffle = new Shuffle();
-                
+        [JsonProperty] private string Theme = "";
+        [JsonProperty] private List<UserData> Storage = new List<UserData>();
+        private AdvancedShuffle _shuffle = new AdvancedShuffle();
+        
+        public string GetTheme()
+        {
+            return Theme;
+        }
+
+        public List<UserData> GetStorage()
+        {
+            return Storage;
+        }
+
+        public void SetStorage(List<UserData> storage)
+        {
+            Storage = storage;
+            Save();
+        }
+
         public bool AddThemeToPool(ulong userID, string theme)
         {
             theme = theme.ToLower().Trim();
@@ -157,11 +173,13 @@ namespace teanicorns_art_trade_bot.Storage
 
             return false;
         }
-        public void Shuffle(ApplicationHistory history)
+        public void DoShuffle(ApplicationHistory history)
         {
-            if (!m_shuffle.Compute(this, history))
+            if (!_shuffle.Compute(this, history))
+            {
                 Storage = Storage.OrderBy(x => Guid.NewGuid()).ToList();
-            Save();
+                Save();
+            }
         }
         public bool Next(ulong userId, out UserData nextUser)
         {
@@ -266,13 +284,9 @@ namespace teanicorns_art_trade_bot.Storage
             Save();
             return true;
         }
-        public List<UserData> GetStorage()
-        {
-            return Storage;
-        }
-
+        
         // IStorage
-        public string FileName() { return Axx.AppDataFileName; }
+        public string FileName() { return xs.ENTRIES_PATH; }
         public int Count() { return Storage.Count; }
         public void Clear() { Storage.Clear(); }
         public void Load(string fileName)
@@ -280,18 +294,18 @@ namespace teanicorns_art_trade_bot.Storage
             string json = File.ReadAllText(fileName);
             var data = JsonConvert.DeserializeObject<ApplicationData>(json);
             if (data != null)
-                Axx.AppData = data;
+                xs.Entries = data;
         }
         public void Save()
         {
-            if (this == Axx.AppData)
+            if (this == xs.Entries)
             {
-                string json = JsonConvert.SerializeObject(Axx.AppData, Formatting.Indented);
-                File.WriteAllText(Axx.AppDataFileName, json);
+                string json = JsonConvert.SerializeObject(xs.Entries, Formatting.Indented);
+                File.WriteAllText(xs.ENTRIES_PATH, json);
             }
             else
             {
-                Axx.AppHistory.Save(); // RevealArt with theme set case
+                xs.History.Save(); // RevealArt with theme set case
             }
         }
 

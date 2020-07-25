@@ -21,7 +21,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task SetEntry([Remainder][Summary("description of your art trade entry (optional)")]string description = null)
         {
             var user = Context.Message.Author;
-            if (Storage.Axx.AppSettings.IsTradeMonthActive())
+            if (Storage.xs.Settings.IsTradeMonthActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
@@ -54,7 +54,7 @@ namespace teanicorns_art_trade_bot.Modules
                 data.ReferenceDescription = description;
             if (user is IGuildUser guildUser)
                 data.NickName = guildUser.Nickname;
-            Storage.Axx.AppData.Set(data);
+            Storage.xs.Entries.Set(data);
             await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REG_SUCC, user.Id));
         }
 
@@ -65,7 +65,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task GetEntry()
         {
             var user = Context.Message.Author;
-            var data = Storage.Axx.AppData.Get(user.Id);
+            var data = Storage.xs.Entries.Get(user.Id);
             if (data != null)
             {
                 Embed embed = null;
@@ -91,13 +91,13 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task DeleteEntry()
         {
             var user = Context.Message.Author;
-            if (Storage.Axx.AppSettings.IsTradeMonthActive())
+            if (Storage.xs.Settings.IsTradeMonthActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
             }
 
-            if (Storage.Axx.AppData.Remove(user.Id))
+            if (Storage.xs.Entries.Remove(user.Id))
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             else
                 await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
@@ -112,14 +112,14 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task ShowPartner()
         {
             var user = Context.Message.Author;
-            if (!Storage.Axx.AppSettings.IsTradeMonthActive())
+            if (!Storage.xs.Settings.IsTradeMonthActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_EW_TAKING_PLACE, user.Id));
                 return;
             }
 
             Storage.UserData nextUser;
-            if (Storage.Axx.AppData.Next(user.Id, out nextUser))
+            if (Storage.xs.Entries.Next(user.Id, out nextUser))
             {
                 if (!await SendPartnerResponse(nextUser, user))
                     await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
@@ -132,7 +132,7 @@ namespace teanicorns_art_trade_bot.Modules
         {
             if (bThemeOnly)
             {
-                var message = (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "`none`" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme)) + "\n";
+                var message = (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "none" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme())) + "\n";
                 await user.SendMessageAsync(message);
             }
             else
@@ -148,8 +148,8 @@ namespace teanicorns_art_trade_bot.Modules
                     , user.Id
                     , $"{partnerData.UserName}" + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})")) + "\n";
 
-                if (!string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
-                    message += $" {string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme)}\n";
+                if (!string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()))
+                    message += $" {string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme())}\n";
 
                 if (!string.IsNullOrWhiteSpace(partnerData.ReferenceDescription))
                     message += $"`{partnerData.ReferenceDescription}`";
@@ -177,13 +177,14 @@ namespace teanicorns_art_trade_bot.Modules
             {
                 theme = theme.ToLower();
 
-                for (int i = 0; i < Storage.Axx.AppHistory.History.Count && i < 3; ++i)
+                for (int i = 0; i < Storage.xs.History.Count() && i < 3; ++i)
                 {
-                    var d = Storage.Axx.AppHistory.History[i];
-
-                    if (string.IsNullOrWhiteSpace(d.Theme))
+                    var d = Storage.xs.History.GetTrade(i);
+                    if (d == null)
                         continue;
-                    if (theme.Contains(d.Theme.ToLower().Trim()))
+                    if (string.IsNullOrWhiteSpace(d.GetTheme()))
+                        continue;
+                    if (theme.Contains(d.GetTheme().ToLower().Trim()))
                     {
                         foundTrade = d;
                         break;
@@ -193,12 +194,12 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (foundTrade == null)
             {
-                foundTrade = Storage.Axx.AppData;
+                foundTrade = Storage.xs.Entries;
             }
 
-            bool bCurrentTrade = foundTrade == Storage.Axx.AppData;
+            bool bCurrentTrade = foundTrade == Storage.xs.Entries;
 
-            if (bCurrentTrade && !Storage.Axx.AppSettings.IsTradeMonthActive())
+            if (bCurrentTrade && !Storage.xs.Settings.IsTradeMonthActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_EW_TAKING_PLACE, user.Id));
                 return;
@@ -225,7 +226,7 @@ namespace teanicorns_art_trade_bot.Modules
                 foundTrade.Set(data);
 
                 if (!bCurrentTrade)
-                    await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
+                    await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH);
 
                 var client = Context.Client;
                 var nextUser = client.GetUser(nextUserData.UserId);
@@ -237,7 +238,7 @@ namespace teanicorns_art_trade_bot.Modules
 
                 string monthTheme = "";
                 if (!bCurrentTrade)
-                    monthTheme = foundTrade.Theme;
+                    monthTheme = foundTrade.GetTheme();
 
                 if (await SendPartnerArtResponse(data, nextUser, monthTheme))
                     await ReplyAsync(string.Format(Properties.Resources.REF_REVEAL_NOTIFY, user.Id, nextUser.Id));
@@ -273,20 +274,20 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task AddTheme([Summary("the theme name (changed to lowercase and trimmed)")][Remainder]string theme)
         {
             var user = Context.Message.Author;
-            if (!Storage.Axx.AppSettings.IsEntryWeekActive())
+            if (!Storage.xs.Settings.IsEntryWeekActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
             }
 
-            Storage.UserData userData = Storage.Axx.AppData.TryGetValue(user.Id, out int index);
+            Storage.UserData userData = Storage.xs.Entries.TryGetValue(user.Id, out int index);
             if (userData == null)
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REGISTER_FIRST, user.Id));
                 return;
             }
 
-            if (Storage.Axx.AppData.AddThemeToPool(user.Id, theme))
+            if (Storage.xs.Entries.AddThemeToPool(user.Id, theme))
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_DUPLICAT_ARG, user.Id, "theme"));
@@ -299,20 +300,20 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task DeleteTheme([Summary("the name of the theme to be removed")][Remainder]string theme)
         {
             var user = Context.Message.Author;
-            if (!Storage.Axx.AppSettings.IsEntryWeekActive())
+            if (!Storage.xs.Settings.IsEntryWeekActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
             }
 
-            Storage.UserData userData = Storage.Axx.AppData.TryGetValue(user.Id, out int index);
+            Storage.UserData userData = Storage.xs.Entries.TryGetValue(user.Id, out int index);
             if (userData == null)
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REGISTER_FIRST, user.Id));
                 return;
             }
 
-            if (Storage.Axx.AppData.RemoveThemeFromPool(user.Id, theme))
+            if (Storage.xs.Entries.RemoveThemeFromPool(user.Id, theme))
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
@@ -324,7 +325,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task ShowThemes()
         {
             var user = Context.Message.Author;
-            Storage.UserData userData = Storage.Axx.AppData.TryGetValue(user.Id, out int index);
+            Storage.UserData userData = Storage.xs.Entries.TryGetValue(user.Id, out int index);
             if (userData == null)
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REGISTER_FIRST, user.Id));
@@ -342,7 +343,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task Notify([Summary("true = turn on notifications, false = turn them off, no argument = toggle")]bool? bOnOff = null)
         {
             var user = Context.Message.Author;
-            if (Storage.Axx.AppSettings.ChangeSubscription(user.Id, bOnOff))
+            if (Storage.xs.Settings.ChangeSubscription(user.Id, bOnOff))
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));

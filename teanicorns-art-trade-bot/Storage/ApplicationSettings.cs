@@ -26,16 +26,17 @@ namespace teanicorns_art_trade_bot.Storage
             TradeMonth = 2
         }
 
-        public TradeSegment ArtTradeActive = TradeSegment.EntryWeek;
-        public string WorkingChannel = "general";
-        public DateTime TradeStart = DateTime.Now;
-        public double TradeDays = 0.0;
-        public NofifyFlags Notified = NofifyFlags.None;
-        public bool ForceTradeEnd = false;
-        public ulong ThemePollID = 0;
-        public List<ulong> Subscribers = new List<ulong>();
+        public const string DEFAULT_WORK_CHANNEL = "general";
+        [JsonProperty] private TradeSegment ArtTradeActive = TradeSegment.EntryWeek;
+        [JsonProperty] private string WorkingChannel = DEFAULT_WORK_CHANNEL;
+        [JsonProperty] private DateTime TradeStart = DateTime.Now;
+        [JsonProperty] private double TradeDays = 0.0;
+        [JsonProperty] private NofifyFlags Notified = NofifyFlags.None;
+        [JsonProperty] private bool ForceTradeEnd = false;
+        [JsonProperty] private ulong ThemePollID = 0;
+        [JsonProperty] private List<ulong> Subscribers = new List<ulong>();
 
-        public List<ulong> GetSubs()
+        public List<ulong> GetSubscribers()
         {
             return Subscribers;
         }
@@ -67,7 +68,7 @@ namespace teanicorns_art_trade_bot.Storage
 
         public string GetWorkingChannel()
         {
-            return WorkingChannel;
+            return string.IsNullOrWhiteSpace(WorkingChannel) ? DEFAULT_WORK_CHANNEL : WorkingChannel;
         }
 
         public bool IsTradeMonthActive()
@@ -194,7 +195,7 @@ namespace teanicorns_art_trade_bot.Storage
         }
 
         // IStorage methods
-        public string FileName() { return Axx.AppSettingsFileName; }
+        public string FileName() { return xs.SETTINGS_PATH; }
         public int Count() { return 1; }
         public void Clear()
         {
@@ -204,12 +205,12 @@ namespace teanicorns_art_trade_bot.Storage
             string json = File.ReadAllText(fileName);
             var data = JsonConvert.DeserializeObject<ApplicationSettings>(json);
             if (data != null)
-                Axx.AppSettings = data;
+                xs.Settings = data;
         }
         public void Save()
         {
-            string json = JsonConvert.SerializeObject(Axx.AppSettings, Formatting.Indented);
-            File.WriteAllText(Axx.AppSettingsFileName, json);
+            string json = JsonConvert.SerializeObject(xs.Settings, Formatting.Indented);
+            File.WriteAllText(xs.SETTINGS_PATH, json);
         }
     }
 }

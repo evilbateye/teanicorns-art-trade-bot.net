@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using Discord;
 using Discord.WebSocket;
-using System.Text;
 
 namespace teanicorns_art_trade_bot.Modules
 {
     //[RequireUserPermissionAttribute(GuildPermission.Administrator)]
-    //[Group(Utils.adminGroupId)]
+    //[Group(Utils.ADMIN_GROUP_ID)]
     public class TradeEventModule : ModuleBase<SocketCommandContext>
     {
         public static List<Storage.UserData> GetMissingArt(Storage.ApplicationData appData)
@@ -30,14 +29,12 @@ namespace teanicorns_art_trade_bot.Modules
 
         public static Storage.ApplicationData GetAppDataFromHistory(int level)
         {
-            if (level < Storage.Axx.AppHistory.Count())
-                return Storage.Axx.AppHistory.History[level];
-            return null;
+            return Storage.xs.History.GetTrade(level);
         }
         public static List<Storage.UserData> GetMissingArt(int? level = null)
         {
             if (!level.HasValue)
-                return GetMissingArt(Storage.Axx.AppData);
+                return GetMissingArt(Storage.xs.Entries);
             return GetMissingArt(GetAppDataFromHistory(level.Value));
         }
 
@@ -55,17 +52,17 @@ namespace teanicorns_art_trade_bot.Modules
 
         public static async Task StartEntryWeek(DiscordSocketClient client, double? days2end = null, bool? force = null, [Remainder]string theme = null)
         {
-            Storage.Axx.AppHistory.RecordTrade(Storage.Axx.AppData);
-            await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
-            Storage.Axx.ClearStorage(Storage.Axx.AppData);
-            Storage.Axx.AppSettings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.EntryWeek, null/*days2start*/, days2end, force);
+            Storage.xs.History.RecordTrade(Storage.xs.Entries);
+            await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH);
+            Storage.xs.ClearStorage(Storage.xs.Entries);
+            Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.EntryWeek, null/*days2start*/, days2end, force);
 
             if (string.IsNullOrWhiteSpace(theme))
-                Storage.Axx.AppData.SetTheme("");
+                Storage.xs.Entries.SetTheme("");
             else
-                Storage.Axx.AppData.SetTheme(theme);
+                Storage.xs.Entries.SetTheme(theme);
 
-            SocketTextChannel channel = Utils.FindChannel(client, Storage.Axx.AppSettings.GetWorkingChannel());
+            SocketTextChannel channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
             if (channel != null)
             {
                 string artMissing = "";
@@ -84,12 +81,12 @@ namespace teanicorns_art_trade_bot.Modules
                     artMissingHistory2 = GetMissingArtToStr(artHistory2);
 
                 await channel.SendMessageAsync("@everyone " + string.Format(Properties.Resources.TRADE_NEW_ENTRIES, Config.CmdPrefix, "set entry", "about") + "\n"
-                    + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n")
+                    + (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme()) + "\n")
                     + (string.IsNullOrWhiteSpace(artMissing) ? string.Format(Properties.Resources.TRADE_ART_ON_TIME) : string.Format(Properties.Resources.TRADE_ART_LATE, artMissing))
-                    + (string.IsNullOrWhiteSpace(artMissingHistory1) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_1, artHistory1.Theme, artMissingHistory1))
-                    + (string.IsNullOrWhiteSpace(artMissingHistory2) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_2, artHistory2.Theme, artMissingHistory2)));
+                    + (string.IsNullOrWhiteSpace(artMissingHistory1) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_1, artHistory1.GetTheme(), artMissingHistory1))
+                    + (string.IsNullOrWhiteSpace(artMissingHistory2) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_2, artHistory2.GetTheme(), artMissingHistory2)));
 
-                var subscribers = new List<ulong>(Storage.Axx.AppSettings.GetSubs());
+                var subscribers = new List<ulong>(Storage.xs.Settings.GetSubscribers());
 
                 // notify those that did not send their art on time
                 foreach (Storage.UserData user in GetMissingArt(artHistory0))
@@ -98,7 +95,7 @@ namespace teanicorns_art_trade_bot.Modules
 
                     SocketUser su = client.GetUser(user.UserId);
                     if (su != null)
-                        await su.SendMessageAsync(string.Format(Properties.Resources.TRADE_ART_LATE_DM, user.UserId, artHistory0.Theme));
+                        await su.SendMessageAsync(string.Format(Properties.Resources.TRADE_ART_LATE_DM, user.UserId, artHistory0.GetTheme()));
                 }
 
                 // notify those that subscribed for notifications
@@ -125,11 +122,11 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.Axx.BackupStorage(Storage.Axx.AppData);
-            Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
-            Storage.Axx.BackupStorage(Storage.Axx.AppHistory);
+            Storage.xs.BackupStorage(Storage.xs.Entries);
+            Storage.xs.BackupStorage(Storage.xs.Settings);
+            Storage.xs.BackupStorage(Storage.xs.History);
 
-            if (Storage.Axx.AppSettings.IsTradeMonthActive())
+            if (Storage.xs.Settings.IsTradeMonthActive())
                 await StartEntryWeek(Context.Client, days2end, force, theme);
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_IN_PROGRESS, user.Id, "entry week"));
@@ -163,34 +160,34 @@ namespace teanicorns_art_trade_bot.Modules
                 reply += $"\n{emojiCode} : `{theme}`";
             }
             
-            SocketTextChannel channel = Utils.FindChannel(Context.Client, Storage.Axx.AppSettings.GetWorkingChannel());
+            SocketTextChannel channel = Utils.FindChannel(Context.Client, Storage.xs.Settings.GetWorkingChannel());
             if (channel == null)
                 return false;
 
             var msg = await channel.SendMessageAsync(reply);
 
-            await Utils.NotifySubscribers(Context.Client, string.Format(Properties.Resources.TRADE_THEME_POOL_SUBS, "theme poll", Storage.Axx.AppSettings.GetWorkingChannel()));
+            await Utils.NotifySubscribers(Context.Client, string.Format(Properties.Resources.TRADE_THEME_POOL_SUBS, "theme poll", Storage.xs.Settings.GetWorkingChannel()));
 
             foreach (var emoji in emojiObjs)
                 await msg.AddReactionAsync(emoji);
 
-            Storage.Axx.AppSettings.SetThemePollID(msg.Id);
+            Storage.xs.Settings.SetThemePollID(msg.Id);
             return true;
         }
 
         public static async Task<bool> StartTradeMonth(DiscordSocketClient client, double? days2end = null, bool? force = null)
         {
-            SocketTextChannel channel = Utils.FindChannel(client, Storage.Axx.AppSettings.GetWorkingChannel());
+            SocketTextChannel channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
             if (channel == null)
                 return false;
                 
-            Storage.Axx.AppSettings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.TradeMonth, 0.0/*days2start*/, days2end, force);
+            Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.TradeMonth, 0.0/*days2start*/, days2end, force);
 
-            Storage.Axx.AppData.Shuffle(Storage.Axx.AppHistory);
+            Storage.xs.Entries.DoShuffle(Storage.xs.History);
 
             await channel.SendMessageAsync(string.Format(Properties.Resources.TRADE_NO_NEW_ENTRIES, Config.CmdPrefix, "reveal art", "about") + "\n"
-            + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n")
-            + (Storage.Axx.AppSettings.GetTradeDays() == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.GetTradeDays(), Storage.Axx.AppSettings.GetTradeStart(Storage.Axx.AppSettings.GetTradeDays()).ToString("dd-MMMM"))));
+            + (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme()) + "\n")
+            + (Storage.xs.Settings.GetTradeDays() == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.xs.Settings.GetTradeDays(), Storage.xs.Settings.GetTradeStart(Storage.xs.Settings.GetTradeDays()).ToString("dd-MMMM"))));
 
             return await SendPartnersResponse(client);
         }
@@ -214,17 +211,17 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.Axx.BackupStorage(Storage.Axx.AppData);
-            Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
+            Storage.xs.BackupStorage(Storage.xs.Entries);
+            Storage.xs.BackupStorage(Storage.xs.Settings);
 
-            if (!Storage.Axx.AppSettings.IsTradeMonthActive())
+            if (!Storage.xs.Settings.IsTradeMonthActive())
             {
                 if (!string.IsNullOrWhiteSpace(theme))
-                    Storage.Axx.AppData.SetTheme(theme);
+                    Storage.xs.Entries.SetTheme(theme);
 
-                if (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
+                if (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()))
                 {
-                    Storage.Axx.AppSettings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.ThemesPoll, 0.0/*days2start*/, days2end, force);
+                    Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.ThemesPoll, 0.0/*days2start*/, days2end, force);
                     if (!await CreateThemePoll())
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
                 }
@@ -255,9 +252,9 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.Axx.BackupStorage(Storage.Axx.AppData);
+            Storage.xs.BackupStorage(Storage.xs.Entries);
 
-            if (Storage.Axx.AppData.SetTheme(theme))
+            if (Storage.xs.Entries.SetTheme(theme))
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
@@ -281,8 +278,8 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
-            Storage.Axx.AppSettings.ActivateTrade((Storage.ApplicationSettings.TradeSegment?)tradeSeg, days2start, days2end, force);
+            Storage.xs.BackupStorage(Storage.xs.Settings);
+            Storage.xs.Settings.ActivateTrade((Storage.ApplicationSettings.TradeSegment?)tradeSeg, days2start, days2end, force);
 
             if (!string.IsNullOrWhiteSpace(channel))
                 await Channel(channel);
@@ -308,11 +305,11 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
+            Storage.xs.BackupStorage(Storage.xs.Settings);
 
             channel = channel.ToLower().Trim();
             var channelObj = Utils.FindChannel(Utils.FindGuild(user), channel);
-            if (channelObj != null && Storage.Axx.AppSettings.SetWorkingChannel(channel))
+            if (channelObj != null && Storage.xs.Settings.SetWorkingChannel(channel))
                 await channelObj.SendMessageAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
@@ -332,29 +329,29 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
                         
-            string info = string.Format(Properties.Resources.TRADE_LIST_ONOFF, Storage.Axx.AppSettings.GetActiveTradeSegment()) + "\n";
+            string info = string.Format(Properties.Resources.TRADE_LIST_ONOFF, Storage.xs.Settings.GetActiveTradeSegment()) + "\n";
             
-            info += string.Format(Properties.Resources.TRADE_THIS_THEME, string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "`none`" : Storage.Axx.AppData.Theme) + "\n";
+            info += string.Format(Properties.Resources.TRADE_THIS_THEME, string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "none" : Storage.xs.Entries.GetTheme()) + "\n";
                         
             info += string.Format(Properties.Resources.TRADE_LIST_SETTINGS
-                , Storage.Axx.AppSettings.GetWorkingChannel()
-                , Storage.Axx.AppSettings.GetTradeStart().ToString("dd-MMMM")
-                , Storage.Axx.AppSettings.GetTradeEnd().ToString("dd-MMMM")
-                , Storage.Axx.AppSettings.GetTradeDays()
-                , Storage.Axx.AppSettings.GetNotifyFlags()
-                , Storage.Axx.AppSettings.IsForceTradeOn()) + "\n";
+                , Storage.xs.Settings.GetWorkingChannel()
+                , Storage.xs.Settings.GetTradeStart().ToString("dd-MMMM")
+                , Storage.xs.Settings.GetTradeEnd().ToString("dd-MMMM")
+                , Storage.xs.Settings.GetTradeDays()
+                , Storage.xs.Settings.GetNotifyFlags()
+                , Storage.xs.Settings.IsForceTradeOn()) + "\n";
 
-            info +=  "subscribers: " + (Storage.Axx.AppSettings.GetSubs().Count <= 0 ? "`empty`" : string.Join(", ", Storage.Axx.AppSettings.GetSubs().Select(sub => $"`{Context.Client.GetUser(sub).Username}`"))) + "\n";
+            info +=  "subscribers: " + (Storage.xs.Settings.GetSubscribers().Count <= 0 ? "`empty`" : string.Join(", ", Storage.xs.Settings.GetSubscribers().Select(sub => $"`{Context.Client.GetUser(sub).Username}`"))) + "\n";
 
             string entries = $"\n{string.Format(Properties.Resources.TRADE_LIST_ENTRIES, user.Id)}\n";
             if (!bAll)
-                entries += string.Join("\n", Storage.Axx.AppData.GetStorage().Select(x => $"`{x.UserName}`" +
+                entries += string.Join("\n", Storage.xs.Entries.GetStorage().Select(x => $"`{x.UserName}`" +
                 (string.IsNullOrWhiteSpace(x.NickName) ? "" : $" (`{x.NickName}`)") +
                 (string.IsNullOrWhiteSpace(x.ArtUrl) ? "" : " , `art`") +
                 (x.ThemePool.Count <= 0 ? "" : $", themes: {string.Join(", ", x.ThemePool.Select(the => $"`{the}`"))}")
                 ));
             else
-                entries += string.Join("\n", Storage.Axx.AppData.GetStorage().Select(x => $"`{x.UserName}`: `{x.UserId}`\n" +
+                entries += string.Join("\n", Storage.xs.Entries.GetStorage().Select(x => $"`{x.UserName}`: `{x.UserId}`\n" +
                 (string.IsNullOrWhiteSpace(x.NickName) ? "" : $"Nickname: `{x.NickName}`\n") +
                 (string.IsNullOrWhiteSpace(x.ReferenceUrl) ? "" : $"Entry Url: <{x.ReferenceUrl}>\n") +
                 (string.IsNullOrWhiteSpace(x.ReferenceDescription) ? "" : $"Entry Desc: `{x.ReferenceDescription}`\n") +
@@ -377,8 +374,8 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.Axx.BackupStorage(Storage.Axx.AppData);
-            Storage.Axx.ClearStorage(Storage.Axx.AppData);
+            Storage.xs.BackupStorage(Storage.xs.Entries);
+            Storage.xs.ClearStorage(Storage.xs.Entries);
             await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
         }
 
@@ -397,8 +394,8 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.Axx.BackupStorage(Storage.Axx.AppData);
-            Storage.Axx.AppData.Shuffle(Storage.Axx.AppHistory);
+            Storage.xs.BackupStorage(Storage.xs.Entries);
+            Storage.xs.Entries.DoShuffle(Storage.xs.History);
             await ReplyAsync(string.Format(Properties.Resources.TRADE_ENTRIES_SHUFFLE, user.Id));
             if (bNotify)
                 await Resend();
@@ -471,10 +468,10 @@ namespace teanicorns_art_trade_bot.Modules
                 }
             }
 
-            Storage.Axx.BackupStorage(Storage.Axx.AppData);
+            Storage.xs.BackupStorage(Storage.xs.Entries);
 
             List<Storage.UserData> needNotify;
-            if (Storage.Axx.AppData.ResetNext(partner2.Id, partner1.Id, partner3IdVal, out needNotify))
+            if (Storage.xs.Entries.ResetNext(partner2.Id, partner1.Id, partner3IdVal, out needNotify))
             {
                 if (await SendPartnersResponse(Context.Client, needNotify))
                     await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, ourUser.Id));
@@ -504,28 +501,28 @@ namespace teanicorns_art_trade_bot.Modules
             {
                 if (string.IsNullOrWhiteSpace(storageType))
                 {
-                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData) && await Storage.Axx.RestoreStorage(Storage.Axx.AppSettings) && await Storage.Axx.RestoreStorage(Storage.Axx.AppHistory))
+                    if (await Storage.xs.RestoreStorage(Storage.xs.Entries) && await Storage.xs.RestoreStorage(Storage.xs.Settings) && await Storage.xs.RestoreStorage(Storage.xs.History))
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
                     else
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
                 }
                 else if (storageType.ToLower().Trim().Contains("entries"))
                 {
-                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData))
+                    if (await Storage.xs.RestoreStorage(Storage.xs.Entries))
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
                     else
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
                 }
                 else if (storageType.ToLower().Trim().Contains("settings"))
                 {
-                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppSettings))
+                    if (await Storage.xs.RestoreStorage(Storage.xs.Settings))
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
                     else
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
                 }
                 else if (storageType.ToLower().Trim().Contains("history"))
                 {
-                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppHistory))
+                    if (await Storage.xs.RestoreStorage(Storage.xs.History))
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
                     else
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
@@ -550,21 +547,21 @@ namespace teanicorns_art_trade_bot.Modules
 
                 if (storageType.ToLower().Trim().Contains("entries"))
                 {
-                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppData, fileUrl))
+                    if (await Storage.xs.RestoreStorage(Storage.xs.Entries, fileUrl))
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
                     else
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
                 }
                 else if (storageType.ToLower().Trim().Contains("settings"))
                 {
-                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppSettings, fileUrl))
+                    if (await Storage.xs.RestoreStorage(Storage.xs.Settings, fileUrl))
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
                     else
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
                 }
                 else if (storageType.ToLower().Trim().Contains("history"))
                 {
-                    if (await Storage.Axx.RestoreStorage(Storage.Axx.AppHistory, fileUrl))
+                    if (await Storage.xs.RestoreStorage(Storage.xs.History, fileUrl))
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
                     else
                         await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
@@ -592,23 +589,23 @@ namespace teanicorns_art_trade_bot.Modules
             mode = mode.ToLower().Trim();
             if (mode.Equals("json"))
             {
-                await user.SendFileAsync(Storage.Axx.AppDataFileName);
-                await user.SendFileAsync(Storage.Axx.AppSettingsFileName);
-                await user.SendFileAsync(Storage.Axx.AppHistoryFileName);
+                await user.SendFileAsync(Storage.xs.ENTRIES_PATH);
+                await user.SendFileAsync(Storage.xs.HISTORY_PATH);
+                await user.SendFileAsync(Storage.xs.SETTINGS_PATH);
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             }
             else if (mode.Equals("sync"))
             {
-                await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppDataFileName);
-                await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppSettingsFileName);
-                await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
+                await GoogleDriveHandler.UploadGoogleFile(Storage.xs.ENTRIES_PATH);
+                await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH);
+                await GoogleDriveHandler.UploadGoogleFile(Storage.xs.SETTINGS_PATH);
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             }
             else
             {
-                Storage.Axx.BackupStorage(Storage.Axx.AppData);
-                Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
-                Storage.Axx.BackupStorage(Storage.Axx.AppHistory);
+                Storage.xs.BackupStorage(Storage.xs.Entries);
+                Storage.xs.BackupStorage(Storage.xs.Settings);
+                Storage.xs.BackupStorage(Storage.xs.History);
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             }
         }
@@ -616,7 +613,7 @@ namespace teanicorns_art_trade_bot.Modules
         public static async Task<bool> SendPartnersResponse(DiscordSocketClient client, List<Storage.UserData> entries = null, bool bThemeOnly = false)
         {
             if (entries == null)
-                entries = Storage.Axx.AppData.Storage;
+                entries = Storage.xs.Entries.GetStorage();
 
             string report1 = "";
             string report2 = "";
@@ -624,7 +621,7 @@ namespace teanicorns_art_trade_bot.Modules
             foreach (var userData in entries)
             {
                 Storage.UserData nextUser;
-                if (!Storage.Axx.AppData.Next(userData.UserId, out nextUser))
+                if (!Storage.xs.Entries.Next(userData.UserId, out nextUser))
                 {
                     report1 += $"{userData.UserName}\n";
                     continue;
@@ -675,7 +672,7 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            if (!await SendPartnersResponse(Context.Client, Storage.Axx.AppData.Storage, bThemeOnly))
+            if (!await SendPartnersResponse(Context.Client, Storage.xs.Entries.GetStorage(), bThemeOnly))
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
         }
     }

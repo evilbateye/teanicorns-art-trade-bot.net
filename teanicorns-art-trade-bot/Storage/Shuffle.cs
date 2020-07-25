@@ -9,11 +9,11 @@ using System.Net;
 
 namespace teanicorns_art_trade_bot.Storage
 {
-    class Shuffle
+    class AdvancedShuffle
     {
-        private List<List<ulong>> m_computedChain = new List<List<ulong>>();
+        private List<List<ulong>> _computedChain = new List<List<ulong>>();
+        private Dictionary<ulong, List<ulong>> _data = new Dictionary<ulong, List<ulong>>();
 
-        private Dictionary<ulong, List<ulong>> m_data = new Dictionary<ulong, List<ulong>>();
         private Dictionary<ulong, ulong> FillPreviousTradesPairs(ApplicationData thisMonth, ApplicationData prevMonth)
         {
             Dictionary<ulong, ulong> prevMonthList = new Dictionary<ulong, ulong>();
@@ -30,27 +30,27 @@ namespace teanicorns_art_trade_bot.Storage
         {
             int idx = -1;
             List<ulong> valSubChain = null;
-            for (int i = m_computedChain.Count - 1; i >= 0; i--)
+            for (int i = _computedChain.Count - 1; i >= 0; i--)
             {
-                idx = m_computedChain[i].FindIndex(x => x == val);
+                idx = _computedChain[i].FindIndex(x => x == val);
                 if (idx != -1)
                 {
-                    valSubChain = m_computedChain[i];
-                    m_computedChain.RemoveAt(i);
+                    valSubChain = _computedChain[i];
+                    _computedChain.RemoveAt(i);
                     break;
                 }
             }
 
             idx = -1;
-            for (int i = 0; i <  m_computedChain.Count; i++)
+            for (int i = 0; i <  _computedChain.Count; i++)
             {
-                idx = m_computedChain[i].FindIndex(x => x == key);
+                idx = _computedChain[i].FindIndex(x => x == key);
                 if (idx != -1)
                 {
                     if (valSubChain == null)
-                        m_computedChain[i].Insert(idx + 1, val);
+                        _computedChain[i].Insert(idx + 1, val);
                     else
-                        m_computedChain[i] = m_computedChain[i].Concat(valSubChain).ToList();
+                        _computedChain[i] = _computedChain[i].Concat(valSubChain).ToList();
                     break;
                 }
             }
@@ -58,16 +58,16 @@ namespace teanicorns_art_trade_bot.Storage
             if (idx == -1)
             {
                 if (valSubChain == null)
-                    m_computedChain.Add(new List<ulong>() { key, val });
+                    _computedChain.Add(new List<ulong>() { key, val });
                 else
                 {
                     if (valSubChain.Contains(key))
                     {
-                        m_computedChain.Add(valSubChain);
+                        _computedChain.Add(valSubChain);
                         return false; // cyclic dependency
                     }
 
-                    m_computedChain.Add(valSubChain.Prepend(key).ToList());
+                    _computedChain.Add(valSubChain.Prepend(key).ToList());
                 }
             }
 
@@ -77,13 +77,13 @@ namespace teanicorns_art_trade_bot.Storage
         private bool SwitchChainLink(ulong key, ulong val)
         {
             int idx;
-            for (int i = 0; i < m_computedChain.Count; i++)
+            for (int i = 0; i < _computedChain.Count; i++)
             {
-                idx = m_computedChain[i].FindIndex(x => x == key);
-                if (idx != -1 && idx + 1 < m_computedChain[i].Count)
+                idx = _computedChain[i].FindIndex(x => x == key);
+                if (idx != -1 && idx + 1 < _computedChain[i].Count)
                 {
-                    m_computedChain[i][idx] = val;
-                    m_computedChain[i][idx + 1] = key;
+                    _computedChain[i][idx] = val;
+                    _computedChain[i][idx + 1] = key;
                     return true;
                 }
             }
@@ -92,18 +92,18 @@ namespace teanicorns_art_trade_bot.Storage
         }
         private bool Initialize(ApplicationData currentTrade, ApplicationHistory tradeHistory)
         {
-            m_data.Clear();
-            m_computedChain.Clear();
+            _data.Clear();
+            _computedChain.Clear();
 
             Dictionary<ulong, ulong> prevMonthList = null;
-            if (tradeHistory.History.Count > 0)
-                prevMonthList = FillPreviousTradesPairs(currentTrade, tradeHistory.History[0]);
+            if (tradeHistory.Count() > 0)
+                prevMonthList = FillPreviousTradesPairs(currentTrade, tradeHistory.GetTrade(0));
 
             Dictionary<ulong, ulong> prevPrevMonthList = null;
-            if (tradeHistory.History.Count > 1)
-                prevPrevMonthList = FillPreviousTradesPairs(currentTrade, tradeHistory.History[1]);
+            if (tradeHistory.Count() > 1)
+                prevPrevMonthList = FillPreviousTradesPairs(currentTrade, tradeHistory.GetTrade(1));
 
-            foreach (UserData user1 in currentTrade.Storage)
+            foreach (UserData user1 in currentTrade.GetStorage())
             {
                 List<ulong> candidate = new List<ulong>();
 
@@ -116,7 +116,7 @@ namespace teanicorns_art_trade_bot.Storage
                     prevPrevMonthList.TryGetValue(user1.UserId, out prevPrevPartner);
 
                 bool bPushBack = false;
-                foreach (UserData user2 in currentTrade.Storage)
+                foreach (UserData user2 in currentTrade.GetStorage())
                 {
                     if (user2.UserId == user1.UserId || user2.UserId == prevPartner)
                         continue;
@@ -133,12 +133,12 @@ namespace teanicorns_art_trade_bot.Storage
 
                 if (candidate.Count == 0)
                     return false;
-                m_data.Add(user1.UserId, candidate);
+                _data.Add(user1.UserId, candidate);
             }
 
-            if (m_data.Count == 0)
+            if (_data.Count == 0)
                 return false;
-            m_data = m_data.OrderBy(x => x.Value.Count).ToDictionary(x => x.Key, x => x.Value);
+            _data = _data.OrderBy(x => x.Value.Count).ToDictionary(x => x.Key, x => x.Value);
             return true;
         }
         
@@ -148,7 +148,7 @@ namespace teanicorns_art_trade_bot.Storage
                 return false;
 
             Dictionary<ulong, ulong> computedPairs = new Dictionary<ulong, ulong>();
-            var dataKeys = m_data.Keys.ToList();
+            var dataKeys = _data.Keys.ToList();
             while (dataKeys.Count > 0)
             {
                 var key = dataKeys.First();
@@ -157,7 +157,7 @@ namespace teanicorns_art_trade_bot.Storage
                     continue;
 
                 ulong overrideBackedge = 0;
-                foreach (ulong value in m_data[key])
+                foreach (ulong value in _data[key])
                 {
                     if (key == value)
                         continue;
@@ -192,12 +192,12 @@ namespace teanicorns_art_trade_bot.Storage
                 }
             }
 
-            if (m_computedChain.Count != 1)
+            if (_computedChain.Count != 1)
                 return false;
 
-            Console.WriteLine("Shuffle:\n");
+            Console.WriteLine("AdvancedShuffle:\n");
             List<UserData> finalOrder = new List<UserData>();
-            foreach (ulong id in m_computedChain.First())
+            foreach (ulong id in _computedChain.First())
             {
                 int idx;
                 UserData dat = currentTrade.TryGetValue(id, out idx);
@@ -207,10 +207,10 @@ namespace teanicorns_art_trade_bot.Storage
                 Console.WriteLine($"{dat.UserName} {dat.NickName}");
             }
 
-            if (finalOrder.Count != currentTrade.Storage.Count)
+            if (finalOrder.Count != currentTrade.Count())
                 return false;
 
-            currentTrade.Storage = finalOrder;
+            currentTrade.SetStorage(finalOrder);
             return true;
         }
     }

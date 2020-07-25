@@ -11,7 +11,7 @@ namespace teanicorns_art_trade_bot
 {
     public class Utils
     {
-        public const string adminGroupId = "admin";
+        //public const string ADMIN_GROUP_ID = "admin";
 
         public static bool IsAdminUser(SocketUser user)
         {
@@ -32,7 +32,7 @@ namespace teanicorns_art_trade_bot
 
         public static bool IsAdminCommand(CommandInfo cmd)
         {
-            //return cmd.Module.Group == adminGroupId;
+            //return cmd.Module.Group == ADMIN_GROUP_ID;
             return cmd.Module.Name == "TradeEventModule";
         }
 
@@ -86,10 +86,10 @@ namespace teanicorns_art_trade_bot
 
         public static async Task<string> GetThemePollResult(SocketTextChannel channel)
         {
-            if (Storage.Axx.AppSettings.GetThemePollID() == 0)
+            if (Storage.xs.Settings.GetThemePollID() == 0)
                 return "";
 
-            var msg = await channel.GetMessageAsync(Storage.Axx.AppSettings.GetThemePollID());
+            var msg = await channel.GetMessageAsync(Storage.xs.Settings.GetThemePollID());
 
             List<(string, int)> emojiCodeReactions = new List<(string, int)>();
             foreach (var emoji in msg.Reactions)
@@ -133,7 +133,7 @@ namespace teanicorns_art_trade_bot
         public static List<string> GetThemePoolOrdered()
         {
             List<string> themePool = new List<string>();
-            var pools2darr = Storage.Axx.AppData.GetStorage().Select(x => new List<string>(x.ThemePool)).ToList();
+            var pools2darr = Storage.xs.Entries.GetStorage().Select(x => new List<string>(x.ThemePool)).ToList();
             while (pools2darr.Count > 0)
             {
                 for (int i = pools2darr.Count - 1; i >= 0; --i)
@@ -162,7 +162,7 @@ namespace teanicorns_art_trade_bot
         public static async Task NotifySubscribers(DiscordSocketClient client, string message, List<ulong> subscribers = null)
         {
             if (subscribers == null)
-                subscribers = Storage.Axx.AppSettings.GetSubs();
+                subscribers = Storage.xs.Settings.GetSubscribers();
 
             foreach (ulong userId in subscribers)
             {

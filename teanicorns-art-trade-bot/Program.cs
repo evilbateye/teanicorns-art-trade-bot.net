@@ -63,7 +63,7 @@ namespace teanicorns_art_trade_bot
                 ApplicationName = "teanicorns-art-trade-bot",
             }));
 
-            Storage.Axx.Initialize();
+            Storage.xs.Initialize();
                         
             await Task.Delay(-1);
 		}
@@ -117,7 +117,7 @@ namespace teanicorns_art_trade_bot
             if (message.Source != MessageSource.User)
                 return;
 
-            if (!string.IsNullOrWhiteSpace(Storage.Axx.AppSettings.GetWorkingChannel()) && message.Channel.Name != Storage.Axx.AppSettings.GetWorkingChannel())
+            if (!string.IsNullOrWhiteSpace(Storage.xs.Settings.GetWorkingChannel()) && message.Channel.Name != Storage.xs.Settings.GetWorkingChannel())
             {
                 if (!(message.Channel is SocketDMChannel))
                     return;

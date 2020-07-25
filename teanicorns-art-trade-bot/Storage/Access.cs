@@ -17,49 +17,50 @@ namespace teanicorns_art_trade_bot.Storage
         void Load(string fileName);
         void Save();
     }
-    public class Axx
+    public class xs
     {
-        public static string AppDataFileName = "storage.json";
-        public static ApplicationData AppData = new ApplicationData();
-        public static string AppHistoryFileName = "history.json";
-        public static ApplicationHistory AppHistory = new ApplicationHistory();
-        public static string AppSettingsFileName = "settings.json";
-        public static ApplicationSettings AppSettings = new ApplicationSettings();
+        public const string ENTRIES_PATH = "storage.json";
+        public const string HISTORY_PATH = "history.json";
+        public const string SETTINGS_PATH = "settings.json";
 
-        static Axx()
+        public static ApplicationData Entries = new ApplicationData();
+        public static ApplicationHistory History = new ApplicationHistory();
+        public static ApplicationSettings Settings = new ApplicationSettings();
+
+        static xs()
         {
-            Validate(AppData);
-            Validate(AppHistory);
-            Validate(AppSettings);
+            Validate(Entries);
+            Validate(History);
+            Validate(Settings);
 
-            BackupStorage(AppData);
-            BackupStorage(AppHistory);
-            BackupStorage(AppSettings);
+            BackupStorage(Entries);
+            BackupStorage(History);
+            BackupStorage(Settings);
         }
 
         public static void Initialize()
         {
             Console.WriteLine("Axx: Initialize");
 
-            if (Validate(AppData))
+            if (Validate(Entries))
             {
-                AppData.Load(AppData.FileName());
-                if (AppData != null)
-                    Console.WriteLine($"Axx: data-count-{AppData.Count()}");
+                Entries.Load(Entries.FileName());
+                if (Entries != null)
+                    Console.WriteLine($"Axx: data-count-{Entries.Count()}");
             }
 
-            if (Validate(AppHistory))
+            if (Validate(History))
             {
-                AppHistory.Load(AppHistory.FileName());
-                if (AppHistory != null)
-                    Console.WriteLine($"Axx: history-count-{AppHistory.Count()}");
+                History.Load(History.FileName());
+                if (History != null)
+                    Console.WriteLine($"Axx: history-count-{History.Count()}");
             }
 
-            if (Validate(AppSettings))
+            if (Validate(Settings))
             {
-                AppSettings.Load(AppSettings.FileName());
-                if (AppSettings != null)
-                    Console.WriteLine($"Axx: history-count-{AppSettings.Count()}");
+                Settings.Load(Settings.FileName());
+                if (Settings != null)
+                    Console.WriteLine($"Axx: history-count-{Settings.Count()}");
             }
         }
         private static bool Validate(IStorage s)

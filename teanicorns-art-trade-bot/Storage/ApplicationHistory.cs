@@ -11,7 +11,18 @@ namespace teanicorns_art_trade_bot.Storage
 {
     public class ApplicationHistory : IStorage
     {
-        public List<ApplicationData> History = new List<ApplicationData>();
+        [JsonProperty] private List<ApplicationData> History = new List<ApplicationData>();
+
+        public List<ApplicationData> GetHistory()
+        {
+            return History;
+        }
+
+        public ApplicationData GetTrade(int idx)
+        {
+            return (idx < Count() && idx >= 0 ? History[idx] : null);
+        }
+
         public void RecordTrade(ApplicationData d)
         {
             var clone = (ApplicationData)d.Clone();
@@ -20,7 +31,7 @@ namespace teanicorns_art_trade_bot.Storage
         }
 
         // IStorage
-        public string FileName() { return Axx.AppHistoryFileName; }
+        public string FileName() { return xs.HISTORY_PATH; }
         public int Count() { return History.Count; }
         public void Clear() { History.Clear(); }
         public void Load(string fileName)
@@ -28,12 +39,12 @@ namespace teanicorns_art_trade_bot.Storage
             string json = File.ReadAllText(fileName);
             var data = JsonConvert.DeserializeObject<ApplicationHistory>(json);
             if (data != null)
-                Axx.AppHistory = data;
+                xs.History = data;
         }
         public void Save()
         {
-            string json = JsonConvert.SerializeObject(Axx.AppHistory, Formatting.Indented);
-            File.WriteAllText(Axx.AppHistoryFileName, json);
+            string json = JsonConvert.SerializeObject(xs.History, Formatting.Indented);
+            File.WriteAllText(xs.HISTORY_PATH, json);
         }
     }
 }
