@@ -26,14 +26,14 @@ namespace teanicorns_art_trade_bot.Storage
             TradeMonth = 2
         }
 
-        private TradeSegment ArtTradeActive = TradeSegment.EntryWeek;
-        private string WorkingChannel = "general";
-        private DateTime TradeStart = DateTime.Now;
-        private double TradeDays = 0.0;
-        private NofifyFlags Notified = NofifyFlags.None;
-        private bool ForceTradeEnd = false;
-        private ulong ThemePollID = 0;
-        private List<ulong> Subscribers = new List<ulong>();
+        public TradeSegment ArtTradeActive = TradeSegment.EntryWeek;
+        public string WorkingChannel = "general";
+        public DateTime TradeStart = DateTime.Now;
+        public double TradeDays = 0.0;
+        public NofifyFlags Notified = NofifyFlags.None;
+        public bool ForceTradeEnd = false;
+        public ulong ThemePollID = 0;
+        public List<ulong> Subscribers = new List<ulong>();
 
         public List<ulong> GetSubs()
         {
