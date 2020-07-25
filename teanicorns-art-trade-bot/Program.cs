@@ -49,7 +49,7 @@ namespace teanicorns_art_trade_bot
 
             var command = services.GetRequiredService<CommandService>();
             command.Log += Log;
-
+            
             var handler = services.GetRequiredService<CommandHandler>();
             await handler.Initialize();
 
@@ -117,7 +117,7 @@ namespace teanicorns_art_trade_bot
             if (message.Source != MessageSource.User)
                 return;
 
-            if (!string.IsNullOrWhiteSpace(Storage.Axx.AppSettings.WorkingChannel) && message.Channel.Name != Storage.Axx.AppSettings.WorkingChannel)
+            if (!string.IsNullOrWhiteSpace(Storage.Axx.AppSettings.GetWorkingChannel()) && message.Channel.Name != Storage.Axx.AppSettings.GetWorkingChannel())
             {
                 if (!(message.Channel is SocketDMChannel))
                     return;

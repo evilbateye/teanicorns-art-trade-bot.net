@@ -58,14 +58,14 @@ namespace teanicorns_art_trade_bot.Modules
             Storage.Axx.AppHistory.RecordTrade(Storage.Axx.AppData);
             await GoogleDriveHandler.UploadGoogleFile(Storage.Axx.AppHistoryFileName);
             Storage.Axx.ClearStorage(Storage.Axx.AppData);
-            Storage.Axx.AppSettings.ActivateTrade(false, null/*days2start*/, days2end, force);
+            Storage.Axx.AppSettings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.EntryWeek, null/*days2start*/, days2end, force);
 
             if (string.IsNullOrWhiteSpace(theme))
                 Storage.Axx.AppData.SetTheme("");
             else
                 Storage.Axx.AppData.SetTheme(theme);
 
-            SocketTextChannel channel = Utils.FindChannel(client, Storage.Axx.AppSettings.WorkingChannel);
+            SocketTextChannel channel = Utils.FindChannel(client, Storage.Axx.AppSettings.GetWorkingChannel());
             if (channel != null)
             {
                 string artMissing = "";
@@ -89,7 +89,7 @@ namespace teanicorns_art_trade_bot.Modules
                     + (string.IsNullOrWhiteSpace(artMissingHistory1) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_1, artHistory1.Theme, artMissingHistory1))
                     + (string.IsNullOrWhiteSpace(artMissingHistory2) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_2, artHistory2.Theme, artMissingHistory2)));
 
-                var subscribers = new List<ulong>(Storage.Axx.AppSettings.Subscribers);
+                var subscribers = new List<ulong>(Storage.Axx.AppSettings.GetSubs());
 
                 // notify those that did not send their art on time
                 foreach (Storage.UserData user in GetMissingArt(artHistory0))
@@ -129,7 +129,7 @@ namespace teanicorns_art_trade_bot.Modules
             Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
             Storage.Axx.BackupStorage(Storage.Axx.AppHistory);
 
-            if (Storage.Axx.AppSettings.ArtTradeActive != false)
+            if (Storage.Axx.AppSettings.IsTradeMonthActive())
                 await StartEntryWeek(Context.Client, days2end, force, theme);
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_IN_PROGRESS, user.Id, "entry week"));
@@ -139,11 +139,10 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task<bool> CreateThemePoll()
         {
             List<string> themePool = Utils.GetThemePoolOrdered();
-
             if (themePool.Count <= 0)
                 return false;
 
-            var reply = $"\n{string.Format(Properties.Resources.TRADE_THEME_POOL_START)}\n";
+            var reply = $"@everyone {string.Format(Properties.Resources.TRADE_THEME_POOL_START, 3)}";
             Encoding unicode = Encoding.Unicode;
             //byte[] bytes = new byte[] { 48, 0, 227, 32 }; // ::zero::
             List<Emoji> emojiObjs = new List<Emoji>();
@@ -164,20 +163,36 @@ namespace teanicorns_art_trade_bot.Modules
                 reply += $"\n{emojiCode} : `{theme}`";
             }
             
-            SocketTextChannel channel = Utils.FindChannel(Context.Client, Storage.Axx.AppSettings.WorkingChannel);
-            if (channel != null)
-            {
-                var msg = await channel.SendMessageAsync(reply);
+            SocketTextChannel channel = Utils.FindChannel(Context.Client, Storage.Axx.AppSettings.GetWorkingChannel());
+            if (channel == null)
+                return false;
 
-                await Utils.NotifySubscribers(Context.Client, string.Format(Properties.Resources.TRADE_THEME_POOL_START));
+            var msg = await channel.SendMessageAsync(reply);
 
-                foreach (var emoji in emojiObjs)
-                    await msg.AddReactionAsync(emoji);
-                Storage.Axx.AppSettings.SetThemePollID(msg.Id);
-                return true;
-            }
+            await Utils.NotifySubscribers(Context.Client, string.Format(Properties.Resources.TRADE_THEME_POOL_SUBS, "theme poll", Storage.Axx.AppSettings.GetWorkingChannel()));
 
-            return false;
+            foreach (var emoji in emojiObjs)
+                await msg.AddReactionAsync(emoji);
+
+            Storage.Axx.AppSettings.SetThemePollID(msg.Id);
+            return true;
+        }
+
+        public static async Task<bool> StartTradeMonth(DiscordSocketClient client, double? days2end = null, bool? force = null)
+        {
+            SocketTextChannel channel = Utils.FindChannel(client, Storage.Axx.AppSettings.GetWorkingChannel());
+            if (channel == null)
+                return false;
+                
+            Storage.Axx.AppSettings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.TradeMonth, 0.0/*days2start*/, days2end, force);
+
+            Storage.Axx.AppData.Shuffle(Storage.Axx.AppHistory);
+
+            await channel.SendMessageAsync(string.Format(Properties.Resources.TRADE_NO_NEW_ENTRIES, Config.CmdPrefix, "reveal art", "about") + "\n"
+            + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n")
+            + (Storage.Axx.AppSettings.GetTradeDays() == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.GetTradeDays(), Storage.Axx.AppSettings.GetTradeStart(Storage.Axx.AppSettings.GetTradeDays()).ToString("dd-MMMM"))));
+
+            return await SendPartnersResponse(client);
         }
 
         [Command("trade month")]
@@ -202,29 +217,21 @@ namespace teanicorns_art_trade_bot.Modules
             Storage.Axx.BackupStorage(Storage.Axx.AppData);
             Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
 
-            if (Storage.Axx.AppSettings.ArtTradeActive != true)
+            if (!Storage.Axx.AppSettings.IsTradeMonthActive())
             {
-                Storage.Axx.AppSettings.ActivateTrade(true, 0.0/*days2start*/, days2end, force);
                 if (!string.IsNullOrWhiteSpace(theme))
                     Storage.Axx.AppData.SetTheme(theme);
-                Storage.Axx.AppData.Shuffle(Storage.Axx.AppHistory);
 
-                SocketTextChannel channel = Utils.FindChannel(Context.Client, Storage.Axx.AppSettings.WorkingChannel);
-                if (channel != null)
+                if (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
                 {
-                    string notification = string.Format(Properties.Resources.TRADE_NO_NEW_ENTRIES, Config.CmdPrefix, "reveal art", "about") + "\n"
-                    + (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.Axx.AppData.Theme) + "\n")
-                    + (Storage.Axx.AppSettings.TradeDays == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.Axx.AppSettings.TradeDays, Storage.Axx.AppSettings.TradeStart.AddDays(Storage.Axx.AppSettings.TradeDays).ToString("dd-MMMM")));
-
-                    await channel.SendMessageAsync(notification);
-
-                    if (string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme))
-                        await CreateThemePoll();
-
-                    await Resend();
+                    Storage.Axx.AppSettings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.ThemesPoll, 0.0/*days2start*/, days2end, force);
+                    if (!await CreateThemePoll())
+                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
                 }
-                else
+                else if (!await StartTradeMonth(Context.Client, days2end, force))
+                {
                     await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
+                }
             }
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_IN_PROGRESS, user.Id, "trade month"));
@@ -261,7 +268,7 @@ namespace teanicorns_art_trade_bot.Modules
         [InfoModule.SummaryDetail("you can silently turn the art trade on/off" +
             "\nchange the start date of the trade and number of days until the trade ends" +
             "\nyou can also modify the force flag, or change the active trading channel")]
-        public async Task Settings([Summary("bool flag indicating trade start/end")]bool? bStart = null
+        public async Task Settings([Summary("bool flag indicating trade start/end")]int? tradeSeg = null
             , [Summary("number of days until the next trade starts (the duration of the entry week) (optional)")]double? days2start = null
             , [Summary("number of days until the next trade ends (the duration of the trade month) (optional)")]double? days2end = null
             , [Summary("bool flag indicating if the next trade should be forced to end automatically at the end (optional)")] bool? force = null
@@ -275,7 +282,7 @@ namespace teanicorns_art_trade_bot.Modules
             }
 
             Storage.Axx.BackupStorage(Storage.Axx.AppSettings);
-            Storage.Axx.AppSettings.ActivateTrade(bStart, days2start, days2end, force);
+            Storage.Axx.AppSettings.ActivateTrade((Storage.ApplicationSettings.TradeSegment?)tradeSeg, days2start, days2end, force);
 
             if (!string.IsNullOrWhiteSpace(channel))
                 await Channel(channel);
@@ -325,19 +332,19 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
                         
-            string info = (Storage.Axx.AppSettings.ArtTradeActive ? string.Format(Properties.Resources.TRADE_LIST_ONOFF, "trade month") : string.Format(Properties.Resources.TRADE_LIST_ONOFF, "entry week")) + "\n";
+            string info = string.Format(Properties.Resources.TRADE_LIST_ONOFF, Storage.Axx.AppSettings.GetActiveTradeSegment()) + "\n";
             
             info += string.Format(Properties.Resources.TRADE_THIS_THEME, string.IsNullOrWhiteSpace(Storage.Axx.AppData.Theme) ? "`none`" : Storage.Axx.AppData.Theme) + "\n";
                         
             info += string.Format(Properties.Resources.TRADE_LIST_SETTINGS
-                , !string.IsNullOrWhiteSpace(Storage.Axx.AppSettings.WorkingChannel) ? Storage.Axx.AppSettings.WorkingChannel : "`empty`"
-                , Storage.Axx.AppSettings.TradeStart.ToString("dd-MMMM")
+                , Storage.Axx.AppSettings.GetWorkingChannel()
+                , Storage.Axx.AppSettings.GetTradeStart().ToString("dd-MMMM")
                 , Storage.Axx.AppSettings.GetTradeEnd().ToString("dd-MMMM")
-                , Storage.Axx.AppSettings.TradeDays
-                , Storage.Axx.AppSettings.Notified
-                , Storage.Axx.AppSettings.ForceTradeEnd) + "\n";
+                , Storage.Axx.AppSettings.GetTradeDays()
+                , Storage.Axx.AppSettings.GetNotifyFlags()
+                , Storage.Axx.AppSettings.IsForceTradeOn()) + "\n";
 
-            info +=  "subscribers: " + (Storage.Axx.AppSettings.Subscribers.Count <= 0 ? "`empty`" : string.Join(", ", Storage.Axx.AppSettings.Subscribers.Select(sub => $"`{Context.Client.GetUser(sub).Username}`"))) + "\n";
+            info +=  "subscribers: " + (Storage.Axx.AppSettings.GetSubs().Count <= 0 ? "`empty`" : string.Join(", ", Storage.Axx.AppSettings.GetSubs().Select(sub => $"`{Context.Client.GetUser(sub).Username}`"))) + "\n";
 
             string entries = $"\n{string.Format(Properties.Resources.TRADE_LIST_ENTRIES, user.Id)}\n";
             if (!bAll)
@@ -469,7 +476,7 @@ namespace teanicorns_art_trade_bot.Modules
             List<Storage.UserData> needNotify;
             if (Storage.Axx.AppData.ResetNext(partner2.Id, partner1.Id, partner3IdVal, out needNotify))
             {
-                if (await SendPartnersResponse(needNotify))
+                if (await SendPartnersResponse(Context.Client, needNotify))
                     await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, ourUser.Id));
                 else
                     await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, ourUser.Id));
@@ -606,8 +613,11 @@ namespace teanicorns_art_trade_bot.Modules
             }
         }
 
-        public async static Task<(string, string, string)> SendPartnersResponseStatic(DiscordSocketClient client, List<Storage.UserData> entries, bool bThemeOnly = false)
+        public static async Task<bool> SendPartnersResponse(DiscordSocketClient client, List<Storage.UserData> entries = null, bool bThemeOnly = false)
         {
+            if (entries == null)
+                entries = Storage.Axx.AppData.Storage;
+
             string report1 = "";
             string report2 = "";
             string report3 = "";
@@ -639,28 +649,15 @@ namespace teanicorns_art_trade_bot.Modules
 
                 await ReferenceModule.SendPartnerResponse(nextUser, socketUser, bThemeOnly);
             }
-            return (report1, report2, report3);
-        }
 
-        public async Task<bool> SendPartnersResponse(List<Storage.UserData> entries, bool bThemeOnly = false)
-        {
-            var report = await SendPartnersResponseStatic(Context.Client, entries, bThemeOnly);
-
-            string finalReport = "";
-            if (!string.IsNullOrWhiteSpace(report.Item1))
-                finalReport += string.Format(Properties.Resources.TRADE_SEND_PARTNERS_MISSING) + " \n" + report.Item1;
-
-            if (!string.IsNullOrWhiteSpace(report.Item2))
-                finalReport += string.Format(Properties.Resources.TRADE_SEND_ENTRIES_MISSING) + " \n" + report.Item2;
-
-            if (!string.IsNullOrWhiteSpace(report.Item3))
-                finalReport += string.Format(Properties.Resources.TRADE_SEND_USERS_MISSING) + " \n" + report.Item3;
-
-            if (!string.IsNullOrWhiteSpace(finalReport))
-            {
-                await Context.Message.Author.SendMessageAsync(finalReport);
+            if (!string.IsNullOrWhiteSpace(report1))
                 return false;
-            }
+
+            if (!string.IsNullOrWhiteSpace(report2))
+                return false;
+
+            if (!string.IsNullOrWhiteSpace(report3))
+                return false;
 
             return true;
         }
@@ -678,7 +675,7 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            if (!await SendPartnersResponse(Storage.Axx.AppData.Storage, bThemeOnly))
+            if (!await SendPartnersResponse(Context.Client, Storage.Axx.AppData.Storage, bThemeOnly))
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
         }
     }

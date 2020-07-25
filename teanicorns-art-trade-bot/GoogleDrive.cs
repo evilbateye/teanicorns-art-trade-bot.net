@@ -51,90 +51,92 @@ namespace teanicorns_art_trade_bot
 
         private static async void OnPeriodicUpdate(object source, ElapsedEventArgs e)
         {
-            if (Storage.Axx.AppSettings.ArtTradeActive)
+            if (Storage.Axx.AppSettings.IsTradeMonthActive())
             {
-                SocketTextChannel channel = Utils.FindChannel(_discord, Storage.Axx.AppSettings.WorkingChannel);
+                SocketTextChannel channel = Utils.FindChannel(_discord, Storage.Axx.AppSettings.GetWorkingChannel());
+                if (channel != null && Storage.Axx.AppSettings.GetTradeDays() > 0)
+                {
+                    if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(3)) > 0)
+                    {
+                        string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
+                        if (Storage.Axx.AppSettings.IsForceTradeOn() || string.IsNullOrWhiteSpace(artMissing))
+                        {
+                            await Modules.TradeEventModule.StartEntryWeek(_discord);
+                        }
+                    }
+                    else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
+                    {
+                        string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
+
+                        if (!Storage.Axx.AppSettings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
+                        {
+                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.Closing);
+
+                            if (!string.IsNullOrWhiteSpace(artMissing))
+                                await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_NOW, Config.CmdPrefix, "reveal art", "about"));
+                        }
+
+                        if (string.IsNullOrWhiteSpace(artMissing))
+                            await Modules.TradeEventModule.StartEntryWeek(_discord);
+                    }
+                    else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-1)) > 0)
+                    {
+                        if (!Storage.Axx.AppSettings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.ThirdNotification))
+                        {
+                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThirdNotification);
+
+                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON3);
+
+                            await channel.SendMessageAsync(message);
+
+                            await Utils.NotifySubscribers(_discord, message);
+                        }
+                    }
+                    else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-3)) > 0)
+                    {
+                        if (!Storage.Axx.AppSettings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.SecondNotification))
+                        {
+                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.SecondNotification);
+
+                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON2);
+
+                            await channel.SendMessageAsync(message);
+
+                            await Utils.NotifySubscribers(_discord, message);
+                        }
+                    }
+                    else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-7)) > 0)
+                    {
+                        if (!Storage.Axx.AppSettings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.FirstNotification))
+                        {
+                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.FirstNotification);
+
+                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON1);
+
+                            await channel.SendMessageAsync(message);
+
+                            await Utils.NotifySubscribers(_discord, message);
+                        }
+                    }
+                }
+            }
+            else if (Storage.Axx.AppSettings.IsThemePollActive())
+            {
+                SocketTextChannel channel = Utils.FindChannel(_discord, Storage.Axx.AppSettings.GetWorkingChannel());
                 if (channel != null)
                 {
-                    if (Storage.Axx.AppSettings.TradeDays > 0)
+                    if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeStart(3)) > 0)
                     {
-                        if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(3)) > 0)
+                        if (!Storage.Axx.AppSettings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.ThemePollNotification))
                         {
-                            string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
-                            if (Storage.Axx.AppSettings.ForceTradeEnd || string.IsNullOrWhiteSpace(artMissing))
+                            Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThemePollNotification);
+
+                            string theme = await Utils.GetThemePollResult(channel);
+                            if (!string.IsNullOrWhiteSpace(theme))
                             {
-                                await Modules.TradeEventModule.StartEntryWeek(_discord);
-                            }
-                        }
-                        else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd()) > 0)
-                        {
-                            string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.Axx.AppData);
+                                Storage.Axx.AppData.SetTheme(theme);
 
-                            if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
-                            {
-                                Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.Closing);
-
-                                if (!string.IsNullOrWhiteSpace(artMissing))
-                                    await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_NOW, Config.CmdPrefix, "reveal art", "about"));
-                            }
-
-                            if (string.IsNullOrWhiteSpace(artMissing))
-                                await Modules.TradeEventModule.StartEntryWeek(_discord);
-                        }
-                        else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-1)) > 0)
-                        {
-                            if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.ThirdNotification))
-                            {
-                                Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThirdNotification);
-
-                                string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON3);
-
-                                await channel.SendMessageAsync(message);
-
-                                await Utils.NotifySubscribers(_discord, message);
-                            }
-                        }
-                        else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-3)) > 0)
-                        {
-                            if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.SecondNotification))
-                            {
-                                Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.SecondNotification);
-
-                                string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON2);
-
-                                await channel.SendMessageAsync(message);
-
-                                await Utils.NotifySubscribers(_discord, message);
-                            }
-                        }
-                        else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeEnd(-7)) > 0)
-                        {
-                            if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.FirstNotification))
-                            {
-                                Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.FirstNotification);
-
-                                string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON1);
-
-                                await channel.SendMessageAsync(message);
-
-                                await Utils.NotifySubscribers(_discord, message);
-                            }
-                        }
-                        else if (DateTime.Now.CompareTo(Storage.Axx.AppSettings.GetTradeStart(3)) > 0)
-                        {
-                            if (!Storage.Axx.AppSettings.Notified.HasFlag(Storage.ApplicationSettings.NofifyFlags.ThemePollNotification))
-                            {
-                                Storage.Axx.AppSettings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThemePollNotification);
-
-                                string theme = await Utils.GetThemePollResult(channel);
-                                if (!string.IsNullOrWhiteSpace(theme))
-                                {
-                                    Storage.Axx.AppData.SetTheme(theme);
-
-                                    await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_THEME_POLL_RESULTS, theme));
-
-                                    await Modules.TradeEventModule.SendPartnersResponseStatic(_discord, Storage.Axx.AppData.Storage, true /*bThemeOnly*/);
-                                }
+                                await Modules.TradeEventModule.StartTradeMonth(_discord);
                             }
                         }
                     }

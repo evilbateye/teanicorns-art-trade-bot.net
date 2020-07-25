@@ -21,7 +21,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task SetEntry([Remainder][Summary("description of your art trade entry (optional)")]string description = null)
         {
             var user = Context.Message.Author;
-            if (Storage.Axx.AppSettings.ArtTradeActive)
+            if (Storage.Axx.AppSettings.IsTradeMonthActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
@@ -91,7 +91,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task DeleteEntry()
         {
             var user = Context.Message.Author;
-            if (Storage.Axx.AppSettings.ArtTradeActive)
+            if (Storage.Axx.AppSettings.IsTradeMonthActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
@@ -112,7 +112,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task ShowPartner()
         {
             var user = Context.Message.Author;
-            if (!Storage.Axx.AppSettings.ArtTradeActive)
+            if (!Storage.Axx.AppSettings.IsTradeMonthActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_EW_TAKING_PLACE, user.Id));
                 return;
@@ -198,7 +198,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             bool bCurrentTrade = foundTrade == Storage.Axx.AppData;
 
-            if (bCurrentTrade && !Storage.Axx.AppSettings.ArtTradeActive)
+            if (bCurrentTrade && !Storage.Axx.AppSettings.IsTradeMonthActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_EW_TAKING_PLACE, user.Id));
                 return;
@@ -273,7 +273,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task AddTheme([Summary("the theme name (changed to lowercase and trimmed)")][Remainder]string theme)
         {
             var user = Context.Message.Author;
-            if (Storage.Axx.AppSettings.ArtTradeActive)
+            if (!Storage.Axx.AppSettings.IsEntryWeekActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;
@@ -299,7 +299,7 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task DeleteTheme([Summary("the name of the theme to be removed")][Remainder]string theme)
         {
             var user = Context.Message.Author;
-            if (Storage.Axx.AppSettings.ArtTradeActive)
+            if (!Storage.Axx.AppSettings.IsEntryWeekActive())
             {
                 await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
                 return;

@@ -187,24 +187,13 @@ flags: `{4}`
 end forced: `{5}`</value>
   </data>
   <data name="TRADE_NEW_ENTRIES" xml:space="preserve">
-    <value>the `entry week` started
-`I'm accepting new entries!`
+    <value>the `entry week` started, `I'm accepting new entries!`
 please use `{0}{1}`  to register or use `{0}{2}` if you need more info (^•^)</value>
   </data>
   <data name="TRADE_NO_NEW_ENTRIES" xml:space="preserve">
     <value>@everyone the `trade month` started
 `I'm no longer accepting new entries!`
-please use `{0}{1}` to show your finished art piece or use `{0}{2}` if you need more info
-but please wait until the end of the trade when everybody has finisned their art too, thanks! (^•^)</value>
-  </data>
-  <data name="TRADE_SEND_ENTRIES_MISSING" xml:space="preserve">
-    <value>no entries:</value>
-  </data>
-  <data name="TRADE_SEND_PARTNERS_MISSING" xml:space="preserve">
-    <value>no partners:</value>
-  </data>
-  <data name="TRADE_SEND_USERS_MISSING" xml:space="preserve">
-    <value>no users:</value>
+please use `{0}{1}` to show your finished art piece or use `{0}{2}` if you need more info (^•^)</value>
   </data>
   <data name="TRADE_THIS_THEME" xml:space="preserve">
     <value>this month's art trade theme is `{0}`</value>
@@ -261,13 +250,12 @@ you can type it to the channel or send me a direct message</value>
   </data>
   <data name="TRADE_THEME_POOL_START" xml:space="preserve">
     <value>please choose which theme you'd like for this month's art trade 
-the poll will take 2 days, theme with the most votes wins! (^•^)
-if there are more themes with the most votes, then the theme is chosen from them by random</value>
+the poll will take `{0}` days and the theme with the most votes wins! (^•^)</value>
   </data>
   <data name="GLOBAL_DUPLICAT_ARG" xml:space="preserve">
     <value>&lt;@{0}&gt; there already is a {1} with this name registered (ówò)</value>
   </data>
-  <data name="GOOGLE_TRADE_THEME_POLL_RESULTS" xml:space="preserve">
-    <value>@everyone the results of the themes poll are here, this mont's theme is `{0}`, good luck everyone!</value>
+  <data name="TRADE_THEME_POOL_SUBS" xml:space="preserve">
+    <value>`{0}` is currently taking place in `{1}` channel (^•^)</value>
   </data>
 </root>

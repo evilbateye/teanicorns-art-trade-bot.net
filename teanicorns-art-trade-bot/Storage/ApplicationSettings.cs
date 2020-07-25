@@ -19,14 +19,76 @@ namespace teanicorns_art_trade_bot.Storage
             ThemePollNotification = 16,
         }
 
-        public bool ArtTradeActive = false;
-        public string WorkingChannel = "";
-        public DateTime TradeStart = DateTime.Now;
-        public double TradeDays = 0.0;
-        public NofifyFlags Notified = NofifyFlags.None;
-        public bool ForceTradeEnd = false;
-        public ulong ThemePollID = 0;
-        public List<ulong> Subscribers = new List<ulong>();
+        public enum TradeSegment
+        {
+            EntryWeek = 0,
+            ThemesPoll = 1,
+            TradeMonth = 2
+        }
+
+        private TradeSegment ActiveTradeSeg = TradeSegment.EntryWeek;
+        private string WorkingChannel = "general";
+        private DateTime TradeStart = DateTime.Now;
+        private double TradeDays = 0.0;
+        private NofifyFlags Notified = NofifyFlags.None;
+        private bool ForceTradeEnd = false;
+        private ulong ThemePollID = 0;
+        private List<ulong> Subscribers = new List<ulong>();
+
+        public List<ulong> GetSubs()
+        {
+            return Subscribers;
+        }
+
+        public ulong GetThemePollID()
+        {
+            return ThemePollID;
+        }
+
+        public bool IsForceTradeOn()
+        {
+            return ForceTradeEnd;
+        }
+
+        public NofifyFlags GetNotifyFlags()
+        {
+            return Notified;
+        }
+
+        public bool HasNotifyFlag(NofifyFlags flag)
+        {
+            return Notified.HasFlag(flag);
+        }
+
+        public double GetTradeDays()
+        {
+            return TradeDays;
+        }
+
+        public string GetWorkingChannel()
+        {
+            return WorkingChannel;
+        }
+
+        public bool IsTradeMonthActive()
+        {
+            return ActiveTradeSeg == TradeSegment.TradeMonth;
+        }
+
+        public bool IsEntryWeekActive()
+        {
+            return ActiveTradeSeg == TradeSegment.EntryWeek;
+        }
+
+        public bool IsThemePollActive()
+        {
+            return ActiveTradeSeg == TradeSegment.ThemesPoll;
+        }
+
+        public TradeSegment GetActiveTradeSegment()
+        {
+            return ActiveTradeSeg;
+        }
 
         public bool ChangeSubscription(ulong userID, bool ? bOnOff)
         {
@@ -85,20 +147,22 @@ namespace teanicorns_art_trade_bot.Storage
             Save(); 
         }
 
-        public void ActivateTrade(bool? bStart, double? days2start, double? days2end, bool? bForce)
+        public void ActivateTrade(TradeSegment? seg, double? days2start, double? days2end, bool? bForce)
         {
-            if (bStart.HasValue)
-                ArtTradeActive = bStart.Value;
+            if (seg.HasValue)
+                ActiveTradeSeg = seg.Value;
 
             Notified = NofifyFlags.None;
 
-            if (ArtTradeActive)
+            switch (ActiveTradeSeg)
             {
-                TradeStart = DateTime.Now;
-            }
-            else
-            {
-                ThemePollID = 0;
+                case TradeSegment.TradeMonth:
+                case TradeSegment.ThemesPoll:
+                    TradeStart = DateTime.Now;
+                    break;
+                case TradeSegment.EntryWeek:
+                    ThemePollID = 0;
+                    break;
             }
 
             if (days2start.HasValue)

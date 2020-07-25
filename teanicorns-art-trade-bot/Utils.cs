@@ -67,8 +67,6 @@ namespace teanicorns_art_trade_bot
             SocketGuild guild = FindGuild(socketClient);
             if (guild == null)
                 return null;
-            if (string.IsNullOrWhiteSpace(channel))
-                channel = "general";
             return FindChannel(guild, channel);
         }
 
@@ -88,10 +86,10 @@ namespace teanicorns_art_trade_bot
 
         public static async Task<string> GetThemePollResult(SocketTextChannel channel)
         {
-            if (Storage.Axx.AppSettings.ThemePollID == 0)
+            if (Storage.Axx.AppSettings.GetThemePollID() == 0)
                 return "";
 
-            var msg = await channel.GetMessageAsync(Storage.Axx.AppSettings.ThemePollID);
+            var msg = await channel.GetMessageAsync(Storage.Axx.AppSettings.GetThemePollID());
 
             List<(string, int)> emojiCodeReactions = new List<(string, int)>();
             foreach (var emoji in msg.Reactions)
@@ -164,7 +162,7 @@ namespace teanicorns_art_trade_bot
         public static async Task NotifySubscribers(DiscordSocketClient client, string message, List<ulong> subscribers = null)
         {
             if (subscribers == null)
-                subscribers = Storage.Axx.AppSettings.Subscribers;
+                subscribers = Storage.Axx.AppSettings.GetSubs();
 
             foreach (ulong userId in subscribers)
             {
