@@ -26,7 +26,7 @@ namespace teanicorns_art_trade_bot.Storage
             TradeMonth = 2
         }
 
-        private TradeSegment ActiveTradeSeg = TradeSegment.EntryWeek;
+        private TradeSegment ArtTradeActive = TradeSegment.EntryWeek;
         private string WorkingChannel = "general";
         private DateTime TradeStart = DateTime.Now;
         private double TradeDays = 0.0;
@@ -72,22 +72,22 @@ namespace teanicorns_art_trade_bot.Storage
 
         public bool IsTradeMonthActive()
         {
-            return ActiveTradeSeg == TradeSegment.TradeMonth;
+            return ArtTradeActive == TradeSegment.TradeMonth;
         }
 
         public bool IsEntryWeekActive()
         {
-            return ActiveTradeSeg == TradeSegment.EntryWeek;
+            return ArtTradeActive == TradeSegment.EntryWeek;
         }
 
         public bool IsThemePollActive()
         {
-            return ActiveTradeSeg == TradeSegment.ThemesPoll;
+            return ArtTradeActive == TradeSegment.ThemesPoll;
         }
 
         public TradeSegment GetActiveTradeSegment()
         {
-            return ActiveTradeSeg;
+            return ArtTradeActive;
         }
 
         public bool ChangeSubscription(ulong userID, bool ? bOnOff)
@@ -150,11 +150,11 @@ namespace teanicorns_art_trade_bot.Storage
         public void ActivateTrade(TradeSegment? seg, double? days2start, double? days2end, bool? bForce)
         {
             if (seg.HasValue)
-                ActiveTradeSeg = seg.Value;
+                ArtTradeActive = seg.Value;
 
             Notified = NofifyFlags.None;
 
-            switch (ActiveTradeSeg)
+            switch (ArtTradeActive)
             {
                 case TradeSegment.TradeMonth:
                 case TradeSegment.ThemesPoll:
