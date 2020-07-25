@@ -343,7 +343,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             info +=  "subscribers: " + (Storage.xs.Settings.GetSubscribers().Count <= 0 ? "`empty`" : string.Join(", ", Storage.xs.Settings.GetSubscribers().Select(sub => $"`{Context.Client.GetUser(sub).Username}`"))) + "\n";
 
-            string entries = $"\n{string.Format(Properties.Resources.TRADE_LIST_ENTRIES, user.Id)}\n";
+            string entries = $"\n**({Storage.xs.Entries.Count()})** {string.Format(Properties.Resources.TRADE_LIST_ENTRIES, user.Id)}\n";
             if (!bAll)
                 entries += string.Join("\n", Storage.xs.Entries.GetStorage().Select(x => $"`{x.UserName}`" +
                 (string.IsNullOrWhiteSpace(x.NickName) ? "" : $" (`{x.NickName}`)") +
