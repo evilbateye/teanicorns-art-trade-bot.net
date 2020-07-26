@@ -298,15 +298,14 @@ namespace teanicorns_art_trade_bot.Storage
         }
         public override void Save(string path = null)
         {
-            if (_parent == null)
-            {
-                string json = JsonConvert.SerializeObject(this, Formatting.Indented);
-                File.WriteAllText(path == null ? _path : path, json);
-            }
-            else
+            if (_parent != null)
             {
                 _parent.Save(path); // RevealArt with theme set case
+                return;
             }
+
+            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
+            File.WriteAllText(path == null ? _path : path, json);
         }
 
         // IClonable
