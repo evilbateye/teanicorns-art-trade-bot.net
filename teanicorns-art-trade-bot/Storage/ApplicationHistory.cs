@@ -9,42 +9,46 @@ using System.Net;
 
 namespace teanicorns_art_trade_bot.Storage
 {
-    public class ApplicationHistory : IStorage
+    public class ApplicationHistory : StorageBase
     {
-        [JsonProperty] private List<ApplicationData> History = new List<ApplicationData>();
+        [JsonProperty("History")] private List<ApplicationData> _history = new List<ApplicationData>();
 
         public List<ApplicationData> GetHistory()
         {
-            return History;
+            return _history;
         }
 
         public ApplicationData GetTrade(int idx)
         {
-            return (idx < Count() && idx >= 0 ? History[idx] : null);
+            return (idx < Count() && idx >= 0 ? _history[idx] : null);
         }
 
         public void RecordTrade(ApplicationData d)
         {
             var clone = (ApplicationData)d.Clone();
-            History.Insert(0, clone);
+            clone.SetParent(this);
+            _history.Insert(0, clone);
             Save();
         }
 
-        // IStorage
-        public string FileName() { return xs.HISTORY_PATH; }
-        public int Count() { return History.Count; }
-        public void Clear() { History.Clear(); }
-        public void Load(string fileName)
+        // StorageBase
+        public override int Count() { return _history.Count; }
+        public override void Clear() { _history.Clear(); }
+        public override StorageBase Load(string path = null)
         {
-            string json = File.ReadAllText(fileName);
+            string json = File.ReadAllText(path == null ? _path : path);
             var data = JsonConvert.DeserializeObject<ApplicationHistory>(json);
             if (data != null)
-                xs.History = data;
+            {
+                data.GetHistory().ForEach(x => x.SetParent(data));
+                data.SetPath(_path);
+            }
+            return data;
         }
-        public void Save()
+        public override void Save(string path = null)
         {
-            string json = JsonConvert.SerializeObject(xs.History, Formatting.Indented);
-            File.WriteAllText(xs.HISTORY_PATH, json);
+            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
+            File.WriteAllText(path == null ? _path : path, json);
         }
     }
 }

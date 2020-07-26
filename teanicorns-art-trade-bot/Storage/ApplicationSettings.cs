@@ -6,7 +6,7 @@ using System.IO;
 
 namespace teanicorns_art_trade_bot.Storage
 {
-    public class ApplicationSettings : IStorage
+    public class ApplicationSettings : StorageBase
     {
         [Flags]
         public enum NofifyFlags
@@ -27,68 +27,68 @@ namespace teanicorns_art_trade_bot.Storage
         }
 
         public const string DEFAULT_WORK_CHANNEL = "general";
-        [JsonProperty] private TradeSegment ArtTradeActive = TradeSegment.EntryWeek;
-        [JsonProperty] private string WorkingChannel = DEFAULT_WORK_CHANNEL;
-        [JsonProperty] private DateTime TradeStart = DateTime.Now;
-        [JsonProperty] private double TradeDays = 0.0;
-        [JsonProperty] private NofifyFlags Notified = NofifyFlags.None;
-        [JsonProperty] private bool ForceTradeEnd = false;
-        [JsonProperty] private ulong ThemePollID = 0;
-        [JsonProperty] private List<ulong> Subscribers = new List<ulong>();
+        [JsonProperty("ArtTradeActive")] private TradeSegment _artTradeActive = TradeSegment.EntryWeek;
+        [JsonProperty("WorkingChannel")] private string _workingChannel = DEFAULT_WORK_CHANNEL;
+        [JsonProperty("TradeStart")] private DateTime _tradeStart = DateTime.Now;
+        [JsonProperty("TradeDays")] private double _tradeDays = 0.0;
+        [JsonProperty("Notified")] private NofifyFlags _notified = NofifyFlags.None;
+        [JsonProperty("ForceTradeEnd")] private bool _forceTradeEnd = false;
+        [JsonProperty("ThemePollID")] private ulong _themePollID = 0;
+        [JsonProperty("Subscribers")] private List<ulong> _subscribers = new List<ulong>();
 
         public List<ulong> GetSubscribers()
         {
-            return Subscribers;
+            return _subscribers;
         }
 
         public ulong GetThemePollID()
         {
-            return ThemePollID;
+            return _themePollID;
         }
 
         public bool IsForceTradeOn()
         {
-            return ForceTradeEnd;
+            return _forceTradeEnd;
         }
 
         public NofifyFlags GetNotifyFlags()
         {
-            return Notified;
+            return _notified;
         }
 
         public bool HasNotifyFlag(NofifyFlags flag)
         {
-            return Notified.HasFlag(flag);
+            return _notified.HasFlag(flag);
         }
 
         public double GetTradeDays()
         {
-            return TradeDays;
+            return _tradeDays;
         }
 
         public string GetWorkingChannel()
         {
-            return string.IsNullOrWhiteSpace(WorkingChannel) ? DEFAULT_WORK_CHANNEL : WorkingChannel;
+            return string.IsNullOrWhiteSpace(_workingChannel) ? DEFAULT_WORK_CHANNEL : _workingChannel;
         }
 
         public bool IsTradeMonthActive()
         {
-            return ArtTradeActive == TradeSegment.TradeMonth;
+            return _artTradeActive == TradeSegment.TradeMonth;
         }
 
         public bool IsEntryWeekActive()
         {
-            return ArtTradeActive == TradeSegment.EntryWeek;
+            return _artTradeActive == TradeSegment.EntryWeek;
         }
 
         public bool IsThemePollActive()
         {
-            return ArtTradeActive == TradeSegment.ThemesPoll;
+            return _artTradeActive == TradeSegment.ThemesPoll;
         }
 
         public TradeSegment GetActiveTradeSegment()
         {
-            return ArtTradeActive;
+            return _artTradeActive;
         }
 
         public bool ChangeSubscription(ulong userID, bool ? bOnOff)
@@ -97,20 +97,20 @@ namespace teanicorns_art_trade_bot.Storage
             {
                 if (bOnOff.Value)
                 {
-                    if (Subscribers.Contains(userID))
+                    if (_subscribers.Contains(userID))
                         return false;
-                    Subscribers.Add(userID);
+                    _subscribers.Add(userID);
                 }
                 else
                 {
-                    if (!Subscribers.Remove(userID))
+                    if (!_subscribers.Remove(userID))
                         return false;
                 }
             }
-            else if (Subscribers.Contains(userID))
-                Subscribers.Remove(userID);
+            else if (_subscribers.Contains(userID))
+                _subscribers.Remove(userID);
             else
-                Subscribers.Add(userID);
+                _subscribers.Add(userID);
 
             Save();
             return true;
@@ -118,99 +118,97 @@ namespace teanicorns_art_trade_bot.Storage
 
         public void SetThemePollID(ulong id)
         {
-            ThemePollID = id;
+            _themePollID = id;
             Save();
         }
 
         // public methods
         public void SetForceTradeEnd(bool b)
         {
-            ForceTradeEnd = b;
+            _forceTradeEnd = b;
             Save();
         }
 
         public bool SetWorkingChannel(string channel)
         {
-            WorkingChannel = channel;
+            _workingChannel = channel;
             Save();
             return true;
         }
 
         public void SetTradeStartNow()
         {
-            TradeStart = DateTime.Now;
+            _tradeStart = DateTime.Now;
             Save();
         }
 
         public void SetTradeEnd(double days)
         {
-            TradeDays = days;
+            _tradeDays = days;
             Save(); 
         }
 
         public void ActivateTrade(TradeSegment? seg, double? days2start, double? days2end, bool? bForce)
         {
             if (seg.HasValue)
-                ArtTradeActive = seg.Value;
+                _artTradeActive = seg.Value;
 
-            Notified = NofifyFlags.None;
+            _notified = NofifyFlags.None;
 
-            switch (ArtTradeActive)
+            switch (_artTradeActive)
             {
                 case TradeSegment.TradeMonth:
                 case TradeSegment.ThemesPoll:
-                    TradeStart = DateTime.Now;
+                    _tradeStart = DateTime.Now;
                     break;
                 case TradeSegment.EntryWeek:
-                    ThemePollID = 0;
+                    _themePollID = 0;
                     break;
             }
 
             if (days2start.HasValue)
-                TradeStart = TradeStart.AddDays(days2start.Value);
+                _tradeStart = _tradeStart.AddDays(days2start.Value);
 
             if (days2end.HasValue)
-                TradeDays = days2end.Value;
+                _tradeDays = days2end.Value;
 
             if (bForce.HasValue)
-                ForceTradeEnd = bForce.Value;
+                _forceTradeEnd = bForce.Value;
 
             Save();
         }
 
         public DateTime GetTradeEnd(double shift = 0)
         {
-            return TradeStart.AddDays(TradeDays + shift);
+            return _tradeStart.AddDays(_tradeDays + shift);
         }
 
         public DateTime GetTradeStart(double shift = 0)
         {
-            return TradeStart.AddDays(shift);
+            return _tradeStart.AddDays(shift);
         }
 
         public void SetNotifyDone(NofifyFlags flag)
         {
-            Notified |= flag;
+            _notified |= flag;
             Save();
         }
 
-        // IStorage methods
-        public string FileName() { return xs.SETTINGS_PATH; }
-        public int Count() { return 1; }
-        public void Clear()
+        // StorageBase methods
+        public override int Count() { return 1; }
+        public override void Clear() { }
+        public override StorageBase Load(string path = null)
         {
-        }
-        public void Load(string fileName)
-        {
-            string json = File.ReadAllText(fileName);
+            string json = File.ReadAllText(path == null ? _path : path);
             var data = JsonConvert.DeserializeObject<ApplicationSettings>(json);
             if (data != null)
-                xs.Settings = data;
+                data.SetPath(_path);
+            return data;
         }
-        public void Save()
+        public override void Save(string path = null)
         {
-            string json = JsonConvert.SerializeObject(xs.Settings, Formatting.Indented);
-            File.WriteAllText(xs.SETTINGS_PATH, json);
+            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
+            File.WriteAllText(path == null ? _path : path, json);
         }
     }
 }

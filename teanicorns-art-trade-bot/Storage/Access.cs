@@ -9,15 +9,22 @@ using System.Net;
 
 namespace teanicorns_art_trade_bot.Storage
 {
-    public interface IStorage
+    public abstract class StorageBase
     {
-        string FileName();
-        int Count();
-        void Clear();
-        void Load(string fileName);
-        void Save();
+        protected StorageBase _parent = null;
+        protected string _path  = "";
+
+        public void SetParent(StorageBase parent) { _parent = parent; }
+        public void SetPath(string path) { _path = path; }
+        public string GetPath() { return _path; }
+
+        public abstract int Count();
+        public abstract void Clear();
+        public abstract StorageBase Load(string path = null);
+        public abstract void Save(string path = null);
     }
-    public class xs
+
+    public static class xs
     {
         public const string ENTRIES_PATH = "storage.json";
         public const string HISTORY_PATH = "history.json";
@@ -29,6 +36,10 @@ namespace teanicorns_art_trade_bot.Storage
 
         static xs()
         {
+            Entries.SetPath(ENTRIES_PATH);
+            History.SetPath(HISTORY_PATH);
+            Settings.SetPath(SETTINGS_PATH);
+
             Validate(Entries);
             Validate(History);
             Validate(Settings);
@@ -44,31 +55,31 @@ namespace teanicorns_art_trade_bot.Storage
 
             if (Validate(Entries))
             {
-                Entries.Load(Entries.FileName());
+                Entries = (ApplicationData)Entries.Load();
                 if (Entries != null)
                     Console.WriteLine($"Axx: data-count-{Entries.Count()}");
             }
 
             if (Validate(History))
             {
-                History.Load(History.FileName());
+                History = (ApplicationHistory)History.Load();
                 if (History != null)
                     Console.WriteLine($"Axx: history-count-{History.Count()}");
             }
 
             if (Validate(Settings))
             {
-                Settings.Load(Settings.FileName());
+                Settings = (ApplicationSettings)Settings.Load();
                 if (Settings != null)
                     Console.WriteLine($"Axx: history-count-{Settings.Count()}");
             }
         }
-        private static bool Validate(IStorage s)
+        private static bool Validate(StorageBase s)
         {
             if (s == null)
                 return false;
 
-            if (CreateEmptyIfNeeded(s.FileName()))
+            if (CreateEmptyIfNeeded(s.GetPath()))
             {
                 if (s.Count() > 0)
                     s.Save();
@@ -89,17 +100,17 @@ namespace teanicorns_art_trade_bot.Storage
             return false;
         }
         
-        public static void BackupStorage(IStorage s)
+        public static void BackupStorage(StorageBase s)
         {
             if (s != null)
             {
-                string backupName = s.FileName() + ".bk";
+                string backupName = s.GetPath() + ".bk";
                 if (File.Exists(backupName))
                     File.Delete(backupName);
-                File.Copy(s.FileName(), backupName);
+                File.Copy(s.GetPath(), backupName);
             }
         }
-        public static void ClearStorage(IStorage s)
+        public static void ClearStorage(StorageBase s)
         {
             if (s != null)
             {
@@ -110,15 +121,15 @@ namespace teanicorns_art_trade_bot.Storage
             }
         }
 
-        public static async Task<bool> RestoreStorage(IStorage s, string url = null)
+        public static async Task<bool> RestoreStorage(StorageBase s, string url = null)
         {
             if (string.IsNullOrWhiteSpace(url))
             {
-                string backupName = s.FileName() + ".bk";
+                string backupName = s.GetPath() + ".bk";
                 if (!File.Exists(backupName))
                     return false;
 
-                s.Load(backupName);
+                s = s.Load(backupName);
                 s.Save();
                 return true;
             }
@@ -127,17 +138,17 @@ namespace teanicorns_art_trade_bot.Storage
             {
                 try
                 {
-                    await wc.DownloadFileTaskAsync(url, s.FileName());
+                    await wc.DownloadFileTaskAsync(url, s.GetPath());
                 }
                 catch (Exception)
                 {
                     return false;
                 }
 
-                if (!File.Exists(s.FileName()))
+                if (!File.Exists(s.GetPath()))
                     return false;
 
-                s.Load(s.FileName());
+                s = s.Load();
                 s.Save();
             }
 

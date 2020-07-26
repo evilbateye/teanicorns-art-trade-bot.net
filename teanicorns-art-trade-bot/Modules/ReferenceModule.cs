@@ -184,18 +184,16 @@ namespace teanicorns_art_trade_bot.Modules
                         continue;
                     if (string.IsNullOrWhiteSpace(d.GetTheme()))
                         continue;
-                    if (theme.Contains(d.GetTheme().ToLower().Trim()))
-                    {
-                        foundTrade = d;
-                        break;
-                    }
+                    if (!theme.Contains(d.GetTheme().ToLower().Trim()))
+                        continue;
+
+                    foundTrade = d;
+                    break;
                 }
             }
 
             if (foundTrade == null)
-            {
                 foundTrade = Storage.xs.Entries;
-            }
 
             bool bCurrentTrade = foundTrade == Storage.xs.Entries;
 

@@ -9,25 +9,25 @@ using System.Net;
 
 namespace teanicorns_art_trade_bot.Storage
 {
-    public class ApplicationData : IStorage, ICloneable
+    public class ApplicationData : StorageBase, ICloneable
     {
-        [JsonProperty] private string Theme = "";
-        [JsonProperty] private List<UserData> Storage = new List<UserData>();
+        [JsonProperty("Theme")] private string _theme = "";
+        [JsonProperty("Storage")] private List<UserData> _storage = new List<UserData>();
         private AdvancedShuffle _shuffle = new AdvancedShuffle();
         
         public string GetTheme()
         {
-            return Theme;
+            return _theme;
         }
 
         public List<UserData> GetStorage()
         {
-            return Storage;
+            return _storage;
         }
 
         public void SetStorage(List<UserData> storage)
         {
-            Storage = storage;
+            _storage = storage;
             Save();
         }
 
@@ -64,10 +64,10 @@ namespace teanicorns_art_trade_bot.Storage
 
         public UserData TryGetValue(ulong userId, out int index)
         {
-            index = Storage.FindIndex(x => x.UserId == userId);
+            index = _storage.FindIndex(x => x.UserId == userId);
             if (index != -1)
             {
-                return Storage[index];
+                return _storage[index];
             }
 
             return null;
@@ -75,28 +75,28 @@ namespace teanicorns_art_trade_bot.Storage
 
         public void AddOrSetValue(UserData data)
         {
-            int index = Storage.FindIndex(x => x.UserId == data.UserId);
+            int index = _storage.FindIndex(x => x.UserId == data.UserId);
             if (index != -1)
             {
                 if (!string.IsNullOrWhiteSpace(data.ReferenceDescription))
-                    Storage[index].ReferenceDescription = data.ReferenceDescription;
+                    _storage[index].ReferenceDescription = data.ReferenceDescription;
                 if (!string.IsNullOrWhiteSpace(data.ReferenceUrl))
-                    Storage[index].ReferenceUrl = data.ReferenceUrl;
+                    _storage[index].ReferenceUrl = data.ReferenceUrl;
                 if (!string.IsNullOrWhiteSpace(data.NickName))
-                    Storage[index].NickName = data.NickName;
+                    _storage[index].NickName = data.NickName;
                 if (!string.IsNullOrWhiteSpace(data.ArtUrl))
-                    Storage[index].ArtUrl = data.ArtUrl;
+                    _storage[index].ArtUrl = data.ArtUrl;
             }
             else
-                Storage.Add(data);
+                _storage.Add(data);
         }
 
         public bool TryRemoveValue(ulong userId)
         {
-            int index = Storage.FindIndex(x => x.UserId == userId);
+            int index = _storage.FindIndex(x => x.UserId == userId);
             if (index != -1)
             {
-                Storage.RemoveAt(index);
+                _storage.RemoveAt(index);
                 return true;
             }
 
@@ -105,12 +105,12 @@ namespace teanicorns_art_trade_bot.Storage
 
         public UserData GetNextValue(ulong userId, out int index)
         {
-            index = Storage.FindIndex(x => x.UserId == userId);
+            index = _storage.FindIndex(x => x.UserId == userId);
             if (index != -1)
             {
                 ++index;
-                index = (index == Storage.Count ? 0 : index);
-                return Storage[index];
+                index = (index == _storage.Count ? 0 : index);
+                return _storage[index];
             }
 
             return null;
@@ -118,12 +118,12 @@ namespace teanicorns_art_trade_bot.Storage
 
         public UserData GetPreviousValue(ulong userId, out int index)
         {
-            index = Storage.FindIndex(x => x.UserId == userId);
+            index = _storage.FindIndex(x => x.UserId == userId);
             if (index != -1)
             {
                 --index;
-                index = (index == -1 ? Storage.Count - 1 : index);
-                return Storage[index];
+                index = (index == -1 ? _storage.Count - 1 : index);
+                return _storage[index];
             }
 
             return null;
@@ -141,15 +141,15 @@ namespace teanicorns_art_trade_bot.Storage
             if (ourUser == null)
                 return false;
 
-            Storage[theirIndex] = ourUser;
-            Storage[ourIndex] = theirUser;
+            _storage[theirIndex] = ourUser;
+            _storage[ourIndex] = theirUser;
             return true;
         }
 
         // public methods
         public bool SetTheme(string theme)
         {
-            Theme = theme;
+            _theme = theme;
             Save();
             return true;
         }
@@ -177,7 +177,7 @@ namespace teanicorns_art_trade_bot.Storage
         {
             if (!_shuffle.Compute(this, history))
             {
-                Storage = Storage.OrderBy(x => Guid.NewGuid()).ToList();
+                _storage = _storage.OrderBy(x => Guid.NewGuid()).ToList();
                 Save();
             }
         }
@@ -199,7 +199,7 @@ namespace teanicorns_art_trade_bot.Storage
 
             if (!thirdId.HasValue)
             {
-                if (Storage.Count < 2)
+                if (_storage.Count < 2)
                     return false;
 
                 HashSet<UserData> needNotifySet = new HashSet<UserData>();
@@ -229,10 +229,10 @@ namespace teanicorns_art_trade_bot.Storage
             }
             else
             {
-                if (Storage.Count < 3)
+                if (_storage.Count < 3)
                     return false;
 
-                LinkedList<UserData> linkedList = new LinkedList<UserData>(Storage);
+                LinkedList<UserData> linkedList = new LinkedList<UserData>(_storage);
 
                 Func<LinkedListNode<UserData>, ulong, (LinkedListNode<UserData>, ulong)> FindNode = (start, id) =>
                 {
@@ -278,34 +278,34 @@ namespace teanicorns_art_trade_bot.Storage
                     iNode = prevNode;
                 }
 
-                Storage = linkedList.ToList();
+                _storage = linkedList.ToList();
             }
 
             Save();
             return true;
         }
-        
-        // IStorage
-        public string FileName() { return xs.ENTRIES_PATH; }
-        public int Count() { return Storage.Count; }
-        public void Clear() { Storage.Clear(); }
-        public void Load(string fileName)
+
+        // StorageBase
+        public override int Count() { return _storage.Count; }
+        public override void Clear() { _storage.Clear(); }
+        public override StorageBase Load(string path = null)
         {
-            string json = File.ReadAllText(fileName);
+            string json = File.ReadAllText(path == null ? _path : path);
             var data = JsonConvert.DeserializeObject<ApplicationData>(json);
             if (data != null)
-                xs.Entries = data;
+                data.SetPath(_path);
+            return data;
         }
-        public void Save()
+        public override void Save(string path = null)
         {
-            if (this == xs.Entries)
+            if (_parent == null)
             {
-                string json = JsonConvert.SerializeObject(xs.Entries, Formatting.Indented);
-                File.WriteAllText(xs.ENTRIES_PATH, json);
+                string json = JsonConvert.SerializeObject(this, Formatting.Indented);
+                File.WriteAllText(path == null ? _path : path, json);
             }
             else
             {
-                xs.History.Save(); // RevealArt with theme set case
+                _parent.Save(path); // RevealArt with theme set case
             }
         }
 
@@ -313,7 +313,7 @@ namespace teanicorns_art_trade_bot.Storage
         public object Clone()
         {
             ApplicationData clone = (ApplicationData)MemberwiseClone();
-            clone.Storage = clone.Storage.Select(x => (UserData)x.Clone()).ToList();
+            clone._storage = clone._storage.Select(x => (UserData)x.Clone()).ToList();
             return clone;
         }
     }
