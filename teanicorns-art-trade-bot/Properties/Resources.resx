@@ -242,9 +242,6 @@ For example `{2}{3} {4}`</value>
   <data name="TRADE_LIST_ONOFF" xml:space="preserve">
     <value>`{0}` is currently active</value>
   </data>
-  <data name="REF_TRADE_REGISTER_FIRST" xml:space="preserve">
-    <value>Sorry &lt;@{0}&gt;. please register to the art trade first.</value>
-  </data>
   <data name="REF_TRADE_THEME_POOL" xml:space="preserve">
     <value>&lt;@{0}&gt; here is a list of your registered themes:</value>
   </data>
@@ -257,5 +254,8 @@ the poll will take `{0}` days and theme with the most votes wins! (^•^)</value
   </data>
   <data name="TRADE_THEME_POOL_SUBS" xml:space="preserve">
     <value>`{0}` is currently taking place in `{1}` channel (^•^)</value>
+  </data>
+  <data name="GLOBAL_MAX_NUM_OF_ARGS" xml:space="preserve">
+    <value>&lt;@{0}&gt; max number of {1} reached</value>
   </data>
 </root>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
 using System.IO;
+using System.Linq;
 
 namespace teanicorns_art_trade_bot.Storage
 {
@@ -22,11 +23,11 @@ namespace teanicorns_art_trade_bot.Storage
         public enum TradeSegment
         {
             EntryWeek = 0,
-            ThemesPoll = 1,
-            TradeMonth = 2
+            TradeMonth = 1
         }
 
         public const string DEFAULT_WORK_CHANNEL = "general";
+        public const int MAX_THEMES_COUNT = 10;
         [JsonProperty("ArtTradeActive")] private TradeSegment _artTradeActive = TradeSegment.EntryWeek;
         [JsonProperty("WorkingChannel")] private string _workingChannel = DEFAULT_WORK_CHANNEL;
         [JsonProperty("TradeStart")] private DateTime _tradeStart = DateTime.Now;
@@ -35,6 +36,75 @@ namespace teanicorns_art_trade_bot.Storage
         [JsonProperty("ForceTradeEnd")] private bool _forceTradeEnd = false;
         [JsonProperty("ThemePollID")] private ulong _themePollID = 0;
         [JsonProperty("Subscribers")] private List<ulong> _subscribers = new List<ulong>();
+        [JsonProperty("ThemePool")] private Dictionary<ulong, List<string>> _themePool = new Dictionary<ulong, List<string>>();
+
+        public bool IsThemePoolMaxed()
+        {
+            return GetThemePoolTotal() == MAX_THEMES_COUNT;
+        }
+
+        public int GetThemePoolTotal()
+        {
+            return _themePool.SelectMany(x => x.Value).Count();
+        }
+
+        public Dictionary<ulong, List<string>> GetThemePool()
+        {
+            return _themePool;
+        }
+
+        public bool GetThemePool(ulong userID, out List<string> themes)
+        {
+            return _themePool.TryGetValue(userID, out themes);
+        }
+
+        public bool AddThemeToPool(ulong userID, string theme)
+        {
+            theme = theme.ToLower().Trim();
+
+            List<string> themes;
+            if (_themePool.TryGetValue(userID, out themes))
+            {
+                if (themes.Contains(theme))
+                    return false;
+                themes.Add(theme);
+            }
+            else
+            {
+                _themePool.Add(userID, new List<string>() { theme });
+            }
+            
+            Save();
+            return true;
+        }
+
+        public bool RemoveThemeFromPool(string theme)
+        {
+            theme = theme.ToLower().Trim();
+
+            var pair = _themePool.FirstOrDefault(x => x.Value.Contains(theme));
+            if (pair.Value == null)
+                return false;
+
+            return RemoveThemeFromPool(pair.Key, theme);
+        }
+
+        public bool RemoveThemeFromPool(ulong userID, string theme)
+        {
+            theme = theme.ToLower().Trim();
+
+            List<string> themes;
+            if (_themePool.TryGetValue(userID, out themes))
+            {
+                if (!themes.Remove(theme))
+                    return false;
+            }
+            else
+                return false;
+
+            Save();
+            return true;
+        }
 
         public List<ulong> GetSubscribers()
         {
@@ -158,11 +228,9 @@ namespace teanicorns_art_trade_bot.Storage
             switch (_artTradeActive)
             {
                 case TradeSegment.TradeMonth:
-                case TradeSegment.ThemesPoll:
                     _tradeStart = DateTime.Now;
                     break;
                 case TradeSegment.EntryWeek:
-                    _themePollID = 0;
                     break;
             }
 

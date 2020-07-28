@@ -120,28 +120,6 @@ namespace teanicorns_art_trade_bot
                     }
                 }
             }
-            else if (Storage.xs.Settings.IsThemePollActive())
-            {
-                SocketTextChannel channel = Utils.FindChannel(_discord, Storage.xs.Settings.GetWorkingChannel());
-                if (channel != null)
-                {
-                    if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeStart(3)) > 0)
-                    {
-                        if (!Storage.xs.Settings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.ThemePollNotification))
-                        {
-                            Storage.xs.Settings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThemePollNotification);
-
-                            string theme = await Utils.GetThemePollResult(channel);
-                            if (!string.IsNullOrWhiteSpace(theme))
-                            {
-                                Storage.xs.Entries.SetTheme(theme);
-
-                                await Modules.TradeEventModule.StartTradeMonth(_discord);
-                            }
-                        }
-                    }
-                }
-            }
 
             await UploadGoogleFile(Storage.xs.ENTRIES_PATH);
             await UploadGoogleFile(Storage.xs.SETTINGS_PATH);

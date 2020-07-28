@@ -79,6 +79,15 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;@{0}&gt; max number of {1} reached.
+        /// </summary>
+        internal static string GLOBAL_MAX_NUM_OF_ARGS {
+            get {
+                return ResourceManager.GetString("GLOBAL_MAX_NUM_OF_ARGS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;@{0}&gt; your request has been completed.
         /// </summary>
         internal static string GLOBAL_REQUEST_DONE {
@@ -284,15 +293,6 @@ namespace teanicorns_art_trade_bot.Properties {
         internal static string REF_TRADE_REG_SUCC {
             get {
                 return ResourceManager.GetString("REF_TRADE_REG_SUCC", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. please register to the art trade first..
-        /// </summary>
-        internal static string REF_TRADE_REGISTER_FIRST {
-            get {
-                return ResourceManager.GetString("REF_TRADE_REGISTER_FIRST", resourceCulture);
             }
         }
         

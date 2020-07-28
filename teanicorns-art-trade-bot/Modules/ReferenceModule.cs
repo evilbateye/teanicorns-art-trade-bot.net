@@ -278,15 +278,22 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.UserData userData = Storage.xs.Entries.TryGetValue(user.Id, out int index);
-            if (userData == null)
+            if (Storage.xs.Settings.IsThemePoolMaxed())
             {
-                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REGISTER_FIRST, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_MAX_NUM_OF_ARGS, user.Id, "themes"));
                 return;
             }
 
-            if (Storage.xs.Entries.AddThemeToPool(user.Id, theme))
+            if (Storage.xs.Settings.AddThemeToPool(user.Id, theme))
+            {
+                if (!await Utils.CreateOrEditThemePoll(Context.Client))
+                {
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
+                    return;
+                }
+                
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+            }
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_DUPLICAT_ARG, user.Id, "theme"));
 
@@ -304,17 +311,36 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.UserData userData = Storage.xs.Entries.TryGetValue(user.Id, out int index);
-            if (userData == null)
+            if (Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REGISTER_FIRST, user.Id));
-                return;
-            }
+                if (Storage.xs.Settings.RemoveThemeFromPool(theme))
+                {
+                    if (!await Utils.CreateOrEditThemePoll(Context.Client))
+                    {
+                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
+                        return;
+                    }
 
-            if (Storage.xs.Entries.RemoveThemeFromPool(user.Id, theme))
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+                }
+                else
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
+            }
             else
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
+            {
+                if (Storage.xs.Settings.RemoveThemeFromPool(user.Id, theme))
+                {
+                    if (!await Utils.CreateOrEditThemePoll(Context.Client))
+                    {
+                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
+                        return;
+                    }
+
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+                }
+                else
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
+            }
         }
 
         [Command("show themes")]
@@ -323,15 +349,13 @@ namespace teanicorns_art_trade_bot.Modules
         public async Task ShowThemes()
         {
             var user = Context.Message.Author;
-            Storage.UserData userData = Storage.xs.Entries.TryGetValue(user.Id, out int index);
-            if (userData == null)
-            {
-                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REGISTER_FIRST, user.Id));
-                return;
-            }
+
+            List<string> themes;
+            if (!Storage.xs.Settings.GetThemePool(user.Id, out themes))
+                themes = new List<string>();
 
             await ReplyAsync($"{string.Format(Properties.Resources.REF_TRADE_THEME_POOL, user.Id)}: " +
-                (userData.ThemePool.Count > 0 ? string.Join(", ", userData.ThemePool.Select(x => $"`{x}`")) : "`none`"));
+                (themes.Count > 0 ? string.Join(", ", themes.Select(x => $"`{x}`")) : "`none`"));
         }
 
         [Command("subscribe")]

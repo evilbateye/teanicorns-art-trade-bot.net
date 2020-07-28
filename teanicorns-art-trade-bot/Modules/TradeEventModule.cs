@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using Discord;
 using Discord.WebSocket;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace teanicorns_art_trade_bot.Modules
 {
@@ -49,58 +51,58 @@ namespace teanicorns_art_trade_bot.Modules
 
             return string.Join(", ", userDataList.Select(x => string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName));
         }
-
-        public static async Task StartEntryWeek(DiscordSocketClient client, double? days2end = null, bool? force = null, [Remainder]string theme = null)
+                
+        public static async Task<bool> StartEntryWeek(DiscordSocketClient client, double? days2end = null, bool? force = null, [Remainder]string theme = "")
         {
+            SocketTextChannel channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
+            if (channel != null)
+                return false;
+
             Storage.xs.History.RecordTrade(Storage.xs.Entries);
             await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH);
             Storage.xs.ClearStorage(Storage.xs.Entries);
             Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.EntryWeek, null/*days2start*/, days2end, force);
+            Storage.xs.Entries.SetTheme(theme);
 
-            if (string.IsNullOrWhiteSpace(theme))
-                Storage.xs.Entries.SetTheme("");
-            else
-                Storage.xs.Entries.SetTheme(theme);
+            if (!await Utils.CreateOrEditThemePoll(client))
+                return false;
 
-            SocketTextChannel channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
-            if (channel != null)
+            string artMissing = "";
+            Storage.ApplicationData artHistory0 = GetAppDataFromHistory(0);
+            if (artHistory0 != null)
+                artMissing = GetMissingArtToStr(artHistory0);
+
+            string artMissingHistory1 = "";
+            Storage.ApplicationData artHistory1 = GetAppDataFromHistory(1);
+            if (artHistory1 != null)
+                artMissingHistory1 = GetMissingArtToStr(artHistory1);
+
+            string artMissingHistory2 = "";
+            Storage.ApplicationData artHistory2 = GetAppDataFromHistory(2);
+            if (artHistory2 != null)
+                artMissingHistory2 = GetMissingArtToStr(artHistory2);
+
+            await channel.SendMessageAsync("@everyone " + string.Format(Properties.Resources.TRADE_NEW_ENTRIES, Config.CmdPrefix, "set entry", "about") + "\n"
+                + (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme()) + "\n")
+                + (string.IsNullOrWhiteSpace(artMissing) ? string.Format(Properties.Resources.TRADE_ART_ON_TIME) : string.Format(Properties.Resources.TRADE_ART_LATE, artMissing))
+                + (string.IsNullOrWhiteSpace(artMissingHistory1) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_1, artHistory1.GetTheme(), artMissingHistory1))
+                + (string.IsNullOrWhiteSpace(artMissingHistory2) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_2, artHistory2.GetTheme(), artMissingHistory2)));
+
+            var subscribers = new List<ulong>(Storage.xs.Settings.GetSubscribers());
+
+            // notify those that did not send their art on time
+            foreach (Storage.UserData user in GetMissingArt(artHistory0))
             {
-                string artMissing = "";
-                Storage.ApplicationData artHistory0 = GetAppDataFromHistory(0);
-                if (artHistory0 != null)
-                    artMissing = GetMissingArtToStr(artHistory0);
+                subscribers.Remove(user.UserId); // don't notify them twice
 
-                string artMissingHistory1 = "";
-                Storage.ApplicationData artHistory1 = GetAppDataFromHistory(1);
-                if (artHistory1 != null)
-                    artMissingHistory1 = GetMissingArtToStr(artHistory1);
-
-                string artMissingHistory2 = "";
-                Storage.ApplicationData artHistory2 = GetAppDataFromHistory(2);
-                if (artHistory2 != null)
-                    artMissingHistory2 = GetMissingArtToStr(artHistory2);
-
-                await channel.SendMessageAsync("@everyone " + string.Format(Properties.Resources.TRADE_NEW_ENTRIES, Config.CmdPrefix, "set entry", "about") + "\n"
-                    + (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme()) + "\n")
-                    + (string.IsNullOrWhiteSpace(artMissing) ? string.Format(Properties.Resources.TRADE_ART_ON_TIME) : string.Format(Properties.Resources.TRADE_ART_LATE, artMissing))
-                    + (string.IsNullOrWhiteSpace(artMissingHistory1) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_1, artHistory1.GetTheme(), artMissingHistory1))
-                    + (string.IsNullOrWhiteSpace(artMissingHistory2) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_2, artHistory2.GetTheme(), artMissingHistory2)));
-
-                var subscribers = new List<ulong>(Storage.xs.Settings.GetSubscribers());
-
-                // notify those that did not send their art on time
-                foreach (Storage.UserData user in GetMissingArt(artHistory0))
-                {
-                    subscribers.Remove(user.UserId); // don't notify them twice
-
-                    SocketUser su = client.GetUser(user.UserId);
-                    if (su != null)
-                        await su.SendMessageAsync(string.Format(Properties.Resources.TRADE_ART_LATE_DM, user.UserId, artHistory0.GetTheme()));
-                }
-
-                // notify those that subscribed for notifications
-                await Utils.NotifySubscribers(client, string.Format(Properties.Resources.TRADE_NEW_ENTRIES, Config.CmdPrefix, "set entry", "about"), subscribers);
+                SocketUser su = client.GetUser(user.UserId);
+                if (su != null)
+                    await su.SendMessageAsync(string.Format(Properties.Resources.TRADE_ART_LATE_DM, user.UserId, artHistory0.GetTheme()));
             }
+
+            // notify those that subscribed for notifications
+            await Utils.NotifySubscribers(client, string.Format(Properties.Resources.TRADE_NEW_ENTRIES, Config.CmdPrefix, "set entry", "about"), subscribers);
+            return true;
         }
 
         [Command("entry week")]
@@ -113,7 +115,7 @@ namespace teanicorns_art_trade_bot.Modules
             "\nthe latest members with missing art are contacted using a direct message")]
         public async Task EntryWeek([Summary("number of days until the next trade ends (the duration of the trade month) (optional)")]double? days2end = null
             , [Summary("bool flag indicating if the next trade should be forced to end automatically at the end (optional)")]bool? force = null
-            , [Summary("theme that will be set for the next art trade (optional)")][Remainder]string theme = null)
+            , [Summary("theme that will be set for the next art trade (optional)")][Remainder]string theme = "")
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -131,56 +133,13 @@ namespace teanicorns_art_trade_bot.Modules
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_IN_PROGRESS, user.Id, "entry week"));
         }
-
-
-        public async Task<bool> CreateThemePoll()
-        {
-            List<string> themePool = Utils.GetThemePoolOrdered();
-            if (themePool.Count <= 0)
-                return false;
-
-            var reply = $"@everyone {string.Format(Properties.Resources.TRADE_THEME_POOL_START, 3)}";
-            Encoding unicode = Encoding.Unicode;
-            //byte[] bytes = new byte[] { 48, 0, 227, 32 }; // ::zero::
-            List<Emoji> emojiObjs = new List<Emoji>();
                         
-            for (int i = 0; i < themePool.Count; ++i)
-            {
-                //var bytes = BitConverter.GetBytes(emojiNumber);
-                //var emojistr2 = "\u0030\u20E3";
-                //var bytes2 = unicode.GetBytes(emojistr2);
-                //var bytes2int32u = BitConverter.ToUInt32(bytes2, 0);
-
-                //var emojiCode = unicode.GetString(bytes);
-                //bytes[0] += 1;
-
-                string theme = themePool[i];
-                string emojiCode = Utils.EmojiCodes[i];
-                emojiObjs.Add(new Emoji(emojiCode));
-                reply += $"\n{emojiCode} : `{theme}`";
-            }
-            
-            SocketTextChannel channel = Utils.FindChannel(Context.Client, Storage.xs.Settings.GetWorkingChannel());
-            if (channel == null)
-                return false;
-
-            var msg = await channel.SendMessageAsync(reply);
-
-            await Utils.NotifySubscribers(Context.Client, string.Format(Properties.Resources.TRADE_THEME_POOL_SUBS, "theme poll", Storage.xs.Settings.GetWorkingChannel()));
-
-            foreach (var emoji in emojiObjs)
-                await msg.AddReactionAsync(emoji);
-
-            Storage.xs.Settings.SetThemePollID(msg.Id);
-            return true;
-        }
-
         public static async Task<bool> StartTradeMonth(DiscordSocketClient client, double? days2end = null, bool? force = null)
         {
             SocketTextChannel channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
             if (channel == null)
                 return false;
-                
+            
             Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.TradeMonth, 0.0/*days2start*/, days2end, force);
 
             Storage.xs.Entries.DoShuffle(Storage.xs.History);
@@ -202,7 +161,7 @@ namespace teanicorns_art_trade_bot.Modules
             "\na direct message is sent to each participant containing their partner's information")]
         public async Task TradeMonth([Summary("number of days until the next trade ends (the duration of the trade month) (optional)")]double? days2end = null
             , [Summary("bool flag indicating if the next trade should be forced to end automatically at the end (optional)")]bool? force = null
-            , [Summary("theme that will be set for the next art trade (optional)")][Remainder]string theme = null)
+            , [Summary("theme that will be set for the next art trade (optional)")][Remainder]string theme = "")
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -220,15 +179,10 @@ namespace teanicorns_art_trade_bot.Modules
                     Storage.xs.Entries.SetTheme(theme);
 
                 if (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()))
-                {
-                    Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.ThemesPoll, 0.0/*days2start*/, days2end, force);
-                    if (!await CreateThemePoll())
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
-                }
-                else if (!await StartTradeMonth(Context.Client, days2end, force))
-                {
+                    Storage.xs.Entries.SetTheme(await Utils.GetThemePollResult(Context.Client));
+
+                if (!await StartTradeMonth(Context.Client, days2end, force))
                     await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
-                }
             }
             else
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_IN_PROGRESS, user.Id, "trade month"));
@@ -341,22 +295,23 @@ namespace teanicorns_art_trade_bot.Modules
                 , Storage.xs.Settings.GetNotifyFlags()
                 , Storage.xs.Settings.IsForceTradeOn()) + "\n";
 
-            info +=  "subscribers: " + (Storage.xs.Settings.GetSubscribers().Count <= 0 ? "`empty`" : string.Join(", ", Storage.xs.Settings.GetSubscribers().Select(sub => $"`{Context.Client.GetUser(sub).Username}`"))) + "\n";
+            info += "subscribers: " + (Storage.xs.Settings.GetSubscribers().Count <= 0 ? "`empty`" : string.Join(", ", Storage.xs.Settings.GetSubscribers().Select(sub => $"`{Context.Client.GetUser(sub).Username}`"))) + "\n";
+
+            info += "theme pool: " + Storage.xs.Settings.GetThemePool().Select(pair => $"`{Context.Client.GetUser(pair.Key).Username}` ({string.Join(", ", pair.Value.Select(theme => $"`{theme}`"))})") + "\n";
 
             string entries = $"\n**({Storage.xs.Entries.Count()})** {string.Format(Properties.Resources.TRADE_LIST_ENTRIES, user.Id)}\n";
             if (!bAll)
-                entries += string.Join("\n", Storage.xs.Entries.GetStorage().Select(x => $"`{x.UserName}`" +
-                (string.IsNullOrWhiteSpace(x.NickName) ? "" : $" (`{x.NickName}`)") +
-                (string.IsNullOrWhiteSpace(x.ArtUrl) ? "" : " , `art`") +
-                (x.ThemePool.Count <= 0 ? "" : $", themes: {string.Join(", ", x.ThemePool.Select(the => $"`{the}`"))}")
+                entries += string.Join("\n", Storage.xs.Entries.GetStorage().Select(x => $"`{x.UserName}`"
+                + (string.IsNullOrWhiteSpace(x.NickName) ? "" : $" (`{x.NickName}`)")
+                + (string.IsNullOrWhiteSpace(x.ArtUrl) ? "" : " , `art`")
                 ));
             else
                 entries += string.Join("\n", Storage.xs.Entries.GetStorage().Select(x => $"`{x.UserName}`: `{x.UserId}`\n" +
-                (string.IsNullOrWhiteSpace(x.NickName) ? "" : $"Nickname: `{x.NickName}`\n") +
-                (string.IsNullOrWhiteSpace(x.ReferenceUrl) ? "" : $"Entry Url: <{x.ReferenceUrl}>\n") +
-                (string.IsNullOrWhiteSpace(x.ReferenceDescription) ? "" : $"Entry Desc: `{x.ReferenceDescription}`\n") +
-                (string.IsNullOrWhiteSpace(x.ArtUrl) ? "" : $"Art Url: <{x.ArtUrl}>\n") +
-                (x.ThemePool.Count <= 0 ? "" : $"Themes: {string.Join(", ", x.ThemePool.Select(the => $"`{the}`"))}\n")));
+                (string.IsNullOrWhiteSpace(x.NickName) ? "" : $"Nickname: `{x.NickName}`\n")
+                + (string.IsNullOrWhiteSpace(x.ReferenceUrl) ? "" : $"Entry Url: <{x.ReferenceUrl}>\n")
+                + (string.IsNullOrWhiteSpace(x.ReferenceDescription) ? "" : $"Entry Desc: `{x.ReferenceDescription}`\n")
+                + (string.IsNullOrWhiteSpace(x.ArtUrl) ? "" : $"Art Url: <{x.ArtUrl}>\n")
+                ));
             await user.SendMessageAsync(info + entries);
         }
 
