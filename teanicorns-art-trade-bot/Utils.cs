@@ -186,7 +186,7 @@ namespace teanicorns_art_trade_bot
                 return false;
 
             var reply = $"@everyone {string.Format(Properties.Resources.TRADE_THEME_POOL_START, 3)}";
-            Encoding unicode = Encoding.Unicode;
+            //Encoding unicode = Encoding.Unicode;
             //byte[] bytes = new byte[] { 48, 0, 227, 32 }; // ::zero::
             List<Emoji> emojiObjs = new List<Emoji>();
 
@@ -220,13 +220,37 @@ namespace teanicorns_art_trade_bot
             }
             else
             {
-                var msg = (Discord.Rest.RestUserMessage)await Utils.FindChannelMessage(client, Storage.xs.Settings.GetThemePollID());
+                var msg = await Utils.FindChannelMessage(client, Storage.xs.Settings.GetThemePollID());
                 if (msg == null)
                     return false;
 
-                await msg.ModifyAsync(x => x.Content = reply);
-                await msg.RemoveAllReactionsAsync();
-                emojiObjs.ForEach(async e => await msg.AddReactionAsync(e));
+                var restMsg = msg as Discord.Rest.RestUserMessage;
+                if (restMsg == null)
+                    return false;
+
+                await restMsg.ModifyAsync(x => x.Content = reply);
+
+                foreach (var emoji in restMsg.Reactions)
+                {
+                    string emojiCode = emoji.Key.Name;
+                    var foundEmoji = emojiObjs.FirstOrDefault(x => x.Name == emojiCode);
+                    if (foundEmoji == null)
+                    {
+                        var usersReacted = restMsg.GetReactionUsersAsync(emoji.Key, 100);
+                        await usersReacted.ForEachAsync(x => x.ToList().ForEach(u => restMsg.RemoveReactionAsync(emoji.Key, u)));
+                    }
+                    else
+                    {
+                        emojiObjs.Remove(foundEmoji);
+                    }
+                }
+
+                foreach (var emojiObj in emojiObjs)
+                {
+                    var foundReact = restMsg.Reactions.FirstOrDefault(x => x.Key.Name == emojiObj.Name).Key;
+                    if (foundReact == null)
+                        await restMsg.AddReactionAsync(emojiObj);
+                }
             }
 
             return true;

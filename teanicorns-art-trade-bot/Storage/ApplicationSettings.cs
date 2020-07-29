@@ -277,6 +277,7 @@ namespace teanicorns_art_trade_bot.Storage
                 _forceTradeEnd = data.IsForceTradeOn();
                 _themePollID = data.GetThemePollID();
                 _subscribers = data.GetSubscribers();
+                _themePool = data.GetThemePool();
             }
         }
         public override void Save(string path = null)
