@@ -71,6 +71,7 @@ namespace teanicorns_art_trade_bot
         private IServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
+                //.AddSingleton(new DiscordSocketClient(new DiscordSocketConfig { MessageCacheSize = 100 }))
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()

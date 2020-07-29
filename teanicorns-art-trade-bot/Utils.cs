@@ -220,9 +220,13 @@ namespace teanicorns_art_trade_bot
             }
             else
             {
-                var msg = (SocketUserMessage)await Utils.FindChannelMessage(client, Storage.xs.Settings.GetThemePollID());
-                //msg.ModifyAsync(x => x.)
-                //TODO: also modify reactions
+                var msg = (Discord.Rest.RestUserMessage)await Utils.FindChannelMessage(client, Storage.xs.Settings.GetThemePollID());
+                if (msg == null)
+                    return false;
+
+                await msg.ModifyAsync(x => x.Content = reply);
+                await msg.RemoveAllReactionsAsync();
+                emojiObjs.ForEach(async e => await msg.AddReactionAsync(e));
             }
 
             return true;

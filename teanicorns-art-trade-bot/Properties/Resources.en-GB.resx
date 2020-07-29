@@ -184,7 +184,8 @@
     <value>channel: `{0}`
 trade from `{1}` to `{2}` (`{3}` days)
 flags: `{4}`
-end forced: `{5}`</value>
+end forced: `{5}`
+theme poll ID: `{6}`</value>
   </data>
   <data name="TRADE_NEW_ENTRIES" xml:space="preserve">
     <value>the `entry week` started, `I'm accepting new entries!`

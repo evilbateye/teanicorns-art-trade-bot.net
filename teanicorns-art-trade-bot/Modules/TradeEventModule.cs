@@ -55,7 +55,7 @@ namespace teanicorns_art_trade_bot.Modules
         public static async Task<bool> StartEntryWeek(DiscordSocketClient client, double? days2end = null, bool? force = null, [Remainder]string theme = "")
         {
             SocketTextChannel channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
-            if (channel != null)
+            if (channel == null)
                 return false;
 
             Storage.xs.History.RecordTrade(Storage.xs.Entries);
@@ -223,6 +223,7 @@ namespace teanicorns_art_trade_bot.Modules
             , [Summary("number of days until the next trade starts (the duration of the entry week) (optional)")]double? days2start = null
             , [Summary("number of days until the next trade ends (the duration of the trade month) (optional)")]double? days2end = null
             , [Summary("bool flag indicating if the next trade should be forced to end automatically at the end (optional)")] bool? force = null
+            , [Summary("bool flag indicating if theme poll should be reset (optional)")] bool bResetPoll = false
             , [Summary("name of the only channel where the art trade bot listens for user input")][Remainder]string channel = null)
         {
             var user = Context.Message.Author;
@@ -233,7 +234,7 @@ namespace teanicorns_art_trade_bot.Modules
             }
 
             Storage.xs.BackupStorage(Storage.xs.Settings);
-            Storage.xs.Settings.ActivateTrade((Storage.ApplicationSettings.TradeSegment?)tradeSeg, days2start, days2end, force);
+            Storage.xs.Settings.ActivateTrade((Storage.ApplicationSettings.TradeSegment?)tradeSeg, days2start, days2end, force, bResetPoll);
 
             if (!string.IsNullOrWhiteSpace(channel))
                 await Channel(channel);
@@ -293,11 +294,12 @@ namespace teanicorns_art_trade_bot.Modules
                 , Storage.xs.Settings.GetTradeEnd().ToString("dd-MMMM")
                 , Storage.xs.Settings.GetTradeDays()
                 , Storage.xs.Settings.GetNotifyFlags()
-                , Storage.xs.Settings.IsForceTradeOn()) + "\n";
+                , Storage.xs.Settings.IsForceTradeOn()
+                , Storage.xs.Settings.GetThemePollID()) + "\n";
 
             info += "subscribers: " + (Storage.xs.Settings.GetSubscribers().Count <= 0 ? "`empty`" : string.Join(", ", Storage.xs.Settings.GetSubscribers().Select(sub => $"`{Context.Client.GetUser(sub).Username}`"))) + "\n";
 
-            info += "theme pool: " + Storage.xs.Settings.GetThemePool().Select(pair => $"`{Context.Client.GetUser(pair.Key).Username}` ({string.Join(", ", pair.Value.Select(theme => $"`{theme}`"))})") + "\n";
+            info += "theme pool: " + (Storage.xs.Settings.GetThemePool().Count <= 0 ? "`empty`" : string.Join(",", Storage.xs.Settings.GetThemePool().Select(pair => $"`{Context.Client.GetUser(pair.Key).Username}` ({string.Join(", ", pair.Value.Select(theme => $"`{theme}`"))})"))) + "\n";
 
             string entries = $"\n**({Storage.xs.Entries.Count()})** {string.Format(Properties.Resources.TRADE_LIST_ENTRIES, user.Id)}\n";
             if (!bAll)

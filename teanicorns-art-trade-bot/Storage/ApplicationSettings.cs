@@ -151,11 +151,6 @@ namespace teanicorns_art_trade_bot.Storage
             return _artTradeActive == TradeSegment.EntryWeek;
         }
 
-        public bool IsThemePollActive()
-        {
-            return _artTradeActive == TradeSegment.ThemesPoll;
-        }
-
         public TradeSegment GetActiveTradeSegment()
         {
             return _artTradeActive;
@@ -218,7 +213,7 @@ namespace teanicorns_art_trade_bot.Storage
             Save(); 
         }
 
-        public void ActivateTrade(TradeSegment? seg, double? days2start, double? days2end, bool? bForce)
+        public void ActivateTrade(TradeSegment? seg, double? days2start, double? days2end, bool? bForce, bool bResetPoll = false)
         {
             if (seg.HasValue)
                 _artTradeActive = seg.Value;
@@ -242,6 +237,9 @@ namespace teanicorns_art_trade_bot.Storage
 
             if (bForce.HasValue)
                 _forceTradeEnd = bForce.Value;
+
+            if (bResetPoll)
+                _themePollID = 0;
 
             Save();
         }

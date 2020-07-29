@@ -414,7 +414,7 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Listing other info.. working channel is.. \&quot;{0}\&quot;, trade is taking place from.. {1} to {2} ({3} days), notify flags.. {4}, trade end forced.. {5}.
+        ///   Looks up a localized string similar to Listing other info.. working channel is.. \&quot;{0}\&quot;, trade is taking place from.. {1} to {2} ({3} days), notify flags.. {4}, trade end forced.. {5}, theme poll ID: {6}.
         /// </summary>
         internal static string TRADE_LIST_SETTINGS {
             get {
