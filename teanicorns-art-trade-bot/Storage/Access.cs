@@ -20,7 +20,7 @@ namespace teanicorns_art_trade_bot.Storage
 
         public abstract int Count();
         public abstract void Clear();
-        public abstract StorageBase Load(string path = null);
+        public abstract void Load(string path = null);
         public abstract void Save(string path = null);
     }
 
@@ -55,21 +55,21 @@ namespace teanicorns_art_trade_bot.Storage
 
             if (Validate(Entries))
             {
-                Entries = (ApplicationData)Entries.Load();
+                Entries.Load();
                 if (Entries != null)
                     Console.WriteLine($"Axx: data-count-{Entries.Count()}");
             }
 
             if (Validate(History))
             {
-                History = (ApplicationHistory)History.Load();
+                History.Load();
                 if (History != null)
                     Console.WriteLine($"Axx: history-count-{History.Count()}");
             }
 
             if (Validate(Settings))
             {
-                Settings = (ApplicationSettings)Settings.Load();
+                Settings.Load();
                 if (Settings != null)
                     Console.WriteLine($"Axx: history-count-{Settings.Count()}");
             }
@@ -129,7 +129,7 @@ namespace teanicorns_art_trade_bot.Storage
                 if (!File.Exists(backupName))
                     return false;
 
-                s = s.Load(backupName);
+                s.Load(backupName);
                 s.Save();
                 return true;
             }
@@ -148,7 +148,7 @@ namespace teanicorns_art_trade_bot.Storage
                 if (!File.Exists(s.GetPath()))
                     return false;
 
-                s = s.Load();
+                s.Load();
                 s.Save();
             }
 

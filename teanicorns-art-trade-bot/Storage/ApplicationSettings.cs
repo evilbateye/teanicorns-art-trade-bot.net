@@ -197,13 +197,21 @@ namespace teanicorns_art_trade_bot.Storage
         // StorageBase methods
         public override int Count() { return 1; }
         public override void Clear() { }
-        public override StorageBase Load(string path = null)
+        public override void Load(string path = null)
         {
             string json = File.ReadAllText(path == null ? _path : path);
             var data = JsonConvert.DeserializeObject<ApplicationSettings>(json);
             if (data != null)
-                data.SetPath(_path);
-            return data;
+            {
+                _artTradeActive = data.GetActiveTradeSegment();
+                _workingChannel = data.GetWorkingChannel();
+                _tradeStart = data.GetTradeStart();
+                _tradeDays = data.GetTradeDays();
+                _notified = data.GetNotifyFlags();
+                _forceTradeEnd = data.IsForceTradeOn();
+                _themePollID = data.GetThemePollID();
+                _subscribers = data.GetSubscribers();
+            }
         }
         public override void Save(string path = null)
         {

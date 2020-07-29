@@ -34,16 +34,15 @@ namespace teanicorns_art_trade_bot.Storage
         // StorageBase
         public override int Count() { return _history.Count; }
         public override void Clear() { _history.Clear(); }
-        public override StorageBase Load(string path = null)
+        public override void Load(string path = null)
         {
             string json = File.ReadAllText(path == null ? _path : path);
             var data = JsonConvert.DeserializeObject<ApplicationHistory>(json);
             if (data != null)
             {
-                data.GetHistory().ForEach(x => x.SetParent(data));
-                data.SetPath(_path);
+                _history = data.GetHistory();
+                _history.ForEach(x => x.SetParent(data));
             }
-            return data;
         }
         public override void Save(string path = null)
         {
