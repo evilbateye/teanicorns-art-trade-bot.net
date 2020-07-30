@@ -262,8 +262,8 @@ namespace teanicorns_art_trade_bot.Modules
             return true;
         }
 
-        [Command("set theme")]
-        [Alias("seth", "add theme", "ath")]
+        [Command("add theme")]
+        [Alias("ath", "set theme", "sth")]
         [Summary("adds a theme to the theme pool (entry week only)")]
         [InfoModule.SummaryDetail("available only when entry week is currently taking place" +
            "\nonce the trade month starts there will be a poll and the trade participants will choose which theme they like the most" +
@@ -286,12 +286,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (Storage.xs.Settings.AddThemeToPool(user.Id, theme))
             {
-                if (!await Utils.CreateOrEditThemePoll(Context.Client))
-                {
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
-                    return;
-                }
-                
+                await Utils.EditThemePoll(Context.Client);
                 await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
             }
             else
@@ -300,7 +295,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("delete theme")]
-        [Alias("delth", "remove theme", "rmth")]
+        [Alias("dth", "remove theme", "rmth")]
         [Summary("removes a theme from your theme pool (entry week only)")]
         public async Task DeleteTheme([Summary("the name of the theme to be removed")][Remainder]string theme)
         {
@@ -315,12 +310,7 @@ namespace teanicorns_art_trade_bot.Modules
             {
                 if (Storage.xs.Settings.RemoveThemeFromPool(theme))
                 {
-                    if (!await Utils.CreateOrEditThemePoll(Context.Client))
-                    {
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
-                        return;
-                    }
-
+                    await Utils.EditThemePoll(Context.Client);
                     await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
                 }
                 else
@@ -330,12 +320,7 @@ namespace teanicorns_art_trade_bot.Modules
             {
                 if (Storage.xs.Settings.RemoveThemeFromPool(user.Id, theme))
                 {
-                    if (!await Utils.CreateOrEditThemePoll(Context.Client))
-                    {
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
-                        return;
-                    }
-
+                    await Utils.EditThemePoll(Context.Client);
                     await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
                 }
                 else
@@ -350,12 +335,12 @@ namespace teanicorns_art_trade_bot.Modules
         {
             var user = Context.Message.Author;
 
-            List<string> themes;
+            List<Storage.ArtTheme> themes;
             if (!Storage.xs.Settings.GetThemePool(user.Id, out themes))
-                themes = new List<string>();
+                themes = new List<Storage.ArtTheme>();
 
             await ReplyAsync($"{string.Format(Properties.Resources.REF_TRADE_THEME_POOL, user.Id)}: " +
-                (themes.Count > 0 ? string.Join(", ", themes.Select(x => $"`{x}`")) : "`none`"));
+                (themes.Count > 0 ? string.Join(", ", themes.Select(x => $"`{x.Theme}`")) : "`none`"));
         }
 
         [Command("subscribe")]

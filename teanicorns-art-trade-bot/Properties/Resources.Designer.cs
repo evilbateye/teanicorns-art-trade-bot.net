@@ -444,8 +444,17 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to please choose which theme you&apos;d like for this month&apos;s art trade 
-        ///the poll will take `{0}` days and theme with the most votes wins! (^•^).
+        ///   Looks up a localized string similar to (there are no themes registered at the moment, please use `{0}{1}` to register a theme).
+        /// </summary>
+        internal static string TRADE_THEME_POOL_EMPTY {
+            get {
+                return ResourceManager.GetString("TRADE_THEME_POOL_EMPTY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to @everyone please choose which theme you&apos;d like for this month&apos;s art trade 
+        ///theme with the most votes wins! (^•^).
         /// </summary>
         internal static string TRADE_THEME_POOL_START {
             get {

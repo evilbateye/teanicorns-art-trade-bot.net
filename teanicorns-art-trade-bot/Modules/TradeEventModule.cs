@@ -61,12 +61,9 @@ namespace teanicorns_art_trade_bot.Modules
             Storage.xs.History.RecordTrade(Storage.xs.Entries);
             await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH);
             Storage.xs.ClearStorage(Storage.xs.Entries);
-            Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.EntryWeek, null/*days2start*/, days2end, force);
+            Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.EntryWeek, null/*days2start*/, days2end, force, true /*bResetPoll*/);
             Storage.xs.Entries.SetTheme(theme);
-
-            if (!await Utils.CreateOrEditThemePoll(client))
-                return false;
-
+                        
             string artMissing = "";
             Storage.ApplicationData artHistory0 = GetAppDataFromHistory(0);
             if (artHistory0 != null)
@@ -87,6 +84,8 @@ namespace teanicorns_art_trade_bot.Modules
                 + (string.IsNullOrWhiteSpace(artMissing) ? string.Format(Properties.Resources.TRADE_ART_ON_TIME) : string.Format(Properties.Resources.TRADE_ART_LATE, artMissing))
                 + (string.IsNullOrWhiteSpace(artMissingHistory1) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_1, artHistory1.GetTheme(), artMissingHistory1))
                 + (string.IsNullOrWhiteSpace(artMissingHistory2) ? "" : "\n" + string.Format(Properties.Resources.TRADE_ART_LATE_2, artHistory2.GetTheme(), artMissingHistory2)));
+
+            await Utils.CreateThemePoll(client);
 
             var subscribers = new List<ulong>(Storage.xs.Settings.GetSubscribers());
 
@@ -140,7 +139,7 @@ namespace teanicorns_art_trade_bot.Modules
             if (channel == null)
                 return false;
             
-            Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.TradeMonth, 0.0/*days2start*/, days2end, force);
+            Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.TradeMonth, 0.0/*days2start*/, days2end, force, true /*bResetPoll*/);
 
             Storage.xs.Entries.DoShuffle(Storage.xs.History);
 
@@ -299,7 +298,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             info += "subscribers: " + (Storage.xs.Settings.GetSubscribers().Count <= 0 ? "`empty`" : string.Join(", ", Storage.xs.Settings.GetSubscribers().Select(sub => $"`{Context.Client.GetUser(sub).Username}`"))) + "\n";
 
-            info += "theme pool: " + (Storage.xs.Settings.GetThemePool().Count <= 0 ? "`empty`" : string.Join(",", Storage.xs.Settings.GetThemePool().Select(pair => $"`{Context.Client.GetUser(pair.Key).Username}` ({string.Join(", ", pair.Value.Select(theme => $"`{theme}`"))})"))) + "\n";
+            info += "theme pool: " + (Storage.xs.Settings.GetThemePool().Count <= 0 ? "`empty`" : string.Join(",", Storage.xs.Settings.GetThemePool().Select(pair => $"`{Context.Client.GetUser(pair.Key).Username}` ({string.Join(", ", pair.Value.Select(theme => $"`{theme.Theme}`"))})"))) + "\n";
 
             string entries = $"\n**({Storage.xs.Entries.Count()})** {string.Format(Properties.Resources.TRADE_LIST_ENTRIES, user.Id)}\n";
             if (!bAll)

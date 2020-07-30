@@ -7,6 +7,12 @@ using System.Linq;
 
 namespace teanicorns_art_trade_bot.Storage
 {
+    public class ArtTheme
+    {
+        public string Theme;
+        public string EmojiCode;
+    }
+
     public class ApplicationSettings : StorageBase
     {
         [Flags]
@@ -36,7 +42,7 @@ namespace teanicorns_art_trade_bot.Storage
         [JsonProperty("ForceTradeEnd")] private bool _forceTradeEnd = false;
         [JsonProperty("ThemePollID")] private ulong _themePollID = 0;
         [JsonProperty("Subscribers")] private List<ulong> _subscribers = new List<ulong>();
-        [JsonProperty("ThemePool")] private Dictionary<ulong, List<string>> _themePool = new Dictionary<ulong, List<string>>();
+        [JsonProperty("ThemePool")] private Dictionary<ulong, List<ArtTheme>> _themePool = new Dictionary<ulong, List<ArtTheme>>();
 
         public bool IsThemePoolMaxed()
         {
@@ -48,55 +54,94 @@ namespace teanicorns_art_trade_bot.Storage
             return _themePool.SelectMany(x => x.Value).Count();
         }
 
-        public Dictionary<ulong, List<string>> GetThemePool()
+        public Dictionary<ulong, List<ArtTheme>> GetThemePool()
         {
             return _themePool;
         }
 
-        public bool GetThemePool(ulong userID, out List<string> themes)
+        public bool GetThemePool(ulong userID, out List<ArtTheme> themes)
         {
             return _themePool.TryGetValue(userID, out themes);
+        }
+        public (ulong, ArtTheme) FindArtThemeByTheme(string theme)
+        {
+            foreach (KeyValuePair<ulong, List<ArtTheme>> pair in _themePool)
+            {
+                ArtTheme artTheme = pair.Value.FirstOrDefault(x => x.Theme == theme);
+                if (artTheme != default)
+                    return (pair.Key, artTheme);
+            }
+
+            return default;
+        }
+
+        public (ulong, ArtTheme) FindArtThemeByEmojiCode(string code)
+        {
+            foreach (KeyValuePair<ulong, List<ArtTheme>> pair in _themePool)
+            {
+                ArtTheme artTheme = pair.Value.FirstOrDefault(x => x.EmojiCode == code);
+                if (artTheme != default)
+                    return (pair.Key, artTheme);
+            }
+
+            return default;
+        }
+
+        private ArtTheme CreateArtTheme(string theme)
+        {
+            if (_themePollID == 0)
+                return new ArtTheme { Theme = theme };
+            
+            string emojiCode = Utils.EmojiCodes.FirstOrDefault(x => FindArtThemeByEmojiCode(x) == default);
+            return new ArtTheme { Theme = theme, EmojiCode = emojiCode };
         }
 
         public bool AddThemeToPool(ulong userID, string theme)
         {
+            if (IsThemePoolMaxed())
+                return false;
+
             theme = theme.ToLower().Trim();
 
-            List<string> themes;
+            List<ArtTheme> themes;
             if (_themePool.TryGetValue(userID, out themes))
             {
-                if (themes.Contains(theme))
+                if (themes.FirstOrDefault(x => x.Theme == theme) != default)
                     return false;
-                themes.Add(theme);
+                themes.Add(CreateArtTheme(theme));
             }
             else
             {
-                _themePool.Add(userID, new List<string>() { theme });
+                _themePool.Add(userID, new List<ArtTheme>() { CreateArtTheme(theme) });
             }
             
             Save();
             return true;
         }
-
+                
         public bool RemoveThemeFromPool(string theme)
         {
             theme = theme.ToLower().Trim();
-
-            var pair = _themePool.FirstOrDefault(x => x.Value.Contains(theme));
-            if (pair.Value == null)
+            
+            var pair = FindArtThemeByTheme(theme);
+            if (pair == default)
                 return false;
 
-            return RemoveThemeFromPool(pair.Key, theme);
+            return RemoveThemeFromPool(pair.Item1, theme);
         }
 
         public bool RemoveThemeFromPool(ulong userID, string theme)
         {
             theme = theme.ToLower().Trim();
 
-            List<string> themes;
+            List<ArtTheme> themes;
             if (_themePool.TryGetValue(userID, out themes))
             {
-                if (!themes.Remove(theme))
+                var first = themes.FirstOrDefault(x => x.Theme == theme);
+                if (first == default)
+                    return false;
+
+                if (!themes.Remove(first))
                     return false;
             }
             else

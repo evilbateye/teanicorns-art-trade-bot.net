@@ -40,7 +40,7 @@ namespace teanicorns_art_trade_bot
         {
             int index = -1;
             var userList = guild.Users.ToList();
-            
+
             if (UInt64.TryParse(userId, out ulong numericId))
                 index = userList.FindIndex(x => x.Id == numericId);
             else
@@ -145,14 +145,14 @@ namespace teanicorns_art_trade_bot
             Storage.xs.Settings.SetThemePollID(0);
 
             var winner = themePool[winnerIdx];
-            Storage.xs.Settings.RemoveThemeFromPool(winner.Item1, winner.Item2);
-            return winner.Item2;
+            Storage.xs.Settings.RemoveThemeFromPool(winner.Item1, winner.Item2.Theme);
+            return winner.Item2.Theme;
         }
 
-        public static List<(ulong, string)> GetThemePoolOrdered()
+        public static List<(ulong, Storage.ArtTheme)> GetThemePoolOrdered()
         {
-            List<(ulong, string)> themePool = new List<(ulong, string)>();
-            var pools2darr = Storage.xs.Settings.GetThemePool().Select(pair => (pair.Key, new List<string>(pair.Value))).ToList();
+            List<(ulong, Storage.ArtTheme)> themePool = new List<(ulong, Storage.ArtTheme)>();
+            List<(ulong, List<Storage.ArtTheme>)> pools2darr = Storage.xs.Settings.GetThemePool().Select(pair => (pair.Key, new List<Storage.ArtTheme>(pair.Value))).ToList();
             while (pools2darr.Count > 0)
             {
                 for (int i = pools2darr.Count - 1; i >= 0; --i)
@@ -163,7 +163,7 @@ namespace teanicorns_art_trade_bot
                         continue;
                     }
 
-                    themePool.Add((pools2darr[i].Key, pools2darr[i].Item2[0]));
+                    themePool.Add((pools2darr[i].Item1, pools2darr[i].Item2[0]));
                     pools2darr[i].Item2.RemoveAt(0);
                 }
             }
@@ -175,84 +175,108 @@ namespace teanicorns_art_trade_bot
             return themePool;
         }
 
-        public static List<string> EmojiCodes = new List<string>() { "\u0030\u20E3" /*:zero:*/, "\u0031\u20E3" /*:one:*/, "\u0032\u20E3" /*:two:*/
-            , "\u0033\u20E3" /*:three:*/, "\u0034\u20E3" /*:four:*/, "\u0035\u20E3" /*:five:*/, "\u0036\u20E3" /*:six:*/, "\u0037\u20E3" /*:seven:*/
-            , "\u0038\u20E3" /*:eight:*/, "\u0039\u20E3" /*:nine:*/};
+        public static List<string> EmojiCodes = new List<string>() { "\uD83C\uDF51" /*:peach:*/, "\uD83C\uDF52" /*:cherries:*/, "\uD83C\uDF53" /*:strawberry:*/
+            , "\uD83C\uDF47" /*:grapes:*/, "\uD83C\uDF4E" /*:apple:*/, "\uD83C\uDF50" /*:pear:*/, "\uD83C\uDF49" /*:watermelon:*/, "\uD83C\uDF4A" /*:tangerine:*/
+            , "\uD83C\uDF4C" /*:banana:*/, "\uD83C\uDF4D" /*:pineapple:*/};
 
-        public static async Task<bool> CreateOrEditThemePoll(DiscordSocketClient client)
+        public static async Task<bool> CreateThemePoll(DiscordSocketClient client)
         {
-            List<string> themePool = Utils.GetThemePoolOrdered().Select(x => x.Item2).ToList();
-            if (themePool.Count <= 0)
+            if (Storage.xs.Settings.GetThemePollID() != 0)
                 return false;
 
-            var reply = $"@everyone {string.Format(Properties.Resources.TRADE_THEME_POOL_START, 3)}";
-            //Encoding unicode = Encoding.Unicode;
-            //byte[] bytes = new byte[] { 48, 0, 227, 32 }; // ::zero::
+            SocketTextChannel channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
+            if (channel == null)
+                return false;
+
+            var reply = $"{string.Format(Properties.Resources.TRADE_THEME_POOL_START)}";
             List<Emoji> emojiObjs = new List<Emoji>();
-
-            for (int i = 0; i < themePool.Count; ++i)
+            List<Storage.ArtTheme> themePool = Utils.GetThemePoolOrdered().Select(x => x.Item2).ToList();
+            if (themePool.Count > 0)
             {
-                //var bytes = BitConverter.GetBytes(emojiNumber);
-                //var emojistr2 = "\u0030\u20E3";
-                //var bytes2 = unicode.GetBytes(emojistr2);
-                //var bytes2int32u = BitConverter.ToUInt32(bytes2, 0);
+                //Encoding unicode = Encoding.Unicode;
+                //byte[] bytes = new byte[] { 48, 0, 227, 32 }; // ::zero::
+                
+                for (int i = 0; i < themePool.Count; ++i)
+                {
+                    //var bytes = BitConverter.GetBytes(emojiNumber);
+                    //var emojistr2 = "\u0030\u20E3";
+                    //var bytes2 = unicode.GetBytes(emojistr2);
+                    //var bytes2int32u = BitConverter.ToUInt32(bytes2, 0);
 
-                //var emojiCode = unicode.GetString(bytes);
-                //bytes[0] += 1;
+                    //var emojiCode = unicode.GetString(bytes);
+                    //bytes[0] += 1;
 
-                string theme = themePool[i];
-                string emojiCode = Utils.EmojiCodes[i];
-                emojiObjs.Add(new Emoji(emojiCode));
-                reply += $"\n{emojiCode} : `{theme}`";
-            }
-
-            if (Storage.xs.Settings.GetThemePollID() == 0)
-            {
-                SocketTextChannel channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
-                if (channel == null)
-                    return false;
-
-                var msg = await channel.SendMessageAsync(reply);
-                Storage.xs.Settings.SetThemePollID(msg.Id);
-                emojiObjs.ForEach(async e => await msg.AddReactionAsync(e));
-
-                await Utils.NotifySubscribers(client, string.Format(Properties.Resources.TRADE_THEME_POOL_SUBS, "theme poll", Storage.xs.Settings.GetWorkingChannel()));
+                    string emojiCode = Utils.EmojiCodes[i];
+                    emojiObjs.Add(new Emoji(emojiCode));
+                    reply += $"\n{emojiCode} : `{themePool[i].Theme}`";
+                    themePool[i].EmojiCode = emojiCode;
+                }
+                Storage.xs.Settings.Save();
             }
             else
             {
-                var msg = await Utils.FindChannelMessage(client, Storage.xs.Settings.GetThemePollID());
-                if (msg == null)
-                    return false;
+                reply += $"\n{string.Format(Properties.Resources.TRADE_THEME_POOL_EMPTY, Config.CmdPrefix, "add theme <theme name>")}";
+            }
 
-                var restMsg = msg as Discord.Rest.RestUserMessage;
-                if (restMsg == null)
-                    return false;
+            var msg = await channel.SendMessageAsync(reply);
+            Storage.xs.Settings.SetThemePollID(msg.Id);
+            emojiObjs.ForEach(async e => await msg.AddReactionAsync(e));
 
-                await restMsg.ModifyAsync(x => x.Content = reply);
+            await Utils.NotifySubscribers(client, string.Format(Properties.Resources.TRADE_THEME_POOL_SUBS, "theme poll", Storage.xs.Settings.GetWorkingChannel()));
+            return true;
+        }
 
-                foreach (var emoji in restMsg.Reactions)
+        public static async Task<bool> EditThemePoll(DiscordSocketClient client)
+        {
+            if (Storage.xs.Settings.GetThemePollID() == 0)
+                return false;
+
+            var msg = await Utils.FindChannelMessage(client, Storage.xs.Settings.GetThemePollID());
+            if (msg == null)
+                return false;
+
+            var restMsg = msg as Discord.Rest.RestUserMessage;
+            if (restMsg == null)
+                return false;
+
+            List<Emoji> emojiObjs = new List<Emoji>();
+            var reply = $"{string.Format(Properties.Resources.TRADE_THEME_POOL_START)}";
+            List<Storage.ArtTheme> themePool = Utils.GetThemePoolOrdered().Select(x => x.Item2).ToList();
+            if (themePool.Count > 0)
+            {
+                foreach (Storage.ArtTheme artTheme in themePool)
                 {
-                    string emojiCode = emoji.Key.Name;
-                    var foundEmoji = emojiObjs.FirstOrDefault(x => x.Name == emojiCode);
-                    if (foundEmoji == null)
-                    {
-                        var usersReacted = restMsg.GetReactionUsersAsync(emoji.Key, 100);
-                        await usersReacted.ForEachAsync(x => x.ToList().ForEach(u => restMsg.RemoveReactionAsync(emoji.Key, u)));
-                    }
-                    else
-                    {
-                        emojiObjs.Remove(foundEmoji);
-                    }
+                    reply += $"\n{artTheme.EmojiCode} : `{artTheme.Theme}`";
+                    emojiObjs.Add(new Emoji(artTheme.EmojiCode));
                 }
+            }
+            else
+            {
+                reply += $"\n{string.Format(Properties.Resources.TRADE_THEME_POOL_EMPTY, Config.CmdPrefix, "add theme <theme name>")}";
+            }
 
-                foreach (var emojiObj in emojiObjs)
+            await restMsg.ModifyAsync(x => x.Content = reply);
+            foreach (var emoji in restMsg.Reactions)
+            {
+                string emojiCode = emoji.Key.Name;
+                var foundEmoji = emojiObjs.FirstOrDefault(x => x.Name == emojiCode);
+                if (foundEmoji == null)
                 {
-                    var foundReact = restMsg.Reactions.FirstOrDefault(x => x.Key.Name == emojiObj.Name).Key;
-                    if (foundReact == null)
-                        await restMsg.AddReactionAsync(emojiObj);
+                    var usersReacted = restMsg.GetReactionUsersAsync(emoji.Key, 100);
+                    await usersReacted.ForEachAsync(x => x.ToList().ForEach(u => restMsg.RemoveReactionAsync(emoji.Key, u)));
+                }
+                else
+                {
+                    emojiObjs.Remove(foundEmoji);
                 }
             }
 
+            foreach (var emojiObj in emojiObjs)
+            {
+                var foundReact = restMsg.Reactions.FirstOrDefault(x => x.Key.Name == emojiObj.Name).Key;
+                if (foundReact == null)
+                    await restMsg.AddReactionAsync(emojiObj);
+            }
             return true;
         }
 
