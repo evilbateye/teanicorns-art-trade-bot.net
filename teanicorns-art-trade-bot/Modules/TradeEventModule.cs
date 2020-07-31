@@ -298,7 +298,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             info += "subscribers: " + (Storage.xs.Settings.GetSubscribers().Count <= 0 ? "`empty`" : string.Join(", ", Storage.xs.Settings.GetSubscribers().Select(sub => $"`{Context.Client.GetUser(sub).Username}`"))) + "\n";
 
-            info += "theme pool: " + (Storage.xs.Settings.GetThemePool().Count <= 0 ? "`empty`" : string.Join(",", Storage.xs.Settings.GetThemePool().Select(pair => $"`{Context.Client.GetUser(pair.Key).Username}` ({string.Join(", ", pair.Value.Select(theme => $"`{theme.Theme}`"))})"))) + "\n";
+            info += "theme pool: " + (Storage.xs.Settings.GetThemePool().Count <= 0 ? "`empty`" : string.Join(",", Storage.xs.Settings.GetThemePool().Select(pair => $"`{Context.Client.GetUser(pair.Key).Username}` ({string.Join(", ", pair.Value.Select(theme => $"`{theme}`"))})"))) + "\n";
 
             string entries = $"\n**({Storage.xs.Entries.Count()})** {string.Format(Properties.Resources.TRADE_LIST_ENTRIES, user.Id)}\n";
             if (!bAll)

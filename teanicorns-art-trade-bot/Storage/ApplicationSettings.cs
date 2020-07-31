@@ -7,12 +7,6 @@ using System.Linq;
 
 namespace teanicorns_art_trade_bot.Storage
 {
-    public class ArtTheme
-    {
-        public string Theme;
-        public string EmojiCode;
-    }
-
     public class ApplicationSettings : StorageBase
     {
         [Flags]
@@ -42,7 +36,7 @@ namespace teanicorns_art_trade_bot.Storage
         [JsonProperty("ForceTradeEnd")] private bool _forceTradeEnd = false;
         [JsonProperty("ThemePollID")] private ulong _themePollID = 0;
         [JsonProperty("Subscribers")] private List<ulong> _subscribers = new List<ulong>();
-        [JsonProperty("ThemePool")] private Dictionary<ulong, List<ArtTheme>> _themePool = new Dictionary<ulong, List<ArtTheme>>();
+        [JsonProperty("ThemePool")] private Dictionary<ulong, List<string>> _themePool = new Dictionary<ulong, List<string>>();
 
         public bool IsThemePoolMaxed()
         {
@@ -54,46 +48,25 @@ namespace teanicorns_art_trade_bot.Storage
             return _themePool.SelectMany(x => x.Value).Count();
         }
 
-        public Dictionary<ulong, List<ArtTheme>> GetThemePool()
+        public Dictionary<ulong, List<string>> GetThemePool()
         {
             return _themePool;
         }
 
-        public bool GetThemePool(ulong userID, out List<ArtTheme> themes)
+        public bool GetThemePool(ulong userID, out List<string> themes)
         {
             return _themePool.TryGetValue(userID, out themes);
         }
-        public (ulong, ArtTheme) FindArtThemeByTheme(string theme)
+        public (ulong, string) FindArtThemeByTheme(string theme)
         {
-            foreach (KeyValuePair<ulong, List<ArtTheme>> pair in _themePool)
+            foreach (KeyValuePair<ulong, List<string>> pair in _themePool)
             {
-                ArtTheme artTheme = pair.Value.FirstOrDefault(x => x.Theme == theme);
+                string artTheme = pair.Value.FirstOrDefault(x => x == theme);
                 if (artTheme != default)
                     return (pair.Key, artTheme);
             }
 
             return default;
-        }
-
-        public (ulong, ArtTheme) FindArtThemeByEmojiCode(string code)
-        {
-            foreach (KeyValuePair<ulong, List<ArtTheme>> pair in _themePool)
-            {
-                ArtTheme artTheme = pair.Value.FirstOrDefault(x => x.EmojiCode == code);
-                if (artTheme != default)
-                    return (pair.Key, artTheme);
-            }
-
-            return default;
-        }
-
-        private ArtTheme CreateArtTheme(string theme)
-        {
-            if (_themePollID == 0)
-                return new ArtTheme { Theme = theme };
-            
-            string emojiCode = Utils.EmojiCodes.FirstOrDefault(x => FindArtThemeByEmojiCode(x) == default);
-            return new ArtTheme { Theme = theme, EmojiCode = emojiCode };
         }
 
         public bool AddThemeToPool(ulong userID, string theme)
@@ -103,16 +76,16 @@ namespace teanicorns_art_trade_bot.Storage
 
             theme = theme.ToLower().Trim();
 
-            List<ArtTheme> themes;
+            List<string> themes;
             if (_themePool.TryGetValue(userID, out themes))
             {
-                if (themes.FirstOrDefault(x => x.Theme == theme) != default)
+                if (themes.FirstOrDefault(x => x == theme) != default)
                     return false;
-                themes.Add(CreateArtTheme(theme));
+                themes.Add(theme);
             }
             else
             {
-                _themePool.Add(userID, new List<ArtTheme>() { CreateArtTheme(theme) });
+                _themePool.Add(userID, new List<string>() { theme });
             }
             
             Save();
@@ -134,10 +107,10 @@ namespace teanicorns_art_trade_bot.Storage
         {
             theme = theme.ToLower().Trim();
 
-            List<ArtTheme> themes;
+            List<string> themes;
             if (_themePool.TryGetValue(userID, out themes))
             {
-                var first = themes.FirstOrDefault(x => x.Theme == theme);
+                var first = themes.FirstOrDefault(x => x == theme);
                 if (first == default)
                     return false;
 

@@ -145,14 +145,14 @@ namespace teanicorns_art_trade_bot
             Storage.xs.Settings.SetThemePollID(0);
 
             var winner = themePool[winnerIdx];
-            Storage.xs.Settings.RemoveThemeFromPool(winner.Item1, winner.Item2.Theme);
-            return winner.Item2.Theme;
+            Storage.xs.Settings.RemoveThemeFromPool(winner.Item1, winner.Item2);
+            return winner.Item2;
         }
 
-        public static List<(ulong, Storage.ArtTheme)> GetThemePoolOrdered()
+        public static List<(ulong, string)> GetThemePoolOrdered()
         {
-            List<(ulong, Storage.ArtTheme)> themePool = new List<(ulong, Storage.ArtTheme)>();
-            List<(ulong, List<Storage.ArtTheme>)> pools2darr = Storage.xs.Settings.GetThemePool().Select(pair => (pair.Key, new List<Storage.ArtTheme>(pair.Value))).ToList();
+            List<(ulong, string)> themePool = new List<(ulong, string)>();
+            List<(ulong, List<string>)> pools2darr = Storage.xs.Settings.GetThemePool().Select(pair => (pair.Key, new List<string>(pair.Value))).ToList();
             while (pools2darr.Count > 0)
             {
                 for (int i = pools2darr.Count - 1; i >= 0; --i)
@@ -190,7 +190,7 @@ namespace teanicorns_art_trade_bot
 
             var reply = $"{string.Format(Properties.Resources.TRADE_THEME_POOL_START)}";
             List<Emoji> emojiObjs = new List<Emoji>();
-            List<Storage.ArtTheme> themePool = Utils.GetThemePoolOrdered().Select(x => x.Item2).ToList();
+            List<string> themePool = Utils.GetThemePoolOrdered().Select(x => x.Item2).ToList();
             if (themePool.Count > 0)
             {
                 //Encoding unicode = Encoding.Unicode;
@@ -208,10 +208,8 @@ namespace teanicorns_art_trade_bot
 
                     string emojiCode = Utils.EmojiCodes[i];
                     emojiObjs.Add(new Emoji(emojiCode));
-                    reply += $"\n{emojiCode} : `{themePool[i].Theme}`";
-                    themePool[i].EmojiCode = emojiCode;
+                    reply += $"\n{emojiCode} : `{themePool[i]}`";
                 }
-                Storage.xs.Settings.Save();
             }
             else
             {
@@ -241,16 +239,35 @@ namespace teanicorns_art_trade_bot
 
             List<Emoji> emojiObjs = new List<Emoji>();
             var reply = $"{string.Format(Properties.Resources.TRADE_THEME_POOL_START)}";
-            List<Storage.ArtTheme> themePool = Utils.GetThemePoolOrdered().Select(x => x.Item2).ToList();
+            List<string> themePool = Utils.GetThemePoolOrdered().Select(x => x.Item2).ToList();
             if (themePool.Count > 0)
             {
+                List<string> emojiCodesTmp = new List<string>(EmojiCodes);
                 string content = restMsg.Content;
-                string[] lines = content.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (Storage.ArtTheme artTheme in themePool)
+                string[] lines = content.Split('\n');
+                foreach (string line in lines)
                 {
-                    reply += $"\n{artTheme.EmojiCode} : `{artTheme.Theme}`";
-                    emojiObjs.Add(new Emoji(artTheme.EmojiCode));
+                    string[] themeLine = line.Split(':');
+                    if (themeLine.Count() != 2)
+                        continue;
+                    string contentEmojiCode = themeLine[0].ToLower().Trim();
+                    if (!EmojiCodes.Contains(contentEmojiCode))
+                        continue;
+                    string contentTheme = themeLine[1].Replace('`', ' ').ToLower().Trim();
+                    if (!themePool.Contains(contentTheme))
+                        continue;
+                    reply += $"\n{line}";
+                    emojiObjs.Add(new Emoji(contentEmojiCode));
+                    emojiCodesTmp.Remove(contentEmojiCode);
+                    themePool.RemoveAll(x => x == contentTheme);
+                }
+
+                foreach (string artTheme in themePool)
+                {
+                    string tmpEmojiCode = emojiCodesTmp[0];
+                    reply += $"\n{tmpEmojiCode} : `{artTheme}`";
+                    emojiObjs.Add(new Emoji(tmpEmojiCode));
+                    emojiCodesTmp.RemoveAt(0);
                 }
             }
             else

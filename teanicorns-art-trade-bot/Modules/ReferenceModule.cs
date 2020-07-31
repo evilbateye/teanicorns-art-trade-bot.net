@@ -335,12 +335,12 @@ namespace teanicorns_art_trade_bot.Modules
         {
             var user = Context.Message.Author;
 
-            List<Storage.ArtTheme> themes;
+            List<string> themes;
             if (!Storage.xs.Settings.GetThemePool(user.Id, out themes))
-                themes = new List<Storage.ArtTheme>();
+                themes = new List<string>();
 
             await ReplyAsync($"{string.Format(Properties.Resources.REF_TRADE_THEME_POOL, user.Id)}: " +
-                (themes.Count > 0 ? string.Join(", ", themes.Select(x => $"`{x.Theme}`")) : "`none`"));
+                (themes.Count > 0 ? string.Join(", ", themes.Select(x => $"`{x}`")) : "`none`"));
         }
 
         [Command("subscribe")]
