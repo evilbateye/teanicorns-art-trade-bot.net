@@ -125,7 +125,7 @@ namespace teanicorns_art_trade_bot
                 SocketTextChannel channel = Utils.FindChannel(_discord, Storage.xs.Settings.GetWorkingChannel());
                 if (channel != null)
                 {
-                    if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeStart(3)) > 0)
+                    if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeStart(1)) > 0)
                     {
                         if (!Storage.xs.Settings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.ThemePollNotification))
                         {
