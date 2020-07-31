@@ -244,6 +244,9 @@ namespace teanicorns_art_trade_bot
             List<Storage.ArtTheme> themePool = Utils.GetThemePoolOrdered().Select(x => x.Item2).ToList();
             if (themePool.Count > 0)
             {
+                string content = restMsg.Content;
+                string[] lines = content.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
                 foreach (Storage.ArtTheme artTheme in themePool)
                 {
                     reply += $"\n{artTheme.EmojiCode} : `{artTheme.Theme}`";
