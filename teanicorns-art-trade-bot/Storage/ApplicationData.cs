@@ -144,7 +144,7 @@ namespace teanicorns_art_trade_bot.Storage
         }
         public void DoShuffle(ApplicationHistory history)
         {
-            if (!_shuffle.Compute(this, history))
+            if (_storage.Count < 3 || !_shuffle.Compute(this, history))
             {
                 _storage = _storage.OrderBy(x => Guid.NewGuid()).ToList();
                 Save();
