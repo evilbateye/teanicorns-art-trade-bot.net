@@ -83,6 +83,8 @@ namespace teanicorns_art_trade_bot.Modules
 
             string outMessage = $"{string.Format(Properties.Resources.ENTRY_WEEK, Config.CmdPrefix, "set entry", "about")}\n"
                 + (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme()) + "\n");
+                        
+            await channel.SendMessageAsync(outMessage, embed: Utils.EmbedFooter(client));
 
             string naughtyList = "";
             if (!string.IsNullOrWhiteSpace(artMissing))
@@ -92,9 +94,7 @@ namespace teanicorns_art_trade_bot.Modules
             if (!string.IsNullOrWhiteSpace(artMissingHistory2))
                 naughtyList += $"\n`{artHistory2.GetTheme()}` : {artMissingHistory2}";
             if (!string.IsNullOrWhiteSpace(naughtyList))
-                outMessage += $"**Naughty List**{naughtyList}\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art <theme name>", "to register the missing art for that specific theme")}";
-
-            await channel.SendMessageAsync(outMessage, embed: Utils.EmbedFooter(client));
+                await channel.SendMessageAsync($"**Naughty List**{naughtyList}\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art <theme name>", "to register the missing art for that specific theme")}");
 
             await Utils.CreateThemePoll(client);
 
