@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 using Discord.Commands;
 using Discord;
+using teanicorns_art_trade_bot.Storage;
 
 namespace teanicorns_art_trade_bot
 {
@@ -89,7 +90,7 @@ namespace teanicorns_art_trade_bot
             if (messageID == 0)
                 return null;
 
-            var channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
+            var channel = FindChannel(client, xs.Settings.GetWorkingChannel());
             if (channel == null)
                 return null;
 
@@ -98,11 +99,11 @@ namespace teanicorns_art_trade_bot
 
         public static async Task<string> GetThemePollResult(DiscordSocketClient client)
         {
-            var msg = await FindChannelMessage(client, Storage.xs.Settings.GetThemePollID());
+            var msg = await FindChannelMessage(client, xs.Settings.GetThemePollMessageId());
             if (msg == null)
                 return "";
 
-            var channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
+            var channel = FindChannel(client, xs.Settings.GetWorkingChannel());
             if (channel == null)
                 return "";
 
@@ -141,18 +142,19 @@ namespace teanicorns_art_trade_bot
             if (themePool.Count <= 0)
                 return "";
 
-            await channel.DeleteMessageAsync(msg);
-            Storage.xs.Settings.SetThemePollID(0);
+            await EditMessagePin(client, msg.Id, false /*unpin*/);
+            //await channel.DeleteMessageAsync(msg);
+            xs.Settings.SetThemePollID(0);
 
             var winner = themePool[winnerIdx];
-            Storage.xs.Settings.RemoveThemeFromPool(winner.Item1, winner.Item2);
+            xs.Settings.RemoveThemeFromPool(winner.Item1, winner.Item2);
             return winner.Item2;
         }
 
         public static List<(ulong, string)> GetThemePoolOrdered()
         {
             List<(ulong, string)> themePool = new List<(ulong, string)>();
-            List<(ulong, List<string>)> pools2darr = Storage.xs.Settings.GetThemePool().Select(pair => (pair.Key, new List<string>(pair.Value))).ToList();
+            List<(ulong, List<string>)> pools2darr = xs.Settings.GetThemePool().Select(pair => (pair.Key, new List<string>(pair.Value))).ToList();
             while (pools2darr.Count > 0)
             {
                 for (int i = pools2darr.Count - 1; i >= 0; --i)
@@ -168,7 +170,7 @@ namespace teanicorns_art_trade_bot
                 }
             }
 
-            int maxThemes = Storage.ApplicationSettings.MAX_THEMES_COUNT;
+            int maxThemes = ApplicationSettings.MAX_THEMES_COUNT;
             if (themePool.Count > maxThemes)
                 themePool.RemoveRange(maxThemes, themePool.Count - maxThemes);
 
@@ -181,21 +183,22 @@ namespace teanicorns_art_trade_bot
 
         public static async Task<bool> CreateThemePoll(DiscordSocketClient client)
         {
-            if (Storage.xs.Settings.GetThemePollID() != 0)
+            if (xs.Settings.GetThemePollMessageId() != 0)
                 return false;
 
-            SocketTextChannel channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
+            SocketTextChannel channel = FindChannel(client, xs.Settings.GetWorkingChannel());
             if (channel == null)
                 return false;
 
             var reply = $"{string.Format(Properties.Resources.TRADE_THEME_POOL_START)}";
             List<Emoji> emojiObjs = new List<Emoji>();
-            List<string> themePool = Utils.GetThemePoolOrdered().Select(x => x.Item2).ToList();
+            List<string> themePool = GetThemePoolOrdered().Select(x => x.Item2).ToList();
             if (themePool.Count > 0)
             {
+                reply += $"\n({string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, "add theme <theme name>", "add a theme into the poll")})";
                 //Encoding unicode = Encoding.Unicode;
                 //byte[] bytes = new byte[] { 48, 0, 227, 32 }; // ::zero::
-                
+
                 for (int i = 0; i < themePool.Count; ++i)
                 {
                     //var bytes = BitConverter.GetBytes(emojiNumber);
@@ -206,30 +209,31 @@ namespace teanicorns_art_trade_bot
                     //var emojiCode = unicode.GetString(bytes);
                     //bytes[0] += 1;
 
-                    string emojiCode = Utils.EmojiCodes[i];
+                    string emojiCode = EmojiCodes[i];
                     emojiObjs.Add(new Emoji(emojiCode));
                     reply += $"\n{emojiCode} : `{themePool[i]}`";
                 }
             }
             else
             {
-                reply += $"\n{string.Format(Properties.Resources.TRADE_THEME_POOL_EMPTY, Config.CmdPrefix, "add theme <theme name>")}";
+                reply += $"\n({string.Format(Properties.Resources.GLOBAL_EMPTY, "themes")}, {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, "add theme <theme name>", "add a theme into the poll")})";
             }
 
             var msg = await channel.SendMessageAsync(reply);
-            Storage.xs.Settings.SetThemePollID(msg.Id);
+            xs.Settings.SetThemePollID(msg.Id);
             emojiObjs.ForEach(async e => await msg.AddReactionAsync(e));
+            await EditMessagePin(client, msg.Id, true /*pin*/);
 
-            await Utils.NotifySubscribers(client, string.Format(Properties.Resources.TRADE_THEME_POOL_SUBS, "theme poll", Storage.xs.Settings.GetWorkingChannel()));
+            await NotifySubscribers(client, string.Format(Properties.Resources.TRADE_THEME_POOL_SUBS, "theme poll", xs.Settings.GetWorkingChannel()));
             return true;
         }
 
         public static async Task<bool> EditThemePoll(DiscordSocketClient client)
         {
-            if (Storage.xs.Settings.GetThemePollID() == 0)
+            if (xs.Settings.GetThemePollMessageId() == 0)
                 return false;
 
-            var msg = await Utils.FindChannelMessage(client, Storage.xs.Settings.GetThemePollID());
+            var msg = await FindChannelMessage(client, xs.Settings.GetThemePollMessageId());
             if (msg == null)
                 return false;
 
@@ -239,7 +243,7 @@ namespace teanicorns_art_trade_bot
 
             List<Emoji> emojiObjs = new List<Emoji>();
             var reply = $"{string.Format(Properties.Resources.TRADE_THEME_POOL_START)}";
-            List<string> themePool = Utils.GetThemePoolOrdered().Select(x => x.Item2).ToList();
+            List<string> themePool = GetThemePoolOrdered().Select(x => x.Item2).ToList();
             if (themePool.Count > 0)
             {
                 List<string> emojiCodesTmp = new List<string>(EmojiCodes);
@@ -272,7 +276,7 @@ namespace teanicorns_art_trade_bot
             }
             else
             {
-                reply += $"\n{string.Format(Properties.Resources.TRADE_THEME_POOL_EMPTY, Config.CmdPrefix, "add theme <theme name>")}";
+                reply += $"\n{string.Format(Properties.Resources.GLOBAL_EMPTY, Config.CmdPrefix, "add theme <theme name>")}";
             }
 
             await restMsg.ModifyAsync(x => x.Content = reply);
@@ -303,14 +307,115 @@ namespace teanicorns_art_trade_bot
         public static async Task NotifySubscribers(DiscordSocketClient client, string message, List<ulong> subscribers = null)
         {
             if (subscribers == null)
-                subscribers = Storage.xs.Settings.GetSubscribers();
+                subscribers = xs.Settings.GetSubscribers();
 
             foreach (ulong userId in subscribers)
             {
                 SocketUser su = client.GetUser(userId);
                 if (su != null)
-                    await su.SendMessageAsync($"<@{userId}> " + message);
+                    await su.SendMessageAsync($"<@{userId}> " + message, embed: Utils.EmbedFooter(client));
             }
+        }
+
+        public static EmbedBuilder GetFooterBuilder(DiscordSocketClient client)
+        {
+            SocketTextChannel channel = FindChannel(client, xs.Settings.GetWorkingChannel());
+            if (channel == null)
+                return null;
+
+            List<string> footer = new List<string>();
+
+            if (xs.Settings.GetThemePollMessageId() != 0)
+                footer.Add($"[theme poll](https://discordapp.com/channels/{FindGuild(client).Id}/{channel.Id}/{xs.Settings.GetThemePollMessageId()})");
+
+            if (xs.Settings.GetHelpMessageId() != 0)
+                footer.Add($"[bot help](https://discordapp.com/channels/{FindGuild(client).Id}/{channel.Id}/{xs.Settings.GetHelpMessageId()})");
+
+            footer.Add($"[teanicorn web](https://teanicorns.weebly.com/)");
+
+            string avatarUrl = client.CurrentUser.GetAvatarUrl();
+            if (string.IsNullOrEmpty(avatarUrl))
+                avatarUrl = client.CurrentUser.GetDefaultAvatarUrl();
+
+            return new EmbedBuilder()
+                .WithColor(51, 144, 243)
+                .WithDescription(string.Join(" **|** ", footer));
+        }
+
+        public static Embed EmbedFooter(DiscordSocketClient client)
+        {
+            return GetFooterBuilder(client).Build();
+        }
+
+        public enum AboutMessageSubtype
+        {
+            intro = 0,
+            userCommands = 1,
+            adminCommands = 2
+        }
+        public static List<string> CreateAbout(CommandService commandService, bool adminUser)
+        {
+            var ret = new List<string>();
+            ret.Add($"{string.Format(Properties.Resources.INFO_INTRO, DiscordConfig.Version, Config.CmdPrefix, "about", "set entry")}\n");
+            string about = $"**User Commands**\n";
+            string adminAbout = adminUser ? $"**Admin commands**\n" : "";
+
+            foreach (var cmd in commandService.Commands)
+            {
+                var par = cmd.Parameters;
+
+                string aliases = $"`{Config.CmdPrefix}{cmd.Aliases.FirstOrDefault()}`";
+                if (!string.IsNullOrWhiteSpace(aliases))
+                {
+                    for (int i = 1; i < cmd.Aliases.Count; ++i)
+                        aliases += $" | `{Config.CmdPrefix}{cmd.Aliases.ElementAt(i)}`";
+                }
+
+                if (IsAdminCommand(cmd))
+                {
+                    if (adminUser)
+                        adminAbout += $"{aliases} : {cmd.Summary}\n";
+                }
+                else
+                    about += $"{aliases} : {cmd.Summary}\n";
+            }
+
+            ret.Add(about);
+            ret.Add(adminAbout);
+            return ret;
+        }
+
+        public static async Task EditMessagePin(DiscordSocketClient client, ulong msgId, bool bPin)
+        {
+            var oldHelpMsg = await FindChannelMessage(client, msgId);
+            if (oldHelpMsg != null && oldHelpMsg is Discord.Rest.RestUserMessage)
+            {
+                var oldRestHelpMsg = (Discord.Rest.RestUserMessage)oldHelpMsg;
+                if (bPin)
+                    await oldRestHelpMsg.PinAsync();
+                else
+                    await oldRestHelpMsg.UnpinAsync();
+            }
+        }
+
+        public static async Task<bool> CreateHelp(DiscordSocketClient client, CommandService commandService, string channelName)
+        {
+            channelName = channelName.Trim();
+            if (string.IsNullOrWhiteSpace(channelName))
+                channelName = xs.Settings.GetWorkingChannel();
+
+            SocketTextChannel channel = FindChannel(client, channelName);
+            if (channel == null)
+                return false;
+
+            await EditMessagePin(client, xs.Settings.GetHelpMessageId(), false /*unpin*/);
+
+            var aboutMsgs = CreateAbout(commandService, false);
+            var helpMsg = await channel.SendMessageAsync($"@everyone {aboutMsgs[(int)AboutMessageSubtype.intro]}\n{aboutMsgs[(int)AboutMessageSubtype.userCommands]}");
+            xs.Settings.SetHelpMessageId(helpMsg.Id);
+
+            await EditMessagePin(client, helpMsg.Id, true /*pin*/);
+            return true;
         }
     }
 }

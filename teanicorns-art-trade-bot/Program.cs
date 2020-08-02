@@ -135,7 +135,7 @@ namespace teanicorns_art_trade_bot
             
             if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
             {
-                await context.Channel.SendMessageAsync(string.Format(Properties.Resources.MAIN_PROGRAM_MESSAGE_RECEIVED, message.Author.Id, result.ErrorReason, Config.CmdPrefix));
+                await context.Channel.SendMessageAsync(string.Format(Properties.Resources.GLOBAL_ERROR, message.Author.Id, result.ErrorReason));
             }
         }
     }

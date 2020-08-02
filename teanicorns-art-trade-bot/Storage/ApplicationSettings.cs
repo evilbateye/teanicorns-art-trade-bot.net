@@ -26,6 +26,12 @@ namespace teanicorns_art_trade_bot.Storage
             TradeMonth = 1
         }
 
+        public enum MsgIDType
+        {
+            ThemePoll = 0,
+            Help = 1
+        }
+
         public const string DEFAULT_WORK_CHANNEL = "general";
         public const int MAX_THEMES_COUNT = 10;
         [JsonProperty("ArtTradeActive")] private TradeSegment _artTradeActive = TradeSegment.EntryWeek;
@@ -34,9 +40,25 @@ namespace teanicorns_art_trade_bot.Storage
         [JsonProperty("TradeDays")] private double _tradeDays = 0.0;
         [JsonProperty("Notified")] private NofifyFlags _notified = NofifyFlags.None;
         [JsonProperty("ForceTradeEnd")] private bool _forceTradeEnd = false;
-        [JsonProperty("ThemePollID")] private ulong _themePollID = 0;
+        [JsonProperty("MsgIDs")] private ulong[] _msgIDs = new ulong[2] { 0, 0 };
         [JsonProperty("Subscribers")] private List<ulong> _subscribers = new List<ulong>();
         [JsonProperty("ThemePool")] private Dictionary<ulong, List<string>> _themePool = new Dictionary<ulong, List<string>>();
+
+        public ulong[] GetMsgIDs()
+        {
+            return _msgIDs;
+        }
+
+        public ulong GetHelpMessageId()
+        {
+            return _msgIDs[(int)MsgIDType.Help];
+        }
+
+        public void SetHelpMessageId(ulong id)
+        {
+            _msgIDs[(int)MsgIDType.Help] = id;
+            Save();
+        }
 
         public bool IsThemePoolMaxed()
         {
@@ -116,6 +138,9 @@ namespace teanicorns_art_trade_bot.Storage
 
                 if (!themes.Remove(first))
                     return false;
+
+                if (themes.Count <= 0 && !_themePool.Remove(userID))
+                    return false;
             }
             else
                 return false;
@@ -129,9 +154,9 @@ namespace teanicorns_art_trade_bot.Storage
             return _subscribers;
         }
 
-        public ulong GetThemePollID()
+        public ulong GetThemePollMessageId()
         {
-            return _themePollID;
+            return _msgIDs[(int)MsgIDType.ThemePoll];
         }
 
         public bool IsForceTradeOn()
@@ -201,7 +226,7 @@ namespace teanicorns_art_trade_bot.Storage
 
         public void SetThemePollID(ulong id)
         {
-            _themePollID = id;
+            _msgIDs[(int)MsgIDType.ThemePoll] = id;
             Save();
         }
 
@@ -257,7 +282,7 @@ namespace teanicorns_art_trade_bot.Storage
                 _forceTradeEnd = bForce.Value;
 
             if (bResetPoll)
-                _themePollID = 0;
+                _msgIDs[(int)MsgIDType.ThemePoll] = 0;
 
             Save();
         }
@@ -293,7 +318,7 @@ namespace teanicorns_art_trade_bot.Storage
                 _tradeDays = data.GetTradeDays();
                 _notified = data.GetNotifyFlags();
                 _forceTradeEnd = data.IsForceTradeOn();
-                _themePollID = data.GetThemePollID();
+                _msgIDs = data.GetMsgIDs();
                 _subscribers = data.GetSubscribers();
                 _themePool = data.GetThemePool();
             }

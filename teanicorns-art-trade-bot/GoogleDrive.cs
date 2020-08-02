@@ -85,7 +85,7 @@ namespace teanicorns_art_trade_bot
                         {
                             Storage.xs.Settings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThirdNotification);
 
-                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON3);
+                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON, "`tomorrow`");
 
                             await channel.SendMessageAsync(message);
 
@@ -98,7 +98,7 @@ namespace teanicorns_art_trade_bot
                         {
                             Storage.xs.Settings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.SecondNotification);
 
-                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON2);
+                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON, "in `3` days");
 
                             await channel.SendMessageAsync(message);
 
@@ -111,7 +111,7 @@ namespace teanicorns_art_trade_bot
                         {
                             Storage.xs.Settings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.FirstNotification);
 
-                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON1);
+                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON, "in `7` days");
 
                             await channel.SendMessageAsync(message);
 

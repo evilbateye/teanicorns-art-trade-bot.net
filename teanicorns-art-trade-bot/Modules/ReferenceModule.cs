@@ -18,12 +18,12 @@ namespace teanicorns_art_trade_bot.Modules
         [InfoModule.SummaryDetail("available only when entry week is currently taking place" +
             "\nyou can add an image for the entry by embedding it into the message" +
             "\nyou can also add optional text description")]
-        public async Task SetEntry([Remainder][Summary("description of your art trade entry (optional)")]string description = null)
+        public async Task SetEntry([Remainder][Summary("description of your art trade entry (optional)")] string description = null)
         {
             var user = Context.Message.Author;
             if (Storage.xs.Settings.IsTradeMonthActive())
             {
-                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "**trade** already started, entries can't be changed anymore"), embed: Utils.EmbedFooter(Context.Client));
                 return;
             }
 
@@ -33,7 +33,8 @@ namespace teanicorns_art_trade_bot.Modules
                 Storage.UserData userData = TradeEventModule.GetMissingArt(artHistory0).Find(x => x.UserId == user.Id);
                 if (userData != null)
                 {
-                    await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_LAST_MONTH_ART_MISSING, user.Id));
+                    await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_LAST_MONTH_ART_MISSING, user.Id, artHistory0.GetTheme())
+                        + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "to register the missing art")}", embed: Utils.EmbedFooter(Context.Client));
                     return;
                 }
             }
@@ -41,7 +42,7 @@ namespace teanicorns_art_trade_bot.Modules
             var attachments = Context.Message.Attachments;
             if (attachments.Count <= 0 && string.IsNullOrWhiteSpace(description))
             {
-                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_MISSING_REF, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_MISSING_INPUT, user.Id, "description and/or embeded image"), embed: Utils.EmbedFooter(Context.Client));
                 return;
             }
 
@@ -54,8 +55,10 @@ namespace teanicorns_art_trade_bot.Modules
                 data.ReferenceDescription = description;
             if (user is IGuildUser guildUser)
                 data.NickName = guildUser.Nickname;
+
             Storage.xs.Entries.Set(data);
-            await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_REG_SUCC, user.Id));
+
+            await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "I saved your entry"), embed: Utils.EmbedFooter(Context.Client));
         }
 
         [Command("get entry")]
@@ -70,16 +73,19 @@ namespace teanicorns_art_trade_bot.Modules
             {
                 Embed embed = null;
                 if (!string.IsNullOrWhiteSpace(data.ReferenceUrl))
-                    embed = new EmbedBuilder().WithImageUrl(data.ReferenceUrl).Build();
-
+                    embed = Utils.GetFooterBuilder(Context.Client).WithImageUrl(data.ReferenceUrl).Build();
+                                
                 if (!string.IsNullOrWhiteSpace(data.ReferenceDescription) || embed != null)
                 {
+                    if (embed == null)
+                        embed = Utils.EmbedFooter(Context.Client);
+
                     await ReplyAsync($"{data?.ReferenceDescription}", false, embed);
                     return;
                 }
             }
 
-            await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
+            await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry"), embed: Utils.EmbedFooter(Context.Client));
         }
 
         [Command("delete entry")]
@@ -93,14 +99,14 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (Storage.xs.Settings.IsTradeMonthActive())
             {
-                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "**trade** already started, entries can't be changed anymore"), embed: Utils.EmbedFooter(Context.Client));
                 return;
             }
 
             if (Storage.xs.Entries.Remove(user.Id))
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "your entry has been deleted"), embed: Utils.EmbedFooter(Context.Client));
             else
-                await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry"), embed: Utils.EmbedFooter(Context.Client));
         }
 
         [Command("show partner")]
@@ -114,21 +120,21 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Storage.xs.Settings.IsTradeMonthActive())
             {
-                await ReplyAsync(string.Format(Properties.Resources.REF_EW_TAKING_PLACE, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "entry week in progress, partners haven't been assigned yet"), embed: Utils.EmbedFooter(Context.Client));
                 return;
             }
 
             Storage.UserData nextUser;
             if (Storage.xs.Entries.Next(user.Id, out nextUser))
             {
-                if (!await SendPartnerResponse(nextUser, user))
-                    await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
+                if (!await SendPartnerResponse(Context.Client, nextUser, user))
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry"), embed: Utils.EmbedFooter(Context.Client));
             }
             else
-                await ReplyAsync(string.Format(Properties.Resources.REF_MISSING_PARTNER, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "partner"), embed: Utils.EmbedFooter(Context.Client));
         }
 
-        public static async Task<bool> SendPartnerResponse(Storage.UserData partnerData, Discord.WebSocket.SocketUser user, bool bThemeOnly = false)
+        public static async Task<bool> SendPartnerResponse(DiscordSocketClient client, Storage.UserData partnerData, Discord.WebSocket.SocketUser user, bool bThemeOnly = false)
         {
             if (bThemeOnly)
             {
@@ -139,20 +145,26 @@ namespace teanicorns_art_trade_bot.Modules
             {
                 Embed embed = null;
                 if (!string.IsNullOrWhiteSpace(partnerData.ReferenceUrl))
-                    embed = new EmbedBuilder().WithImageUrl(partnerData.ReferenceUrl).Build();
+                    embed = Utils.GetFooterBuilder(client).WithImageUrl(partnerData.ReferenceUrl).Build();
 
                 if (string.IsNullOrWhiteSpace(partnerData.ReferenceDescription) && embed == null)
                     return false;
 
+                if (embed == null)
+                    embed = Utils.EmbedFooter(client);
+
                 string message = string.Format(Properties.Resources.REF_TRADE_PARTNER
                     , user.Id
-                    , $"{partnerData.UserName}" + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})")) + "\n";
+                    , $"{partnerData.UserName}" + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})"));
 
                 if (!string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()))
-                    message += $" {string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme())}\n";
+                    message += $"\n{string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme())}";
+
+                if (Storage.xs.Settings.GetTradeDays() != 0)
+                    message += $"\n{string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.xs.Settings.GetTradeDays(), Storage.xs.Settings.GetTradeStart(Storage.xs.Settings.GetTradeDays()).ToString("dd-MMMM"))}";
 
                 if (!string.IsNullOrWhiteSpace(partnerData.ReferenceDescription))
-                    message += $"`{partnerData.ReferenceDescription}`";
+                    message += $"\ndescription: `{partnerData.ReferenceDescription}`";
 
                 await user.SendMessageAsync(message, false, embed);
             }
@@ -199,21 +211,21 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (bCurrentTrade && !Storage.xs.Settings.IsTradeMonthActive())
             {
-                await ReplyAsync(string.Format(Properties.Resources.REF_EW_TAKING_PLACE, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "entry week in progress, partners haven't been assigned yet"), embed: Utils.EmbedFooter(Context.Client));
                 return;
             }
 
             var attachments = Context.Message.Attachments;
             if (attachments.Count <= 0)
             {
-                await ReplyAsync(string.Format(Properties.Resources.REF_MISSING_ART, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_MISSING_INPUT, user.Id, "embeded image"), embed: Utils.EmbedFooter(Context.Client));
                 return;
             }
 
             var data = foundTrade.Get(user.Id);
             if (data == null)
             {
-                await ReplyAsync(string.Format(Properties.Resources.REF_NOT_REG, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry"), embed: Utils.EmbedFooter(Context.Client));
                 return;
             }
 
@@ -230,7 +242,7 @@ namespace teanicorns_art_trade_bot.Modules
                 var nextUser = client.GetUser(nextUserData.UserId);
                 if (nextUser == null)
                 {
-                    await ReplyAsync(string.Format(Properties.Resources.REF_REVEAL_SORRY, user.Id));
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find your partner"), embed: Utils.EmbedFooter(Context.Client));
                     return;
                 }
 
@@ -238,27 +250,27 @@ namespace teanicorns_art_trade_bot.Modules
                 if (!bCurrentTrade)
                     monthTheme = foundTrade.GetTheme();
 
-                if (await SendPartnerArtResponse(data, nextUser, monthTheme))
-                    await ReplyAsync(string.Format(Properties.Resources.REF_REVEAL_NOTIFY, user.Id, nextUser.Id));
+                if (await SendPartnerArtResponse(Context.Client, data, nextUser, monthTheme))
+                    await ReplyAsync(string.Format(Properties.Resources.REF_REVEAL_NOTIFY, user.Id, nextUser.Id), embed: Utils.EmbedFooter(Context.Client));
                 else
-                    await ReplyAsync(string.Format(Properties.Resources.REF_REVEAL_SORRY, user.Id));
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not notify your partner"), embed: Utils.EmbedFooter(Context.Client));
             }
             else
-                await ReplyAsync(string.Format(Properties.Resources.REF_MISSING_PARTNER, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "partner"), embed: Utils.EmbedFooter(Context.Client));
         }
 
-        public static async Task<bool> SendPartnerArtResponse(Storage.UserData partnerData, Discord.WebSocket.SocketUser user, string monthTheme)
+        public static async Task<bool> SendPartnerArtResponse(DiscordSocketClient client, Storage.UserData partnerData, SocketUser user, string monthTheme)
         {
             Embed embed = null;
             if (!string.IsNullOrWhiteSpace(partnerData.ArtUrl))
-                embed = new EmbedBuilder().WithImageUrl(partnerData.ArtUrl).Build();
+                embed = Utils.GetFooterBuilder(client).WithImageUrl(partnerData.ArtUrl).Build();
 
             if (embed == null)
                 return false;
 
             string message = string.Format(Properties.Resources.REF_REVEAL_FINAL, user.Id, partnerData.UserName
                 + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})"));
-            await user.SendMessageAsync(message, false, embed);
+            await user.SendMessageAsync(message, embed: embed);
             return true;
         }
 
@@ -274,23 +286,23 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Storage.xs.Settings.IsEntryWeekActive())
             {
-                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "**trade** already started, entries can't be changed anymore"), embed: Utils.EmbedFooter(Context.Client));
                 return;
             }
 
             if (Storage.xs.Settings.IsThemePoolMaxed())
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_MAX_NUM_OF_ARGS, user.Id, "themes"));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_MAX_NUM_OF_ARGS, user.Id, "themes"), embed: Utils.EmbedFooter(Context.Client));
                 return;
             }
 
             if (Storage.xs.Settings.AddThemeToPool(user.Id, theme))
             {
                 await Utils.EditThemePoll(Context.Client);
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "your theme has been registered"), embed: Utils.EmbedFooter(Context.Client));
             }
             else
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_DUPLICAT_ARG, user.Id, "theme"));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_DUPLICAT_ARG, user.Id, "a theme"), embed: Utils.EmbedFooter(Context.Client));
 
         }
 
@@ -302,7 +314,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Storage.xs.Settings.IsEntryWeekActive())
             {
-                await ReplyAsync(string.Format(Properties.Resources.REF_TRADE_TAKING_PLACE, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "**trade** already started, entries can't be changed anymore"), embed: Utils.EmbedFooter(Context.Client));
                 return;
             }
 
@@ -311,25 +323,25 @@ namespace teanicorns_art_trade_bot.Modules
                 if (Storage.xs.Settings.RemoveThemeFromPool(theme))
                 {
                     await Utils.EditThemePoll(Context.Client);
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the theme has been unregistered"), embed: Utils.EmbedFooter(Context.Client));
                 }
                 else
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to remove theme from pool"), embed: Utils.EmbedFooter(Context.Client));
             }
             else
             {
                 if (Storage.xs.Settings.RemoveThemeFromPool(user.Id, theme))
                 {
                     await Utils.EditThemePoll(Context.Client);
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "your theme has been unregistered"), embed: Utils.EmbedFooter(Context.Client));
                 }
                 else
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to remove theme from pool"), embed: Utils.EmbedFooter(Context.Client));
             }
         }
 
         [Command("show themes")]
-        [Alias("list themes", "lth")]
+        [Alias("sth")]
         [Summary("shows you a list of your registered themes")]
         public async Task ShowThemes()
         {
@@ -339,8 +351,8 @@ namespace teanicorns_art_trade_bot.Modules
             if (!Storage.xs.Settings.GetThemePool(user.Id, out themes))
                 themes = new List<string>();
 
-            await ReplyAsync($"{string.Format(Properties.Resources.REF_TRADE_THEME_POOL, user.Id)}: " +
-                (themes.Count > 0 ? string.Join(", ", themes.Select(x => $"`{x}`")) : "`none`"));
+            await ReplyAsync($"{string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "here is a list of your registered themes")}: " +
+                (themes.Count > 0 ? string.Join(", ", themes.Select(x => $"`{x}`")) : "`none`"), embed: Utils.EmbedFooter(Context.Client));
         }
 
         [Command("subscribe")]
@@ -351,9 +363,9 @@ namespace teanicorns_art_trade_bot.Modules
         {
             var user = Context.Message.Author;
             if (Storage.xs.Settings.ChangeSubscription(user.Id, bOnOff))
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_DONE, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "you have been subscribed"), embed: Utils.EmbedFooter(Context.Client));
             else
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_REQUEST_FAIL, user.Id));
+                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to change subscription"), embed: Utils.EmbedFooter(Context.Client));
         }
     }
 }

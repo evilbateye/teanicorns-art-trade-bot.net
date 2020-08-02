@@ -41,7 +41,7 @@ namespace teanicorns_art_trade_bot.Storage
             if (data != null)
             {
                 _history = data.GetHistory();
-                _history.ForEach(x => x.SetParent(data));
+                _history.ForEach(x => x.SetParent(this));
             }
         }
         public override void Save(string path = null)

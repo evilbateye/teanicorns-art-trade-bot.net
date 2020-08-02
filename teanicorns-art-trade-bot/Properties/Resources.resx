@@ -117,74 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="GOOGLE_TRADE_ENDING_SOON2" xml:space="preserve">
-    <value>@everyone the art **Trade month** will be ending in 3 days, please reveal your art submissions until then.</value>
-  </data>
-  <data name="REF_EW_TAKING_PLACE" xml:space="preserve">
-    <value>Sorry &lt;@{0}&gt;. Entry week is currently taking place. Trade pairs are not formed until closed.</value>
-  </data>
-  <data name="REF_MISSING_ART" xml:space="preserve">
-    <value>Missing art reference &lt;@{0}&gt;. Please provide an embeded image.</value>
-  </data>
-  <data name="REF_MISSING_PARTNER" xml:space="preserve">
-    <value>Sorry &lt;@{0}&gt;. Could not find an art trade partner for you.</value>
-  </data>
-  <data name="REF_NOT_REG" xml:space="preserve">
-    <value>Sorry &lt;@{0}&gt;. There is no reference registered.</value>
-  </data>
   <data name="REF_REVEAL_FINAL" xml:space="preserve">
     <value>Hello &lt;@{0}&gt;! Your hidden art trade partner was **{1}** and they are ready to show you their work!!</value>
   </data>
   <data name="REF_REVEAL_NOTIFY" xml:space="preserve">
     <value>Thank you for the reveal &lt;@{0}&gt; A notification was sent to your partner &lt;@{1}&gt;.</value>
   </data>
-  <data name="REF_REVEAL_SORRY" xml:space="preserve">
-    <value>Sorry &lt;@{0}&gt;. But your partner did not receive the notification.</value>
-  </data>
-  <data name="REF_TRADE_MISSING_REF" xml:space="preserve">
-    <value>Missing reference &lt;@{0}&gt;. Please provide a description and/or embeded image.</value>
-  </data>
   <data name="REF_TRADE_PARTNER" xml:space="preserve">
     <value>Your art trade partner is.. {1}, have fun &lt;@{0}&gt;!</value>
-  </data>
-  <data name="REF_TRADE_REG_SUCC" xml:space="preserve">
-    <value>Your entry has been registered successfully &lt;@{0}&gt;!</value>
-  </data>
-  <data name="REF_TRADE_TAKING_PLACE" xml:space="preserve">
-    <value>Sorry &lt;@{0}&gt;. Art trade is currently taking place. Can't modify existing entries</value>
-  </data>
-  <data name="TRADE_ADMIN_BLOCK" xml:space="preserve">
-    <value>Sorry &lt;@{0}&gt;. You don't have required priviledges to run this command.</value>
-  </data>
-  <data name="TRADE_ART_LATE" xml:space="preserve">
-    <value>Following users did not reveal their art, please do so once you are ready (you can reveal it even after the trade ended): {0}</value>
-  </data>
-  <data name="TRADE_ART_ON_TIME" xml:space="preserve">
-    <value>Everyone submitted their art on time!</value>
-  </data>
-  <data name="TRADE_BACKUP_HISTORY_DONE" xml:space="preserve">
-    <value>Sending the full history stream &lt;@{0}&gt;.</value>
   </data>
   <data name="TRADE_ENDS_ON" xml:space="preserve">
     <value>The art trade ends on.. {0}.</value>
   </data>
-  <data name="TRADE_ENTRIES_SHUFFLE" xml:space="preserve">
-    <value>Entries have been shuffled successfully &lt;@{0}&gt;.</value>
-  </data>
   <data name="GLOBAL_IN_PROGRESS" xml:space="preserve">
     <value>&lt;@{0}&gt; {1} is already in progress.</value>
   </data>
-  <data name="TRADE_LIST_ENTRIES" xml:space="preserve">
-    <value>Listing all entries. Each next entry is the partner of the previous one.</value>
-  </data>
   <data name="TRADE_LIST_SETTINGS" xml:space="preserve">
-    <value>Listing other info.. working channel is.. \"{0}\", trade is taking place from.. {1} to {2} ({3} days), notify flags.. {4}, trade end forced.. {5}, theme poll ID: {6}</value>
+    <value>Listing other info.. working channel is.. \"{0}\", trade is taking place from.. {1} to {2} ({3} days), notify flags.. {4}, trade end forced.. {5}</value>
   </data>
-  <data name="TRADE_NEW_ENTRIES" xml:space="preserve">
+  <data name="ENTRY_WEEK" xml:space="preserve">
     <value>the **entry week** started. **We are accepting new entries!**
 please use `{0}{1}`  to register or use `{0}{2}` if you need more info</value>
   </data>
-  <data name="TRADE_NO_NEW_ENTRIES" xml:space="preserve">
+  <data name="TRADE_MONTH" xml:space="preserve">
     <value>@everyone the art **trade month** started. **We are no longer accepting new entries!**
 please use `{0}{1}` to show your finished art piece or use `{0}{2}` if you need more info
 but please wait until the end of the trade when everybody has fihisned their art too</value>
@@ -192,58 +147,35 @@ but please wait until the end of the trade when everybody has fihisned their art
   <data name="TRADE_THIS_THEME" xml:space="preserve">
     <value>Theme of this month's art trade is.. \"{0}\".</value>
   </data>
-  <data name="MAIN_PROGRAM_MESSAGE_RECEIVED" xml:space="preserve">
-    <value>Sorry &lt;@{0}&gt;. {1} Please try \"{2}about\" for more info.</value>
+  <data name="GLOBAL_ERROR" xml:space="preserve">
+    <value>Sorry &lt;@{0}&gt;. Error: {1}</value>
   </data>
-  <data name="GOOGLE_TRADE_ENDING_SOON3" xml:space="preserve">
-    <value>@everyone the art **Trade month** will be ending in 1 day, please reveal your art submissions until then.</value>
-  </data>
-  <data name="GOOGLE_TRADE_ENDING_SOON1" xml:space="preserve">
-    <value>@everyone the art **Trade month** will be ending in 7 days, please reveal your art submissions until then.</value>
-  </data>
-  <data name="TRADE_ART_LATE_1" xml:space="preserve">
-    <value>Following users did not reveal their art for the previous trade (themed {0}): {1}</value>
-  </data>
-  <data name="TRADE_ART_LATE_2" xml:space="preserve">
-    <value>Following users did not reveal their art for the previous trade (themed {0}): {1}</value>
+  <data name="GOOGLE_TRADE_ENDING_SOON" xml:space="preserve">
+    <value>@everyone the art **Trade month** will be ending in {0} days, please reveal your art submissions until then.</value>
   </data>
   <data name="TRADE_ART_LATE_DM" xml:space="preserve">
     <value>Hello &lt;@{0}&gt;the current trade ({1} themed) is ending but you did not reveal your art in time, please do so as soon as you have the time, thanks!</value>
   </data>
   <data name="REF_TRADE_LAST_MONTH_ART_MISSING" xml:space="preserve">
-    <value>Sorry &lt;@{0}&gt; but you did not commit the art for the last trade, you cannot enter the current trade.</value>
+    <value>Sorry &lt;@{0}&gt; but you did not commit the art for the last trade {1}, you cannot enter the current trade.
+(you can use `{2}{3}` command to register the missing trade)</value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_NOW" xml:space="preserve">
     <value>@everyone the **trade** is ending, please send me your wonderful art using the \"{0}ra\" or \"{1}reveal art\" command.</value>
   </data>
-  <data name="INFO_ADMIN_CMD_LIST" xml:space="preserve">
-    <value>**Admin commands**</value>
-  </data>
-  <data name="INFO_CMD_LIST" xml:space="preserve">
-    <value>**Commands**</value>
-  </data>
   <data name="INFO_INTRO" xml:space="preserve">
-    <value>Hello &lt;@{0}&gt;, I am art-trade-bot, written in Discord.Net ({1}).
-For more information about a specific command please type {2}{3} followed by the command name at the end.
-For example `{2}{3} {4}`</value>
+    <value>I am art-trade-bot, written in Discord.Net ({0}).
+For more information about a specific command please type {1}{2} followed by the command name at the end.
+For example `{1}{2} {3}`</value>
   </data>
   <data name="GLOBAL_UNKNOW_ARG" xml:space="preserve">
     <value>Sorry &lt;@{0}&gt;. Unknown or missing input argument.</value>
   </data>
-  <data name="INFO_PARAM_CMD_LIST" xml:space="preserve">
-    <value>**Parameters**</value>
-  </data>
-  <data name="GLOBAL_REQUEST_DONE" xml:space="preserve">
-    <value>&lt;@{0}&gt; your request has been completed</value>
-  </data>
-  <data name="GLOBAL_REQUEST_FAIL" xml:space="preserve">
-    <value>&lt;@{0}&gt; your request has failed</value>
+  <data name="GLOBAL_SUCCESS" xml:space="preserve">
+    <value>&lt;@{0}&gt; your request has been completed. {1}</value>
   </data>
   <data name="TRADE_LIST_ONOFF" xml:space="preserve">
     <value>`{0}` is currently active</value>
-  </data>
-  <data name="REF_TRADE_THEME_POOL" xml:space="preserve">
-    <value>&lt;@{0}&gt; here is a list of your registered themes:</value>
   </data>
   <data name="TRADE_THEME_POOL_START" xml:space="preserve">
     <value>@everyone please choose which theme you'd like for this month's art trade 
@@ -258,7 +190,19 @@ theme with the most votes wins! (^•^)</value>
   <data name="GLOBAL_MAX_NUM_OF_ARGS" xml:space="preserve">
     <value>&lt;@{0}&gt; max number of {1} reached</value>
   </data>
-  <data name="TRADE_THEME_POOL_EMPTY" xml:space="preserve">
-    <value>(there are no themes registered at the moment, please use `{0}{1}` to register a theme)</value>
+  <data name="GLOBAL_EMPTY" xml:space="preserve">
+    <value>there are no {0} registered at the moment</value>
+  </data>
+  <data name="GLOBAL_CMDHELP" xml:space="preserve">
+    <value>you can use `{0}{1}` to {2}</value>
+  </data>
+  <data name="GLOBAL_ITEM_NOT_FOUND" xml:space="preserve">
+    <value>&lt;@{0}&gt; I couldn't find your {1}</value>
+  </data>
+  <data name="GLOBAL_MISSING_INPUT" xml:space="preserve">
+    <value>&lt;@{0}&gt; I need {1}, please send me again</value>
+  </data>
+  <data name="TRADE_REGISTER_MISSING_ART" xml:space="preserve">
+    <value>you can use the `{2}{3}` command to register the missing art</value>
   </data>
 </root>
