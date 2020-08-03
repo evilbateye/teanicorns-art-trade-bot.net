@@ -278,10 +278,10 @@ namespace teanicorns_art_trade_bot.Modules
         [Alias("ath", "set theme", "sth")]
         [Summary("adds a theme to the theme pool (entry week only)")]
         [InfoModule.SummaryDetail("available only when entry week is currently taking place" +
-           "\nonce the trade month starts there will be a poll and the trade participants will choose which theme they like the most" +
-           "\nthe poll will take 2 days, theme with the most votes wins" +
-           "\nif there is more then 1 theme with the most ammount of votes, then the theme is chosen by random")]
-        public async Task AddTheme([Summary("the theme name (changed to lowercase and trimmed)")][Remainder]string theme)
+           "\nduring the entry week there will be a poll and the trade participants will choose which theme they like the most" +
+           "\nthe poll will take until the entry week ends, theme with the most votes wins" +
+           "\nif there is more then 1 theme with the most ammount of votes, then the theme is chosen from them by random")]
+        public async Task AddTheme([Summary("the theme name (you can place optional emoji into the theme name, which will be used during theme poll instead of default emojis)")][Remainder]string theme)
         {
             var user = Context.Message.Author;
             if (!Storage.xs.Settings.IsEntryWeekActive())
@@ -347,12 +347,12 @@ namespace teanicorns_art_trade_bot.Modules
         {
             var user = Context.Message.Author;
 
-            List<string> themes;
+            List<Storage.ArtTheme> themes;
             if (!Storage.xs.Settings.GetThemePool(user.Id, out themes))
-                themes = new List<string>();
+                themes = new List<Storage.ArtTheme>();
 
             await ReplyAsync($"{string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "here is a list of your registered themes")}: " +
-                (themes.Count > 0 ? string.Join(", ", themes.Select(x => $"`{x}`")) : "`none`"), embed: Utils.EmbedFooter(Context.Client));
+                (themes.Count > 0 ? string.Join(", ", themes.Select(x => $"{x.EmojiCode} `{x.Theme}`")) : "`none`"), embed: Utils.EmbedFooter(Context.Client));
         }
 
         [Command("subscribe")]

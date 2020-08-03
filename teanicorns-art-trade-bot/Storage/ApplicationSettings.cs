@@ -4,9 +4,17 @@ using System.Text;
 using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Reflection.Metadata.Ecma335;
 
 namespace teanicorns_art_trade_bot.Storage
 {
+    public class ArtTheme
+    {
+        [JsonProperty("Theme")] public string Theme = "";
+        [JsonProperty("EmojiCode")] public string EmojiCode = "";
+    }
+
     public class ApplicationSettings : StorageBase
     {
         [Flags]
@@ -42,7 +50,7 @@ namespace teanicorns_art_trade_bot.Storage
         [JsonProperty("ForceTradeEnd")] private bool _forceTradeEnd = false;
         [JsonProperty("MsgIDs")] private ulong[] _msgIDs = new ulong[2] { 0, 0 };
         [JsonProperty("Subscribers")] private List<ulong> _subscribers = new List<ulong>();
-        [JsonProperty("ThemePool")] private Dictionary<ulong, List<string>> _themePool = new Dictionary<ulong, List<string>>();
+        [JsonProperty("ThemePool")] private Dictionary<ulong, List<ArtTheme>> _themePool = new Dictionary<ulong, List<ArtTheme>>();
 
         public ulong[] GetMsgIDs()
         {
@@ -70,20 +78,20 @@ namespace teanicorns_art_trade_bot.Storage
             return _themePool.SelectMany(x => x.Value).Count();
         }
 
-        public Dictionary<ulong, List<string>> GetThemePool()
+        public Dictionary<ulong, List<ArtTheme>> GetThemePool()
         {
             return _themePool;
         }
 
-        public bool GetThemePool(ulong userID, out List<string> themes)
+        public bool GetThemePool(ulong userID, out List<ArtTheme> themes)
         {
             return _themePool.TryGetValue(userID, out themes);
         }
-        public (ulong, string) FindArtThemeByTheme(string theme)
+        public (ulong, ArtTheme) FindArtThemeByTheme(string theme)
         {
-            foreach (KeyValuePair<ulong, List<string>> pair in _themePool)
+            foreach (KeyValuePair<ulong, List<ArtTheme>> pair in _themePool)
             {
-                string artTheme = pair.Value.FirstOrDefault(x => x == theme);
+                var artTheme = pair.Value.FirstOrDefault(x => x.Theme == theme);
                 if (artTheme != default)
                     return (pair.Key, artTheme);
             }
@@ -98,16 +106,25 @@ namespace teanicorns_art_trade_bot.Storage
 
             theme = theme.ToLower().Trim();
 
-            List<string> themes;
+            string customEmoji = "";
+            Match emojiMatch = Utils.EmojiPattern.Match(theme);
+            if (emojiMatch.Success)
+            {
+                theme = string.Join(' ', theme.Split(emojiMatch.Value).Select(x => x.Trim())).Trim();
+                customEmoji = emojiMatch.Value;
+            }
+
+            List<ArtTheme> themes;
             if (_themePool.TryGetValue(userID, out themes))
             {
-                if (themes.FirstOrDefault(x => x == theme) != default)
+                var foundArtTheme = themes.FirstOrDefault(x => x.Theme == theme);
+                if (foundArtTheme != default)
                     return false;
-                themes.Add(theme);
+                themes.Add(new ArtTheme { Theme = theme, EmojiCode = customEmoji });
             }
             else
             {
-                _themePool.Add(userID, new List<string>() { theme });
+                _themePool.Add(userID, new List<ArtTheme>() { new ArtTheme { Theme = theme, EmojiCode = customEmoji } });
             }
             
             Save();
@@ -129,10 +146,10 @@ namespace teanicorns_art_trade_bot.Storage
         {
             theme = theme.ToLower().Trim();
 
-            List<string> themes;
+            List<ArtTheme> themes;
             if (_themePool.TryGetValue(userID, out themes))
             {
-                var first = themes.FirstOrDefault(x => x == theme);
+                var first = themes.FirstOrDefault(x => x.Theme == theme);
                 if (first == default)
                     return false;
 
