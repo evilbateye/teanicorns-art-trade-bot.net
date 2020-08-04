@@ -236,6 +236,16 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;@{0}&gt; I&apos;m sending you a message from your secret trade partner in his stead
+        ///please use the `{1}{2}` command if you wish to reply, here is the message: {3}.
+        /// </summary>
+        internal static string TRADE_ECHO {
+            get {
+                return ResourceManager.GetString("TRADE_ECHO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The art trade ends on.. {0}..
         /// </summary>
         internal static string TRADE_ENDS_ON {

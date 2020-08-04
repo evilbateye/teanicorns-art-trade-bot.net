@@ -216,7 +216,7 @@ namespace teanicorns_art_trade_bot.Storage
             return _artTradeActive;
         }
 
-        public bool ChangeSubscription(ulong userID, bool ? bOnOff)
+        public bool ChangeSubscription(ulong userID, ref bool ? bOnOff)
         {
             if (bOnOff.HasValue)
             {
@@ -233,9 +233,15 @@ namespace teanicorns_art_trade_bot.Storage
                 }
             }
             else if (_subscribers.Contains(userID))
+            {
+                bOnOff = false;
                 _subscribers.Remove(userID);
+            }
             else
+            {
+                bOnOff = true;
                 _subscribers.Add(userID);
+            }
 
             Save();
             return true;
