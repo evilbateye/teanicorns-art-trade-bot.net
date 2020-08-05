@@ -205,8 +205,12 @@ theme with the most votes wins! (^•^)</value>
   <data name="TRADE_REGISTER_MISSING_ART" xml:space="preserve">
     <value>you can use the `{2}{3}` command to register the missing art</value>
   </data>
-  <data name="TRADE_ECHO" xml:space="preserve">
-    <value>&lt;@{0}&gt; I'm sending you a message from your secret trade partner in his stead
-please use the `{1}{2}` command if you wish to reply, here is the message: {3}</value>
+  <data name="String" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TRADE_PINGPONG" xml:space="preserve">
+    <value>hello &lt;@{0}&gt; I'm sending you a message from `{1}` in their stead
+please use the `{2}{3}` command if you wish to reply, here is the message:
+*\"{4}\"*</value>
   </data>
 </root>

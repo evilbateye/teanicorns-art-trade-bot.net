@@ -439,5 +439,17 @@ namespace teanicorns_art_trade_bot
             await EditMessagePin(client, helpMsg.Id, true /*pin*/);
             return true;
         }
+
+        public static ulong ExtractUserMention(ref string message)
+        {
+            Match match = new Regex("<@!\\d+>").Match(message);
+            if (match.Success)
+            {
+                message = string.Join(' ', message.Split(match.Value).Select(x => x.Trim())).Trim();
+                return MentionUtils.ParseUser(match.Value);
+            }
+
+            return 0;
+        }
     }
 }

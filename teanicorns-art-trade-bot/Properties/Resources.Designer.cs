@@ -227,21 +227,20 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string String {
+            get {
+                return ResourceManager.GetString("String", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hello &lt;@{0}&gt;the current trade ({1} themed) is ending but you did not reveal your art in time, please do so as soon as you have the time, thanks!.
         /// </summary>
         internal static string TRADE_ART_LATE_DM {
             get {
                 return ResourceManager.GetString("TRADE_ART_LATE_DM", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;@{0}&gt; I&apos;m sending you a message from your secret trade partner in his stead
-        ///please use the `{1}{2}` command if you wish to reply, here is the message: {3}.
-        /// </summary>
-        internal static string TRADE_ECHO {
-            get {
-                return ResourceManager.GetString("TRADE_ECHO", resourceCulture);
             }
         }
         
@@ -280,6 +279,17 @@ namespace teanicorns_art_trade_bot.Properties {
         internal static string TRADE_MONTH {
             get {
                 return ResourceManager.GetString("TRADE_MONTH", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to hello &lt;@{0}&gt; I&apos;m sending you a message from `{1}` in their stead
+        ///please use the `{2}{3}` command if you wish to reply, here is the message:
+        ///*\&quot;{4}\&quot;*.
+        /// </summary>
+        internal static string TRADE_PINGPONG {
+            get {
+                return ResourceManager.GetString("TRADE_PINGPONG", resourceCulture);
             }
         }
         
