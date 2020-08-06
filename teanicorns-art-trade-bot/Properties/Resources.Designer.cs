@@ -236,6 +236,16 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to hello &lt;@{0}&gt; {1}
+        ///(if you don&apos;t want to see messages like this, you can use the {2}{3} command to unsubscribe).
+        /// </summary>
+        internal static string SUBSCRIBERS_NOTICE {
+            get {
+                return ResourceManager.GetString("SUBSCRIBERS_NOTICE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hello &lt;@{0}&gt;the current trade ({1} themed) is ending but you did not reveal your art in time, please do so as soon as you have the time, thanks!.
         /// </summary>
         internal static string TRADE_ART_LATE_DM {

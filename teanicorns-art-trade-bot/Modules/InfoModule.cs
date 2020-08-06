@@ -32,7 +32,10 @@ namespace teanicorns_art_trade_bot.Modules
             if (string.IsNullOrWhiteSpace(cmd_name))
             {
                 var aboutMsgs = Utils.CreateAbout(CommandService, Utils.IsAdminUser(user));
-                await ReplyAsync($"hello <@{user.Id}>, {string.Join("\n", aboutMsgs)}");
+                await ReplyAsync(embed: new EmbedBuilder()
+                                            .WithColor(51, 144, 243)
+                                            .WithDescription(string.Join("\n", aboutMsgs)).Build());
+                //await ReplyAsync($"hello <@{user.Id}>, {string.Join("\n", aboutMsgs)}");
                 /*var adminMsg = aboutMsgs[(int)Utils.AboutMessageSubtype.adminCommands];
                 if (!string.IsNullOrWhiteSpace(adminMsg))
                     await ReplyAsync(adminMsg);*/

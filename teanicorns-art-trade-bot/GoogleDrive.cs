@@ -89,7 +89,7 @@ namespace teanicorns_art_trade_bot
 
                             await channel.SendMessageAsync(message);
 
-                            await Utils.NotifySubscribers(_discord, message);
+                            await Utils.NotifySubscribers(_discord, "the art trade will be ending `tomorrow`");
                         }
                     }
                     else if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeEnd(-3)) > 0)
@@ -102,7 +102,7 @@ namespace teanicorns_art_trade_bot
 
                             await channel.SendMessageAsync(message);
 
-                            await Utils.NotifySubscribers(_discord, message);
+                            await Utils.NotifySubscribers(_discord, "the art trade will be ending in `3` days");
                         }
                     }
                     else if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeEnd(-7)) > 0)
@@ -115,7 +115,7 @@ namespace teanicorns_art_trade_bot
 
                             await channel.SendMessageAsync(message);
 
-                            await Utils.NotifySubscribers(_discord, message);
+                            await Utils.NotifySubscribers(_discord, "the art trade will be ending in `7` days");
                         }
                     }
                 }

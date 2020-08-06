@@ -96,8 +96,6 @@ namespace teanicorns_art_trade_bot.Modules
             if (!string.IsNullOrWhiteSpace(naughtyList))
                 await channel.SendMessageAsync($"**Naughty List**{naughtyList}\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art <theme name>", "to register the missing art for that specific theme")}");
 
-            await Utils.CreateThemePoll(client);
-
             var subscribers = new List<ulong>(Storage.xs.Settings.GetSubscribers());
 
             // notify those that did not send their art on time
@@ -112,7 +110,9 @@ namespace teanicorns_art_trade_bot.Modules
             }
 
             // notify those that subscribed for notifications
-            await Utils.NotifySubscribers(client, string.Format(Properties.Resources.ENTRY_WEEK, Config.CmdPrefix, "set entry", "about"), subscribers);
+            if (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) && !await Utils.CreateThemePoll(client))
+                await Utils.NotifySubscribers(client, "the `entry week` started, please visit teanicorn art trade channel for more information", subscribers);
+
             return true;
         }
 
@@ -184,18 +184,20 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.xs.BackupStorage(Storage.xs.Entries);
-            Storage.xs.BackupStorage(Storage.xs.Settings);
-
             if (!Storage.xs.Settings.IsTradeMonthActive())
             {
+                Storage.xs.BackupStorage(Storage.xs.Entries);
+                Storage.xs.BackupStorage(Storage.xs.Settings);
+
                 if (!string.IsNullOrWhiteSpace(theme))
                     Storage.xs.Entries.SetTheme(theme);
 
                 if (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()))
                     Storage.xs.Entries.SetTheme(await Utils.GetThemePollResult(Context.Client));
 
-                if (!await StartTradeMonth(Context.Client, days2end, force))
+                if (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()))
+                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to start trade month, trade theme is missing"));
+                else if (!await StartTradeMonth(Context.Client, days2end, force))
                     await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to start trade month"));
             }
             else

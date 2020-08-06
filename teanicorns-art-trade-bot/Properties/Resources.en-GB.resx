@@ -155,7 +155,7 @@ please use `{0}{1}` to register your finished art or use `{0}{2}` if you need mo
     <value>this month's art trade theme is `{0}`</value>
   </data>
   <data name="GLOBAL_ERROR" xml:space="preserve">
-    <value>&lt;@{0}&gt; something went wrong, {1}</value>
+    <value>&lt;@{0}&gt; erro, {1}</value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_SOON" xml:space="preserve">
     <value>@everyone `art trade` ends {0}</value>
@@ -212,5 +212,12 @@ you can type it to this channel or send me a direct message</value>
     <value>hello &lt;@{0}&gt; I'm sending you a message from `{1}` in their stead
 please use the `{2}{3}` command if you wish to reply, here is the message:
 *\"{4}\"*</value>
+  </data>
+  <data name="String1" xml:space="preserve">
+    <value />
+  </data>
+  <data name="SUBSCRIBERS_NOTICE" xml:space="preserve">
+    <value>hello &lt;@{0}&gt; {1}
+(if you don't want to see messages like this, you can use the `{2}{3}` command to unsubscribe)</value>
   </data>
 </root>

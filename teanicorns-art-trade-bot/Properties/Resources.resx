@@ -213,4 +213,8 @@ theme with the most votes wins! (^•^)</value>
 please use the `{2}{3}` command if you wish to reply, here is the message:
 *\"{4}\"*</value>
   </data>
+  <data name="SUBSCRIBERS_NOTICE" xml:space="preserve">
+    <value>hello &lt;@{0}&gt; {1}
+(if you don't want to see messages like this, you can use the {2}{3} command to unsubscribe)</value>
+  </data>
 </root>

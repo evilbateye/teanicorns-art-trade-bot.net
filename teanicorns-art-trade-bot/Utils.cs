@@ -112,7 +112,7 @@ namespace teanicorns_art_trade_bot
             foreach (var emoji in msg.Reactions)
             {
                 string emojiCode = emoji.Key.Name;
-                if (EmojiCodes.Contains(emojiCode))
+                if (EmojiCodes.Contains(emojiCode) || Utils.EmojiPattern.Match(emojiCode).Success)
                     emojiCodeReactions.Add((emojiCode, emoji.Value.ReactionCount));
             }
             emojiCodeReactions = emojiCodeReactions.OrderByDescending(x => x.Item2).ToList();
@@ -135,19 +135,27 @@ namespace teanicorns_art_trade_bot
             if (winners.Count > 1)
                 winnerCode = winners.OrderBy(x => Guid.NewGuid()).First();
 
-            int winnerIdx = EmojiCodes.IndexOf(winnerCode);
-            if (winnerIdx < 0 || winnerIdx > 9)
-                return "";
-
             var themePool = GetThemePoolOrdered();
             if (themePool.Count <= 0)
                 return "";
 
+            var winner = themePool.FirstOrDefault(x => x.Item2.EmojiCode == winnerCode);
+            if (winner == default)
+            {
+                int winnerIdx = EmojiCodes.IndexOf(winnerCode);
+                if (winnerIdx < 0 || winnerIdx > 9)
+                    return "";
+                for (int i = 0, j = winnerIdx; i < themePool.Count && winnerIdx > 0; ++i)
+                {
+                    winner = themePool[i];
+                    if (string.IsNullOrWhiteSpace(winner.Item2.EmojiCode))
+                        --j;
+                }
+            }
+                        
             await EditMessagePin(client, msg.Id, false /*unpin*/);
             //await channel.DeleteMessageAsync(msg);
             xs.Settings.SetThemePollID(0);
-
-            var winner = themePool[winnerIdx];
             xs.Settings.RemoveThemeFromPool(winner.Item1, winner.Item2.Theme);
             return winner.Item2.Theme;
         }
@@ -236,7 +244,7 @@ namespace teanicorns_art_trade_bot
             emojiObjs.ForEach(async e => await msg.AddReactionAsync(e));
             await EditMessagePin(client, msg.Id, true /*pin*/);
 
-            await NotifySubscribers(client, string.Format(Properties.Resources.TRADE_THEME_POOL_SUBS, "theme poll", xs.Settings.GetWorkingChannel()));
+            await NotifySubscribers(client, "the `entry week` started, and a `theme poll` is currently taking place in the teanicorn art trade channel");
             return true;
         }
 
@@ -335,7 +343,7 @@ namespace teanicorns_art_trade_bot
             {
                 SocketUser su = client.GetUser(userId);
                 if (su != null)
-                    await su.SendMessageAsync($"<@{userId}> " + message, embed: Utils.EmbedFooter(client));
+                    await su.SendMessageAsync(string.Format(Properties.Resources.SUBSCRIBERS_NOTICE, userId, message, Config.CmdPrefix, "subscribe false"), embed: Utils.EmbedFooter(client));
             }
         }
 
