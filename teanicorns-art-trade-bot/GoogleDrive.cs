@@ -73,7 +73,7 @@ namespace teanicorns_art_trade_bot
                             Storage.xs.Settings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.Closing);
 
                             if (!string.IsNullOrWhiteSpace(artMissing))
-                                await channel.SendMessageAsync(string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_NOW, Config.CmdPrefix, "reveal art", "about"));
+                                await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_NOW, Config.CmdPrefix, "reveal art", "about")));
                         }
 
                         if (string.IsNullOrWhiteSpace(artMissing))
@@ -85,11 +85,11 @@ namespace teanicorns_art_trade_bot
                         {
                             Storage.xs.Settings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThirdNotification);
 
-                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON3);
+                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON, "`tomorrow`");
 
-                            await channel.SendMessageAsync(message);
+                            await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, message));
 
-                            await Utils.NotifySubscribers(_discord, message);
+                            await Utils.NotifySubscribers(_discord, "the art trade will be ending `tomorrow`");
                         }
                     }
                     else if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeEnd(-3)) > 0)
@@ -98,11 +98,11 @@ namespace teanicorns_art_trade_bot
                         {
                             Storage.xs.Settings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.SecondNotification);
 
-                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON2);
+                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON, "in `3` days");
 
-                            await channel.SendMessageAsync(message);
+                            await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, message));
 
-                            await Utils.NotifySubscribers(_discord, message);
+                            await Utils.NotifySubscribers(_discord, "the art trade will be ending in `3` days");
                         }
                     }
                     else if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeEnd(-7)) > 0)
@@ -111,33 +111,11 @@ namespace teanicorns_art_trade_bot
                         {
                             Storage.xs.Settings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.FirstNotification);
 
-                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON1);
+                            string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON, "in `7` days");
 
-                            await channel.SendMessageAsync(message);
+                            await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, message));
 
-                            await Utils.NotifySubscribers(_discord, message);
-                        }
-                    }
-                }
-            }
-            else if (Storage.xs.Settings.IsThemePollActive())
-            {
-                SocketTextChannel channel = Utils.FindChannel(_discord, Storage.xs.Settings.GetWorkingChannel());
-                if (channel != null)
-                {
-                    if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeStart(1)) > 0)
-                    {
-                        if (!Storage.xs.Settings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.ThemePollNotification))
-                        {
-                            Storage.xs.Settings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.ThemePollNotification);
-
-                            string theme = await Utils.GetThemePollResult(channel);
-                            if (!string.IsNullOrWhiteSpace(theme))
-                            {
-                                Storage.xs.Entries.SetTheme(theme);
-
-                                await Modules.TradeEventModule.StartTradeMonth(_discord);
-                            }
+                            await Utils.NotifySubscribers(_discord, "the art trade will be ending in `7` days");
                         }
                     }
                 }

@@ -21,42 +21,18 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         public CommandService CommandService { get; set; }
-
+        
         [Command("about")]
         [Alias("a", "help", "h")]
-        [Summary("show info about the art trade bot")]
-        public async Task ShowInfo([Remainder][Summary("name of the command you want more detailed info about (optional)")]string cmd_name = null)
+        [Summary("show info about the bot")]
+        public async Task About([Remainder][Summary("name of the command you want more detailed info about (`optional`)")]string cmd_name = null)
         {
             var user = Context.Message.Author;
 
             if (string.IsNullOrWhiteSpace(cmd_name))
             {
-                string about = $"\n{string.Format(Properties.Resources.INFO_INTRO, user.Id, DiscordConfig.Version, Config.CmdPrefix, "about", "set entry")}\n";
-                about += $"\n{string.Format(Properties.Resources.INFO_CMD_LIST)}\n";
-                string adminAbout = $"\n{string.Format(Properties.Resources.INFO_ADMIN_CMD_LIST)}\n";
-                bool adminUser = Utils.IsAdminUser(user);
-
-                foreach (var cmd in CommandService.Commands)
-                {
-                    var par = cmd.Parameters;
-
-                    string aliases = $"`{Config.CmdPrefix}{cmd.Aliases.FirstOrDefault()}`";
-                    if (!string.IsNullOrWhiteSpace(aliases))
-                    {
-                        for (int i = 1; i < cmd.Aliases.Count; ++i)
-                            aliases += $" | `{Config.CmdPrefix}{cmd.Aliases.ElementAt(i)}`";
-                    }
-
-                    if (Utils.IsAdminCommand(cmd))
-                    {
-                        if (adminUser)
-                            adminAbout += $"{aliases} : {cmd.Summary}\n";
-                    }
-                    else
-                        about += $"{aliases} : {cmd.Summary}\n";
-                }
-
-                await ReplyAsync(about + adminAbout);
+                var aboutMsgs = Utils.CreateAbout(CommandService, Utils.IsAdminUser(user));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Join("\n\n", aboutMsgs)));
             }
             else
             {
@@ -80,23 +56,23 @@ namespace teanicorns_art_trade_bot.Modules
                             aliases += $" | `{Config.CmdPrefix}{match.Aliases.ElementAt(i)}`";
                     }
 
-                    string about = $"{aliases} : {match.Summary}\n";
+                    string about = $"\n{aliases} : {match.Summary}";
                     var attrib = match.Attributes.FirstOrDefault(x => x is SummaryDetail);
                     if (attrib != null)
-                        about += $"{attrib.ToString()}\n";
+                        about += $"\n{attrib.ToString()}";
 
                     if (match.Parameters.Count > 0)
                     {
-                        about += $"\n{string.Format(Properties.Resources.INFO_PARAM_CMD_LIST)}";
+                        about += $"\n\n**Parameters**";
                         foreach (var param in match.Parameters)
                         {
                             about += $"\n`{param.Name}` : {param.Summary}";
                         }
                     }
-                    await ReplyAsync(about);
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, about));
                 }
                 else
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id)));
             }
         }
     }

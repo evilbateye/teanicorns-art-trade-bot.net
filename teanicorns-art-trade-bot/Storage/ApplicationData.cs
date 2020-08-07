@@ -31,37 +31,6 @@ namespace teanicorns_art_trade_bot.Storage
             Save();
         }
 
-        public bool AddThemeToPool(ulong userID, string theme)
-        {
-            theme = theme.ToLower().Trim();
-
-            UserData userData = Get(userID);
-            if (userData == null)
-                return false;
-
-            if (userData.ThemePool.Contains(theme))
-                return false;
-
-            userData.ThemePool.Add(theme);
-            Save();
-            return true;
-        }
-
-        public bool RemoveThemeFromPool(ulong userID, string theme)
-        {
-            theme = theme.ToLower().Trim();
-
-            UserData userData = Get(userID);
-            if (userData == null)
-                return false;
-
-            if (!userData.ThemePool.Remove(theme))
-                return false;
-
-            Save();
-            return true;
-        }
-
         public UserData TryGetValue(ulong userId, out int index)
         {
             index = _storage.FindIndex(x => x.UserId == userId);
@@ -175,7 +144,7 @@ namespace teanicorns_art_trade_bot.Storage
         }
         public void DoShuffle(ApplicationHistory history)
         {
-            if (!_shuffle.Compute(this, history))
+            if (_storage.Count < 3 || !_shuffle.Compute(this, history))
             {
                 _storage = _storage.OrderBy(x => Guid.NewGuid()).ToList();
                 Save();

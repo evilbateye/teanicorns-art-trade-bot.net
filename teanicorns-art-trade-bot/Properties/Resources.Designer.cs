@@ -61,11 +61,48 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to the **entry week** started. **We are accepting new entries!**
+        ///please use `{0}{1}`  to register or use `{0}{2}` if you need more info.
+        /// </summary>
+        internal static string ENTRY_WEEK {
+            get {
+                return ResourceManager.GetString("ENTRY_WEEK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to you can use `{0}{1}` to {2}.
+        /// </summary>
+        internal static string GLOBAL_CMDHELP {
+            get {
+                return ResourceManager.GetString("GLOBAL_CMDHELP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;@{0}&gt; there already is a {1} with this name registered.
         /// </summary>
         internal static string GLOBAL_DUPLICAT_ARG {
             get {
                 return ResourceManager.GetString("GLOBAL_DUPLICAT_ARG", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to there are no {0} registered at the moment.
+        /// </summary>
+        internal static string GLOBAL_EMPTY {
+            get {
+                return ResourceManager.GetString("GLOBAL_EMPTY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. Error: {1}.
+        /// </summary>
+        internal static string GLOBAL_ERROR {
+            get {
+                return ResourceManager.GetString("GLOBAL_ERROR", resourceCulture);
             }
         }
         
@@ -79,20 +116,38 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;@{0}&gt; your request has been completed.
+        ///   Looks up a localized string similar to &lt;@{0}&gt; I couldn&apos;t find your {1}.
         /// </summary>
-        internal static string GLOBAL_REQUEST_DONE {
+        internal static string GLOBAL_ITEM_NOT_FOUND {
             get {
-                return ResourceManager.GetString("GLOBAL_REQUEST_DONE", resourceCulture);
+                return ResourceManager.GetString("GLOBAL_ITEM_NOT_FOUND", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;@{0}&gt; your request has failed.
+        ///   Looks up a localized string similar to &lt;@{0}&gt; max number of {1} reached.
         /// </summary>
-        internal static string GLOBAL_REQUEST_FAIL {
+        internal static string GLOBAL_MAX_NUM_OF_ARGS {
             get {
-                return ResourceManager.GetString("GLOBAL_REQUEST_FAIL", resourceCulture);
+                return ResourceManager.GetString("GLOBAL_MAX_NUM_OF_ARGS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;@{0}&gt; I need {1}, please send me again.
+        /// </summary>
+        internal static string GLOBAL_MISSING_INPUT {
+            get {
+                return ResourceManager.GetString("GLOBAL_MISSING_INPUT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;@{0}&gt; your request has been completed. {1}.
+        /// </summary>
+        internal static string GLOBAL_SUCCESS {
+            get {
+                return ResourceManager.GetString("GLOBAL_SUCCESS", resourceCulture);
             }
         }
         
@@ -115,54 +170,18 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to @everyone the art **Trade month** will be ending in 7 days, please reveal your art submissions until then..
+        ///   Looks up a localized string similar to @everyone the art **Trade month** will be ending in {0} days, please reveal your art submissions until then..
         /// </summary>
-        internal static string GOOGLE_TRADE_ENDING_SOON1 {
+        internal static string GOOGLE_TRADE_ENDING_SOON {
             get {
-                return ResourceManager.GetString("GOOGLE_TRADE_ENDING_SOON1", resourceCulture);
+                return ResourceManager.GetString("GOOGLE_TRADE_ENDING_SOON", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to @everyone the art **Trade month** will be ending in 3 days, please reveal your art submissions until then..
-        /// </summary>
-        internal static string GOOGLE_TRADE_ENDING_SOON2 {
-            get {
-                return ResourceManager.GetString("GOOGLE_TRADE_ENDING_SOON2", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to @everyone the art **Trade month** will be ending in 1 day, please reveal your art submissions until then..
-        /// </summary>
-        internal static string GOOGLE_TRADE_ENDING_SOON3 {
-            get {
-                return ResourceManager.GetString("GOOGLE_TRADE_ENDING_SOON3", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to **Admin commands**.
-        /// </summary>
-        internal static string INFO_ADMIN_CMD_LIST {
-            get {
-                return ResourceManager.GetString("INFO_ADMIN_CMD_LIST", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to **Commands**.
-        /// </summary>
-        internal static string INFO_CMD_LIST {
-            get {
-                return ResourceManager.GetString("INFO_CMD_LIST", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Hello &lt;@{0}&gt;, I am art-trade-bot, written in Discord.Net ({1}).
-        ///For more information about a specific command please type {2}{3} followed by the command name at the end.
-        ///For example `{2}{3} {4}`.
+        ///   Looks up a localized string similar to I am art-trade-bot, written in Discord.Net ({0}).
+        ///For more information about a specific command please type {1}{2} followed by the command name at the end.
+        ///For example `{1}{2} {3}`.
         /// </summary>
         internal static string INFO_INTRO {
             get {
@@ -171,61 +190,7 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to **Parameters**.
-        /// </summary>
-        internal static string INFO_PARAM_CMD_LIST {
-            get {
-                return ResourceManager.GetString("INFO_PARAM_CMD_LIST", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. {1} Please try \&quot;{2}about\&quot; for more info..
-        /// </summary>
-        internal static string MAIN_PROGRAM_MESSAGE_RECEIVED {
-            get {
-                return ResourceManager.GetString("MAIN_PROGRAM_MESSAGE_RECEIVED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. Entry week is currently taking place. Trade pairs are not formed until closed..
-        /// </summary>
-        internal static string REF_EW_TAKING_PLACE {
-            get {
-                return ResourceManager.GetString("REF_EW_TAKING_PLACE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Missing art reference &lt;@{0}&gt;. Please provide an embeded image..
-        /// </summary>
-        internal static string REF_MISSING_ART {
-            get {
-                return ResourceManager.GetString("REF_MISSING_ART", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. Could not find an art trade partner for you..
-        /// </summary>
-        internal static string REF_MISSING_PARTNER {
-            get {
-                return ResourceManager.GetString("REF_MISSING_PARTNER", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. There is no reference registered..
-        /// </summary>
-        internal static string REF_NOT_REG {
-            get {
-                return ResourceManager.GetString("REF_NOT_REG", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Hello &lt;@{0}&gt;! Your hidden art trade partner was **{1}** and they are ready to show you their work!!.
+        ///   Looks up a localized string similar to Hello &lt;@{0}&gt;! Your hidden art trade partner was **{1}** and they are ready to show you their work for the {2} themed art trade!!.
         /// </summary>
         internal static string REF_REVEAL_FINAL {
             get {
@@ -243,29 +208,12 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. But your partner did not receive the notification..
-        /// </summary>
-        internal static string REF_REVEAL_SORRY {
-            get {
-                return ResourceManager.GetString("REF_REVEAL_SORRY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt; but you did not commit the art for the last trade, you cannot enter the current trade..
+        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt; but you did not commit the art for the last trade {1}, you cannot enter the current trade.
+        ///(you can use `{2}{3}` command to register the missing trade).
         /// </summary>
         internal static string REF_TRADE_LAST_MONTH_ART_MISSING {
             get {
                 return ResourceManager.GetString("REF_TRADE_LAST_MONTH_ART_MISSING", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Missing reference &lt;@{0}&gt;. Please provide a description and/or embeded image..
-        /// </summary>
-        internal static string REF_TRADE_MISSING_REF {
-            get {
-                return ResourceManager.GetString("REF_TRADE_MISSING_REF", resourceCulture);
             }
         }
         
@@ -279,74 +227,12 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your entry has been registered successfully &lt;@{0}&gt;!.
+        ///   Looks up a localized string similar to hello &lt;@{0}&gt; {1}
+        ///(if you don&apos;t want to see messages like this, you can use the {2}{3} command to unsubscribe).
         /// </summary>
-        internal static string REF_TRADE_REG_SUCC {
+        internal static string SUBSCRIBERS_NOTICE {
             get {
-                return ResourceManager.GetString("REF_TRADE_REG_SUCC", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. please register to the art trade first..
-        /// </summary>
-        internal static string REF_TRADE_REGISTER_FIRST {
-            get {
-                return ResourceManager.GetString("REF_TRADE_REGISTER_FIRST", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. Art trade is currently taking place. Can&apos;t modify existing entries.
-        /// </summary>
-        internal static string REF_TRADE_TAKING_PLACE {
-            get {
-                return ResourceManager.GetString("REF_TRADE_TAKING_PLACE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;@{0}&gt; here is a list of your registered themes:.
-        /// </summary>
-        internal static string REF_TRADE_THEME_POOL {
-            get {
-                return ResourceManager.GetString("REF_TRADE_THEME_POOL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sorry &lt;@{0}&gt;. You don&apos;t have required priviledges to run this command..
-        /// </summary>
-        internal static string TRADE_ADMIN_BLOCK {
-            get {
-                return ResourceManager.GetString("TRADE_ADMIN_BLOCK", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Following users did not reveal their art, please do so once you are ready (you can reveal it even after the trade ended): {0}.
-        /// </summary>
-        internal static string TRADE_ART_LATE {
-            get {
-                return ResourceManager.GetString("TRADE_ART_LATE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Following users did not reveal their art for the previous trade (themed {0}): {1}.
-        /// </summary>
-        internal static string TRADE_ART_LATE_1 {
-            get {
-                return ResourceManager.GetString("TRADE_ART_LATE_1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Following users did not reveal their art for the previous trade (themed {0}): {1}.
-        /// </summary>
-        internal static string TRADE_ART_LATE_2 {
-            get {
-                return ResourceManager.GetString("TRADE_ART_LATE_2", resourceCulture);
+                return ResourceManager.GetString("SUBSCRIBERS_NOTICE", resourceCulture);
             }
         }
         
@@ -360,47 +246,11 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Everyone submitted their art on time!.
-        /// </summary>
-        internal static string TRADE_ART_ON_TIME {
-            get {
-                return ResourceManager.GetString("TRADE_ART_ON_TIME", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sending the full history stream &lt;@{0}&gt;..
-        /// </summary>
-        internal static string TRADE_BACKUP_HISTORY_DONE {
-            get {
-                return ResourceManager.GetString("TRADE_BACKUP_HISTORY_DONE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The art trade ends on.. {0}..
         /// </summary>
         internal static string TRADE_ENDS_ON {
             get {
                 return ResourceManager.GetString("TRADE_ENDS_ON", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Entries have been shuffled successfully &lt;@{0}&gt;..
-        /// </summary>
-        internal static string TRADE_ENTRIES_SHUFFLE {
-            get {
-                return ResourceManager.GetString("TRADE_ENTRIES_SHUFFLE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Listing all entries. Each next entry is the partner of the previous one..
-        /// </summary>
-        internal static string TRADE_LIST_ENTRIES {
-            get {
-                return ResourceManager.GetString("TRADE_LIST_ENTRIES", resourceCulture);
             }
         }
         
@@ -423,29 +273,39 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to the **entry week** started. **We are accepting new entries!**
-        ///please use `{0}{1}`  to register or use `{0}{2}` if you need more info.
-        /// </summary>
-        internal static string TRADE_NEW_ENTRIES {
-            get {
-                return ResourceManager.GetString("TRADE_NEW_ENTRIES", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to @everyone the art **trade month** started. **We are no longer accepting new entries!**
-        ///please use `{0}{1}` to show your finished art piece or use `{0}{2}` if you need more info
+        ///please use `{0}{1}` to show your finished art piece at the `end` of the month or use `{0}{2}` if you need more info
         ///but please wait until the end of the trade when everybody has fihisned their art too.
         /// </summary>
-        internal static string TRADE_NO_NEW_ENTRIES {
+        internal static string TRADE_MONTH {
             get {
-                return ResourceManager.GetString("TRADE_NO_NEW_ENTRIES", resourceCulture);
+                return ResourceManager.GetString("TRADE_MONTH", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to please choose which theme you&apos;d like for this month&apos;s art trade 
-        ///the poll will take `{0}` days and theme with the most votes wins! (^•^).
+        ///   Looks up a localized string similar to hello &lt;@{0}&gt; I&apos;m sending you a message from `{1}` in their stead
+        ///please use the `{2}{3}` command if you wish to reply, here is the message:
+        ///*\&quot;{4}\&quot;*.
+        /// </summary>
+        internal static string TRADE_PINGPONG {
+            get {
+                return ResourceManager.GetString("TRADE_PINGPONG", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to you can use the `{2}{3}` command to register the missing art.
+        /// </summary>
+        internal static string TRADE_REGISTER_MISSING_ART {
+            get {
+                return ResourceManager.GetString("TRADE_REGISTER_MISSING_ART", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to @everyone please choose which theme you&apos;d like for this month&apos;s art trade 
+        ///theme with the most votes wins! (^•^).
         /// </summary>
         internal static string TRADE_THEME_POOL_START {
             get {
