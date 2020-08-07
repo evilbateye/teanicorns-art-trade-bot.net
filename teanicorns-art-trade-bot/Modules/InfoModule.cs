@@ -24,21 +24,15 @@ namespace teanicorns_art_trade_bot.Modules
         
         [Command("about")]
         [Alias("a", "help", "h")]
-        [Summary("show info about the art trade bot")]
-        public async Task About([Remainder][Summary("name of the command you want more detailed info about (optional)")]string cmd_name = null)
+        [Summary("show info about the bot")]
+        public async Task About([Remainder][Summary("name of the command you want more detailed info about (`optional`)")]string cmd_name = null)
         {
             var user = Context.Message.Author;
 
             if (string.IsNullOrWhiteSpace(cmd_name))
             {
                 var aboutMsgs = Utils.CreateAbout(CommandService, Utils.IsAdminUser(user));
-                await ReplyAsync(embed: new EmbedBuilder()
-                                            .WithColor(51, 144, 243)
-                                            .WithDescription(string.Join("\n", aboutMsgs)).Build());
-                //await ReplyAsync($"hello <@{user.Id}>, {string.Join("\n", aboutMsgs)}");
-                /*var adminMsg = aboutMsgs[(int)Utils.AboutMessageSubtype.adminCommands];
-                if (!string.IsNullOrWhiteSpace(adminMsg))
-                    await ReplyAsync(adminMsg);*/
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Join("\n\n", aboutMsgs)));
             }
             else
             {
@@ -62,23 +56,23 @@ namespace teanicorns_art_trade_bot.Modules
                             aliases += $" | `{Config.CmdPrefix}{match.Aliases.ElementAt(i)}`";
                     }
 
-                    string about = $"{aliases} : {match.Summary}\n";
+                    string about = $"\n{aliases} : {match.Summary}";
                     var attrib = match.Attributes.FirstOrDefault(x => x is SummaryDetail);
                     if (attrib != null)
-                        about += $"{attrib.ToString()}\n";
+                        about += $"\n{attrib.ToString()}";
 
                     if (match.Parameters.Count > 0)
                     {
-                        about += $"\n**Parameters**";
+                        about += $"\n\n**Parameters**";
                         foreach (var param in match.Parameters)
                         {
                             about += $"\n`{param.Name}` : {param.Summary}";
                         }
                     }
-                    await ReplyAsync(about);
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, about));
                 }
                 else
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id)));
             }
         }
     }

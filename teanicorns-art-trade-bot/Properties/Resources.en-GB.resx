@@ -155,7 +155,7 @@ please use `{0}{1}` to register your finished art or use `{0}{2}` if you need mo
     <value>this month's art trade theme is `{0}`</value>
   </data>
   <data name="GLOBAL_ERROR" xml:space="preserve">
-    <value>&lt;@{0}&gt; erro, {1}</value>
+    <value>&lt;@{0}&gt; error, {1}</value>
   </data>
   <data name="GOOGLE_TRADE_ENDING_SOON" xml:space="preserve">
     <value>@everyone `art trade` ends {0}</value>
@@ -171,8 +171,8 @@ please use `{0}{1}` to register your finished art or use `{0}{2}` if you need mo
   </data>
   <data name="INFO_INTRO" xml:space="preserve">
     <value>my name is Bottie the art trade bot and I'm written in Discord.Net {0}
-for more info about a specific command please type `{1}{2}` followed by the command name at the end for example `{1}{2} {3}`
-you can type it to this channel or send me a direct message</value>
+for more info about a specific command please type `{1}{2}` followed by the command name at the end, for example `{1}{2} {3}`
+you can type to `this channel` or send me a `direct message`</value>
   </data>
   <data name="GLOBAL_UNKNOW_ARG" xml:space="preserve">
     <value>&lt;@{0}&gt; unknown or missing command argument</value>

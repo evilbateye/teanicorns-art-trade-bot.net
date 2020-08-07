@@ -343,11 +343,11 @@ namespace teanicorns_art_trade_bot
             {
                 SocketUser su = client.GetUser(userId);
                 if (su != null)
-                    await su.SendMessageAsync(string.Format(Properties.Resources.SUBSCRIBERS_NOTICE, userId, message, Config.CmdPrefix, "subscribe false"), embed: Utils.EmbedFooter(client));
+                    await su.SendMessageAsync(embed: Utils.EmbedMessage(client, string.Format(Properties.Resources.SUBSCRIBERS_NOTICE, userId, message, Config.CmdPrefix, "subscribe false")));
             }
         }
 
-        public static EmbedBuilder GetFooterBuilder(DiscordSocketClient client)
+        public static EmbedBuilder GetFooterBuilder(DiscordSocketClient client, string message = "")
         {
             SocketTextChannel channel = FindChannel(client, xs.Settings.GetWorkingChannel());
             if (channel == null)
@@ -363,18 +363,23 @@ namespace teanicorns_art_trade_bot
 
             footer.Add($"[teanicorn web](https://teanicorns.weebly.com/)");
 
-            string avatarUrl = client.CurrentUser.GetAvatarUrl();
-            if (string.IsNullOrEmpty(avatarUrl))
-                avatarUrl = client.CurrentUser.GetDefaultAvatarUrl();
+            //string avatarUrl = client.CurrentUser.GetAvatarUrl();
+            //if (string.IsNullOrEmpty(avatarUrl))
+                //avatarUrl = client.CurrentUser.GetDefaultAvatarUrl();
 
             return new EmbedBuilder()
                 .WithColor(51, 144, 243)
-                .WithDescription(string.Join(" **|** ", footer));
+                .WithDescription($"{message}\n\n{string.Join(" **|** ", footer)}");
         }
 
-        public static Embed EmbedFooter(DiscordSocketClient client)
+        public static Embed EmbedFooter(DiscordSocketClient client, string message = "")
         {
-            return GetFooterBuilder(client).Build();
+            return GetFooterBuilder(client, message).Build();
+        }
+
+        public static Embed EmbedMessage(DiscordSocketClient client, string message)
+        {
+            return EmbedFooter(client, message);
         }
 
         public enum AboutMessageSubtype
@@ -386,9 +391,9 @@ namespace teanicorns_art_trade_bot
         public static List<string> CreateAbout(CommandService commandService, bool adminUser)
         {
             var ret = new List<string>();
-            ret.Add($"{string.Format(Properties.Resources.INFO_INTRO, DiscordConfig.Version, Config.CmdPrefix, "about", "set entry")}\n");
-            string about = $"**User Commands**\n";
-            string adminAbout = adminUser ? $"**Admin commands**\n" : "";
+            ret.Add($"{string.Format(Properties.Resources.INFO_INTRO, DiscordConfig.Version, Config.CmdPrefix, "about", "set entry")}");
+            string about = $"**User Commands**";
+            string adminAbout = adminUser ? $"**Admin commands**" : "";
 
             foreach (var cmd in commandService.Commands)
             {
@@ -404,10 +409,10 @@ namespace teanicorns_art_trade_bot
                 if (IsAdminCommand(cmd))
                 {
                     if (adminUser)
-                        adminAbout += $"{aliases} : {cmd.Summary}\n";
+                        adminAbout += $"\n{aliases} : {cmd.Summary}";
                 }
                 else
-                    about += $"{aliases} : {cmd.Summary}\n";
+                    about += $"\n{aliases} : {cmd.Summary}";
             }
 
             ret.Add(about);

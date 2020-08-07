@@ -84,7 +84,7 @@ namespace teanicorns_art_trade_bot.Modules
             string outMessage = $"{string.Format(Properties.Resources.ENTRY_WEEK, Config.CmdPrefix, "set entry", "about")}\n"
                 + (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme()) + "\n");
                         
-            await channel.SendMessageAsync(outMessage, embed: Utils.EmbedFooter(client));
+            await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, outMessage));
 
             string naughtyList = "";
             if (!string.IsNullOrWhiteSpace(artMissing))
@@ -105,8 +105,8 @@ namespace teanicorns_art_trade_bot.Modules
 
                 SocketUser su = client.GetUser(user.UserId);
                 if (su != null)
-                    await su.SendMessageAsync(string.Format(Properties.Resources.TRADE_ART_LATE_DM, user.UserId, artHistory0.GetTheme())
-                        + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "to register the missing art")}", embed: Utils.EmbedFooter(client));
+                    await su.SendMessageAsync(embed: Utils.EmbedMessage(client, string.Format(Properties.Resources.TRADE_ART_LATE_DM, user.UserId, artHistory0.GetTheme())
+                        + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "to register the missing art")}"));
             }
 
             // notify those that subscribed for notifications
@@ -118,7 +118,7 @@ namespace teanicorns_art_trade_bot.Modules
 
         [Command("entry week")]
         [Alias("ew")]
-        [Summary("stops the art trade, clears all entries and theme, starts accepting new entries")]
+        [Summary("stop the trade")]
         [InfoModule.SummaryDetail("if an art trade is currently taking place, it is stopped and entry week is started automatically" +
             "\nthe finished trade is recorded into trade history" +
             "\nafter that the entries and trade theme are cleared" +
@@ -131,7 +131,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
 
@@ -157,17 +157,16 @@ namespace teanicorns_art_trade_bot.Modules
 
             Storage.xs.Entries.DoShuffle(Storage.xs.History);
 
-            await channel.SendMessageAsync($"{string.Format(Properties.Resources.TRADE_MONTH, Config.CmdPrefix, "reveal art", "about")}\n"
+            await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, $"{string.Format(Properties.Resources.TRADE_MONTH, Config.CmdPrefix, "reveal art", "about")}\n"
             + (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme()) + "\n")
-            + (Storage.xs.Settings.GetTradeDays() == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.xs.Settings.GetTradeDays(), Storage.xs.Settings.GetTradeStart(Storage.xs.Settings.GetTradeDays()).ToString("dd-MMMM")))
-            , embed: Utils.EmbedFooter(client));
+            + (Storage.xs.Settings.GetTradeDays() == 0 ? "" : string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.xs.Settings.GetTradeDays(), Storage.xs.Settings.GetTradeStart(Storage.xs.Settings.GetTradeDays()).ToString("dd-MMMM")))));
 
             return await SendPartnersResponse(client);
         }
 
         [Command("trade month")]
         [Alias("tm")]
-        [Summary("starts the art trade, shuffles entries, sends all their partners in a DM, stops accepting entries")]
+        [Summary("start the trade")]
         [InfoModule.SummaryDetail("if an entry week is currently taking place, it is stopped and trade month is started" +
             "\nthe entered entries are randomly shuffled generating a chain" +
             "\nthe chain goes only one way, meaning that for each entry there is a next entry, and the next entry is the first entry's partner" +
@@ -180,7 +179,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
 
@@ -206,13 +205,13 @@ namespace teanicorns_art_trade_bot.Modules
 
         [Command("theme")]
         [Alias("th")]
-        [Summary("set the art trade theme")]
+        [Summary("set trade theme")]
         public async Task Theme([Summary("theme to be set for the next art trade")][Remainder]string theme)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
 
@@ -231,7 +230,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("settings")]
-        [Summary("silently changes the current settings")]
+        [Summary("change current settings")]
         [InfoModule.SummaryDetail("you can silently turn the art trade on/off" +
             "\nchange the start date of the trade and number of days until the trade ends" +
             "\nyou can also modify the force flag, or change the active trading channel")]
@@ -245,7 +244,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
 
@@ -259,14 +258,14 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("channel")]
-        [Summary("sets the working channel")]
+        [Summary("set working channel")]
         [InfoModule.SummaryDetail("the art trade bot listens for user input messages only in this channel")]
         public async Task Channel([Summary("name of the channel")][Remainder]string channel)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
 
@@ -294,7 +293,7 @@ namespace teanicorns_art_trade_bot.Modules
 
         [Command("list")]
         [Alias("ls")]
-        [Summary("sends you a list of all entries in a DM")]
+        [Summary("list all entries")]
         [InfoModule.SummaryDetail("sends detailed information about art trade entries" +
             "\nthe information is sent using a direct message, because it contains secrets that should not be visible to other trade participants")]
         public async Task List([Summary("bool flag indicating if a more detailed info should be shown")]bool bAll = false)
@@ -302,7 +301,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
                         
@@ -339,8 +338,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("clear")]
-        [Alias("delete")]
-        [Summary("delete all art trade entries")]
+        [Summary("remove all trade entries")]
         [InfoModule.SummaryDetail("forcefully removes all entries, use with caution" +
             "\nit is possible to undo this operation using the restore command")]
         public async Task Clear()
@@ -348,7 +346,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
 
@@ -358,7 +356,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("shuffle")]
-        [Summary("randomly shuffle art trade entries")]
+        [Summary("randomly shuffle trade entries")]
         [InfoModule.SummaryDetail("randomly shuffles entered entries generating a chain" +
             "\nthe chain goes only one way, meaning that each entry has a next entry, and the next entry is the first entrie's partner" +
             "\nbut the first entry does not see it's previous entry, so they do not know who has them as their partner" +
@@ -368,7 +366,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
 
@@ -380,7 +378,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
                 
         [Command("swap")]
-        [Summary("changes your art trade partner")]
+        [Summary("switch trade partners")]
         [InfoModule.SummaryDetail("if you input only one participant's name, the bot tries to swap you with the participant" +
             "\nif you enter two participant names, the bot tries to swap those two participants" +
             "\nif you enter three participant names, the bot will try to swap the three participants with minimal impact to other participants" +
@@ -392,7 +390,7 @@ namespace teanicorns_art_trade_bot.Modules
             var ourUser = Context.Message.Author;
             if (!Utils.IsAdminUser(ourUser))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "admin only command")));
                 return;
             }
 
@@ -461,16 +459,16 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("restore")]
-        [Summary("restores art trade entries from backup files / embeded JSON file")]
+        [Summary("restore trade entries")]
         [InfoModule.SummaryDetail("works as an undo button if either one of the entries, settings or history storage has been edited by a previous command" +
-            "\nyou can specify which of the three should be restored in the command parameter, or leave the parameter empty which will restore all three" +
+            "\nyou can specify which of the three storage types should be restored in the command parameter, or leave the parameter empty which will restore all three" +
             "\nyou can also add a JSON file by embedding it into the message, the storage type restored this way depends on the input parameter or the JSON file's name")]
         public async Task Restore([Summary("type of storage that should be restored, only `entries`, `settings` or `history` is supported (optional)")][Remainder]string storageType = null)
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
 
@@ -550,7 +548,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("backup")]
-        [Summary("sync backup file / flush database in a DM as separate JSON files")]
+        [Summary("backup trade entries")]
         [InfoModule.SummaryDetail("creates a checkpoint of the entries, settings and history storages" +
             "\ncheckpoints are done automatically if at least one of the storage types has been changed by a storage editing command, so there is usually no need to call this manually" +
             "\nyou can specify if you want to send the storages as JSON files in a direct message to you instead" +
@@ -560,7 +558,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
 
@@ -638,7 +636,7 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("resend")]
-        [Summary("send to all participants their trade partner's entry in a DM")]
+        [Summary("send trade info to all participants")]
         [InfoModule.SummaryDetail("sends a direct message to all art trade participants containing the entry information of their trade partner" +
             "\nthis is done automatically when the trade month starts, so there is usually no need to call this manually")]
         public async Task Resend([Summary("bool flag specifies if only the current theme info should be resent (optional)")]bool bThemeOnly = false)
@@ -646,7 +644,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
 
@@ -655,14 +653,14 @@ namespace teanicorns_art_trade_bot.Modules
         }
 
         [Command("create help")]
-        [Summary("creates and registers help message")]
-        [InfoModule.SummaryDetail("send help message into working channel and register message id")]
+        [Summary("create help message")]
+        [InfoModule.SummaryDetail("sends help message into working channel and registers message id")]
         public async Task CreateHelp([Summary("channel where the help message should be sent (optional)")][Remainder]string channelName = "")
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), embed: Utils.EmbedFooter(Context.Client));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command")));
                 return;
             }
                         
