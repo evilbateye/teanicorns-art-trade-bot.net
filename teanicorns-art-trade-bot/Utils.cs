@@ -145,7 +145,7 @@ namespace teanicorns_art_trade_bot
                 int winnerIdx = EmojiCodes.IndexOf(winnerCode);
                 if (winnerIdx < 0 || winnerIdx > 9)
                     return "";
-                for (int i = 0, j = winnerIdx; i < themePool.Count && winnerIdx > 0; ++i)
+                for (int i = 0, j = winnerIdx; i < themePool.Count && winnerIdx >= 0; ++i)
                 {
                     winner = themePool[i];
                     if (string.IsNullOrWhiteSpace(winner.Item2.EmojiCode))
@@ -239,7 +239,7 @@ namespace teanicorns_art_trade_bot
                 reply += $"\n({string.Format(Properties.Resources.GLOBAL_EMPTY, "themes")}, {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, "add theme <theme name>", "add a theme into the poll")})";
             }
 
-            var msg = await channel.SendMessageAsync(reply);
+            var msg = await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, reply));
             xs.Settings.SetThemePollID(msg.Id);
             emojiObjs.ForEach(async e => await msg.AddReactionAsync(e));
             await EditMessagePin(client, msg.Id, true /*pin*/);
@@ -261,13 +261,19 @@ namespace teanicorns_art_trade_bot
             if (restMsg == null)
                 return false;
 
+            var restEmbed = restMsg.Embeds.SingleOrDefault();
+            if (restEmbed == default)
+                return false;
+
             List<Emoji> emojiObjs = new List<Emoji>();
             var reply = $"{string.Format(Properties.Resources.TRADE_THEME_POOL_START)}";
             List<ArtTheme> themePool = GetThemePoolOrdered().Select(x => x.Item2).ToList();
             if (themePool.Count > 0)
             {
+                reply += $"\n({string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, "add theme <theme name>", "add a theme into the poll")})";
+
                 List<string> emojiCodesTmp = new List<string>(EmojiCodes);
-                foreach (string line in restMsg.Content.Split('\n'))
+                foreach (string line in restEmbed.Description.Split('\n'))
                 {
                     string[] themeLine = line.Split(':');
                     if (themeLine.Count() != 2)
@@ -306,10 +312,10 @@ namespace teanicorns_art_trade_bot
             }
             else
             {
-                reply += $"\n{string.Format(Properties.Resources.GLOBAL_EMPTY, Config.CmdPrefix, "add theme <theme name>")}";
+                reply += $"\n({string.Format(Properties.Resources.GLOBAL_EMPTY, "themes")}, {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, "add theme <theme name>", "add a theme into the poll")})";
             }
 
-            await restMsg.ModifyAsync(x => x.Content = reply);
+            await restMsg.ModifyAsync(x => x.Embed = Utils.EmbedMessage(client, reply));
             foreach (var emoji in restMsg.Reactions)
             {
                 string reactionCode = emoji.Key.Name;
@@ -347,7 +353,7 @@ namespace teanicorns_art_trade_bot
             }
         }
 
-        public static EmbedBuilder GetFooterBuilder(DiscordSocketClient client, string message = "")
+        public static EmbedBuilder GetFooterBuilder(DiscordSocketClient client, string message = "", string imageUrl = "")
         {
             SocketTextChannel channel = FindChannel(client, xs.Settings.GetWorkingChannel());
             if (channel == null)
@@ -369,17 +375,18 @@ namespace teanicorns_art_trade_bot
 
             return new EmbedBuilder()
                 .WithColor(51, 144, 243)
-                .WithDescription($"{message}\n\n{string.Join(" **|** ", footer)}");
+                .WithDescription($"{message}\n\n{string.Join(" **|** ", footer)}")
+                .WithImageUrl(imageUrl);
         }
 
-        public static Embed EmbedFooter(DiscordSocketClient client, string message = "")
+        public static Embed EmbedFooter(DiscordSocketClient client, string message = "", string imageUrl = "")
         {
-            return GetFooterBuilder(client, message).Build();
+            return GetFooterBuilder(client, message, imageUrl)?.Build();
         }
 
-        public static Embed EmbedMessage(DiscordSocketClient client, string message)
+        public static Embed EmbedMessage(DiscordSocketClient client, string message, string imageUrl = "")
         {
-            return EmbedFooter(client, message);
+            return EmbedFooter(client, message, imageUrl);
         }
 
         public enum AboutMessageSubtype
@@ -446,7 +453,7 @@ namespace teanicorns_art_trade_bot
             await EditMessagePin(client, xs.Settings.GetHelpMessageId(), false /*unpin*/);
 
             var aboutMsgs = CreateAbout(commandService, false);
-            var helpMsg = await channel.SendMessageAsync($"@everyone {aboutMsgs[(int)AboutMessageSubtype.intro]}\n{aboutMsgs[(int)AboutMessageSubtype.userCommands]}");
+            var helpMsg = await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, $"@everyone {aboutMsgs[(int)AboutMessageSubtype.intro]}\n\n{aboutMsgs[(int)AboutMessageSubtype.userCommands]}"));
             xs.Settings.SetHelpMessageId(helpMsg.Id);
 
             await EditMessagePin(client, helpMsg.Id, true /*pin*/);

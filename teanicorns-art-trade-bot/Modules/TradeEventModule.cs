@@ -81,8 +81,8 @@ namespace teanicorns_art_trade_bot.Modules
             if (artHistory2 != null)
                 artMissingHistory2 = GetMissingArtToStr(artHistory2);
 
-            string outMessage = $"{string.Format(Properties.Resources.ENTRY_WEEK, Config.CmdPrefix, "set entry", "about")}\n"
-                + (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme()) + "\n");
+            string outMessage = $"{string.Format(Properties.Resources.ENTRY_WEEK, Config.CmdPrefix, "set entry", "about")}"
+                + (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "" : $"\n{string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme())}");
                         
             await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, outMessage));
 
@@ -94,7 +94,10 @@ namespace teanicorns_art_trade_bot.Modules
             if (!string.IsNullOrWhiteSpace(artMissingHistory2))
                 naughtyList += $"\n`{artHistory2.GetTheme()}` : {artMissingHistory2}";
             if (!string.IsNullOrWhiteSpace(naughtyList))
-                await channel.SendMessageAsync($"**Naughty List**{naughtyList}\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art <theme name>", "to register the missing art for that specific theme")}");
+            {
+                await channel.SendMessageAsync(embed: Utils.EmbedMessage(client
+                    , $"**Naughty List**\nif you are on the list {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art <theme name>", "register the missing art for the listed themes:")}{naughtyList}"));
+            }
 
             var subscribers = new List<ulong>(Storage.xs.Settings.GetSubscribers());
 
@@ -106,7 +109,7 @@ namespace teanicorns_art_trade_bot.Modules
                 SocketUser su = client.GetUser(user.UserId);
                 if (su != null)
                     await su.SendMessageAsync(embed: Utils.EmbedMessage(client, string.Format(Properties.Resources.TRADE_ART_LATE_DM, user.UserId, artHistory0.GetTheme())
-                        + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "to register the missing art")}"));
+                        + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "register the missing art")}"));
             }
 
             // notify those that subscribed for notifications
@@ -144,7 +147,7 @@ namespace teanicorns_art_trade_bot.Modules
                 await StartEntryWeek(Context.Client, days2end, force, theme);
             }
             else
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_IN_PROGRESS, user.Id, "entry week"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_IN_PROGRESS, user.Id, "entry week")));
         }
                         
         public static async Task<bool> StartTradeMonth(DiscordSocketClient client, double? days2end = null, bool? force = null)
@@ -195,16 +198,15 @@ namespace teanicorns_art_trade_bot.Modules
                     Storage.xs.Entries.SetTheme(await Utils.GetThemePollResult(Context.Client));
 
                 if (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()))
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to start trade month, trade theme is missing"));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to start trade month, trade theme is missing")));
                 else if (!await StartTradeMonth(Context.Client, days2end, force))
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to start trade month"));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to start trade month")));
             }
             else
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_IN_PROGRESS, user.Id, "trade month"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_IN_PROGRESS, user.Id, "trade month")));
         }
 
-        [Command("theme")]
-        [Alias("th")]
+        [Command("set theme")]
         [Summary("set trade theme")]
         public async Task Theme([Summary("theme to be set for the next art trade")][Remainder]string theme)
         {
@@ -217,16 +219,16 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (string.IsNullOrWhiteSpace(theme))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id)));
                 return;
             }
 
             Storage.xs.BackupStorage(Storage.xs.Entries);
 
             if (Storage.xs.Entries.SetTheme(theme))
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "trade theme has been set"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "trade theme has been set")));
             else
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to set theme"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to set theme")));
         }
 
         [Command("settings")]
@@ -254,7 +256,7 @@ namespace teanicorns_art_trade_bot.Modules
             if (!string.IsNullOrWhiteSpace(channel))
                 await Channel(channel);
             else
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "settings have been overriden"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "settings have been overriden")));
         }
 
         [Command("channel")]
@@ -272,7 +274,7 @@ namespace teanicorns_art_trade_bot.Modules
             channel = channel.ToLower().Trim();
             if (string.IsNullOrWhiteSpace(channel))
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id)));
                 return;
             }
 
@@ -283,12 +285,12 @@ namespace teanicorns_art_trade_bot.Modules
             if (channelObj != null && Storage.xs.Settings.SetWorkingChannel(channel))
             {
                 if (await Utils.CreateHelp(Context.Client, CommandService, channel))
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "channel has been set"));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "channel has been set")));
                 else
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to create help message"));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to create help message")));
             }
             else
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to set working channel"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to set working channel")));
         }
 
         [Command("list")]
@@ -334,7 +336,7 @@ namespace teanicorns_art_trade_bot.Modules
                 + (string.IsNullOrWhiteSpace(x.ReferenceDescription) ? "" : $"Entry Desc: `{x.ReferenceDescription}`\n")
                 + (string.IsNullOrWhiteSpace(x.ArtUrl) ? "" : $"Art Url: <{x.ArtUrl}>\n")
                 ));
-            await user.SendMessageAsync(info + entries);
+            await user.SendMessageAsync(embed: Utils.EmbedMessage(Context.Client, info + entries));
         }
 
         [Command("clear")]
@@ -352,7 +354,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             Storage.xs.BackupStorage(Storage.xs.Entries);
             Storage.xs.ClearStorage(Storage.xs.Entries);
-            await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "entries have been cleared"));
+            await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "entries have been cleared")));
         }
 
         [Command("shuffle")]
@@ -372,7 +374,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             Storage.xs.BackupStorage(Storage.xs.Entries);
             Storage.xs.Entries.DoShuffle(Storage.xs.History);
-            await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "I shuffled all entries"));
+            await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "I shuffled all entries")));
             if (bNotify)
                 await Resend();
         }
@@ -397,14 +399,14 @@ namespace teanicorns_art_trade_bot.Modules
             var guild = Utils.FindGuild(ourUser);
             if (guild == null)
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "guild user not found"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "guild user not found")));
                 return;
             }
                         
             SocketUser partner1 = Utils.FindUser(guild, partner1Id);
             if (partner1 == null)
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, ourUser.Id));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, ourUser.Id)));
                 return;
             }
 
@@ -414,7 +416,7 @@ namespace teanicorns_art_trade_bot.Modules
                 partner2 = Utils.FindUser(guild, partner2Id);
                 if (partner2 == null)
                 {
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, ourUser.Id));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, ourUser.Id)));
                     return;
                 }
             }
@@ -425,7 +427,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (partner1 == partner2)
             {
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, ourUser.Id));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, ourUser.Id)));
                 return;
             }
 
@@ -435,7 +437,7 @@ namespace teanicorns_art_trade_bot.Modules
                 SocketUser partner3 = Utils.FindUser(guild, partner3Id);
                 if (partner3 == null || partner3 == partner2 || partner3 == partner1)
                 {
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, ourUser.Id));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, ourUser.Id)));
                     return;
                 }
                 else
@@ -450,12 +452,12 @@ namespace teanicorns_art_trade_bot.Modules
             if (Storage.xs.Entries.ResetNext(partner2.Id, partner1.Id, partner3IdVal, out needNotify))
             {
                 if (await SendPartnersResponse(Context.Client, needNotify))
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, ourUser.Id, "partners have been swapped"));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, ourUser.Id, "partners have been swapped")));
                 else
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "unable to notify partners related to the swap"));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "unable to notify partners related to the swap")));
             }
             else
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "unable to swap partners"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "unable to swap partners")));
         }
 
         [Command("restore")]
@@ -478,33 +480,33 @@ namespace teanicorns_art_trade_bot.Modules
                 if (string.IsNullOrWhiteSpace(storageType))
                 {
                     if (await Storage.xs.RestoreStorage(Storage.xs.Entries) && await Storage.xs.RestoreStorage(Storage.xs.Settings) && await Storage.xs.RestoreStorage(Storage.xs.History))
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "all storages have been restored from disk"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "all storages have been restored from disk")));
                     else
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore all storages from disk"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore all storages from disk")));
                 }
                 else if (storageType.ToLower().Trim().Contains("entries"))
                 {
                     if (await Storage.xs.RestoreStorage(Storage.xs.Entries))
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "entries storage has been restored from disk"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "entries storage has been restored from disk")));
                     else
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore entries storage from disk"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore entries storage from disk")));
                 }
                 else if (storageType.ToLower().Trim().Contains("settings"))
                 {
                     if (await Storage.xs.RestoreStorage(Storage.xs.Settings))
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "settings storage has been restored from disk"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "settings storage has been restored from disk")));
                     else
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore settings storage from disk"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore settings storage from disk")));
                 }
                 else if (storageType.ToLower().Trim().Contains("history"))
                 {
                     if (await Storage.xs.RestoreStorage(Storage.xs.History))
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "history storage has been restored from disk"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "history storage has been restored from disk")));
                     else
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore history storage from disk"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore history storage from disk")));
                 }
                 else
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id)));
             }
             else
             {
@@ -524,26 +526,26 @@ namespace teanicorns_art_trade_bot.Modules
                 if (storageType.ToLower().Trim().Contains("entries"))
                 {
                     if (await Storage.xs.RestoreStorage(Storage.xs.Entries, fileUrl))
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "entries storage has been restored from cloud"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "entries storage has been restored from cloud")));
                     else
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore entries storage from cloud"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore entries storage from cloud")));
                 }
                 else if (storageType.ToLower().Trim().Contains("settings"))
                 {
                     if (await Storage.xs.RestoreStorage(Storage.xs.Settings, fileUrl))
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "settings storage has been restored from cloud"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "settings storage has been restored from cloud")));
                     else
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore settings storage from cloud"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore settings storage from cloud")));
                 }
                 else if (storageType.ToLower().Trim().Contains("history"))
                 {
                     if (await Storage.xs.RestoreStorage(Storage.xs.History, fileUrl))
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "history storage has been restored from cloud"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "history storage has been restored from cloud")));
                     else
-                        await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore history storage from cloud"));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to restore history storage from cloud")));
                 }
                 else
-                    await ReplyAsync(string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id)));
             }
         }
 
@@ -568,21 +570,21 @@ namespace teanicorns_art_trade_bot.Modules
                 await user.SendFileAsync(Storage.xs.ENTRIES_PATH);
                 await user.SendFileAsync(Storage.xs.HISTORY_PATH);
                 await user.SendFileAsync(Storage.xs.SETTINGS_PATH);
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "all storages have been dumped"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "all storages have been dumped")));
             }
             else if (mode.Equals("sync"))
             {
                 await GoogleDriveHandler.UploadGoogleFile(Storage.xs.ENTRIES_PATH);
                 await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH);
                 await GoogleDriveHandler.UploadGoogleFile(Storage.xs.SETTINGS_PATH);
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "all storages have been synced with cloud"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "all storages have been synced with cloud")));
             }
             else
             {
                 Storage.xs.BackupStorage(Storage.xs.Entries);
                 Storage.xs.BackupStorage(Storage.xs.Settings);
                 Storage.xs.BackupStorage(Storage.xs.History);
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "all storages have been backed up on disk"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "all storages have been backed up on disk")));
             }
         }
 
@@ -649,7 +651,7 @@ namespace teanicorns_art_trade_bot.Modules
             }
 
             if (!await SendPartnersResponse(Context.Client, Storage.xs.Entries.GetStorage(), bThemeOnly))
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to notify trade partners"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to notify trade partners")));
         }
 
         [Command("create help")]
@@ -667,9 +669,9 @@ namespace teanicorns_art_trade_bot.Modules
             Storage.xs.BackupStorage(Storage.xs.Settings);
 
             if (await Utils.CreateHelp(Context.Client, CommandService, channelName))
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "help message has been created"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "help message has been created")));
             else
-                await ReplyAsync(string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to create help message"));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to create help message")));
         }
     }
 }

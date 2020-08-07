@@ -190,7 +190,7 @@ namespace teanicorns_art_trade_bot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello &lt;@{0}&gt;! Your hidden art trade partner was **{1}** and they are ready to show you their work!!.
+        ///   Looks up a localized string similar to Hello &lt;@{0}&gt;! Your hidden art trade partner was **{1}** and they are ready to show you their work for the {2} themed art trade!!.
         /// </summary>
         internal static string REF_REVEAL_FINAL {
             get {
@@ -223,15 +223,6 @@ namespace teanicorns_art_trade_bot.Properties {
         internal static string REF_TRADE_PARTNER {
             get {
                 return ResourceManager.GetString("REF_TRADE_PARTNER", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to .
-        /// </summary>
-        internal static string String {
-            get {
-                return ResourceManager.GetString("String", resourceCulture);
             }
         }
         
@@ -283,7 +274,7 @@ namespace teanicorns_art_trade_bot.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to @everyone the art **trade month** started. **We are no longer accepting new entries!**
-        ///please use `{0}{1}` to show your finished art piece or use `{0}{2}` if you need more info
+        ///please use `{0}{1}` to show your finished art piece at the `end` of the month or use `{0}{2}` if you need more info
         ///but please wait until the end of the trade when everybody has fihisned their art too.
         /// </summary>
         internal static string TRADE_MONTH {

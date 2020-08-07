@@ -36,7 +36,7 @@ namespace teanicorns_art_trade_bot.Modules
                 if (userData != null)
                 {
                     await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.REF_TRADE_LAST_MONTH_ART_MISSING, user.Id, artHistory0.GetTheme())
-                        + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "to register the missing art")}"));
+                        + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "register the missing art and I will let you enter")}"));
                     return;
                 }
             }
@@ -73,16 +73,9 @@ namespace teanicorns_art_trade_bot.Modules
             var data = Storage.xs.Entries.Get(user.Id);
             if (data != null)
             {
-                Embed embed = null;
-                if (!string.IsNullOrWhiteSpace(data.ReferenceUrl))
-                    embed = Utils.GetFooterBuilder(Context.Client).WithImageUrl(data.ReferenceUrl).Build();
-                                
-                if (!string.IsNullOrWhiteSpace(data.ReferenceDescription) || embed != null)
+                if (!string.IsNullOrWhiteSpace(data.ReferenceDescription) || !string.IsNullOrWhiteSpace(data.ReferenceUrl))
                 {
-                    if (embed == null)
-                        embed = Utils.EmbedFooter(Context.Client);
-
-                    await ReplyAsync($"{data?.ReferenceDescription}", false, embed);
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, data.ReferenceDescription, data.ReferenceUrl));
                     return;
                 }
             }
@@ -141,23 +134,14 @@ namespace teanicorns_art_trade_bot.Modules
             if (bThemeOnly)
             {
                 var message = (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "none" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme())) + "\n";
-                await user.SendMessageAsync(message);
+                await user.SendMessageAsync(embed: Utils.EmbedMessage(client, message));
             }
             else
             {
-                Embed embed = null;
-                if (!string.IsNullOrWhiteSpace(partnerData.ReferenceUrl))
-                    embed = Utils.GetFooterBuilder(client).WithImageUrl(partnerData.ReferenceUrl).Build();
-
-                if (string.IsNullOrWhiteSpace(partnerData.ReferenceDescription) && embed == null)
+                if (string.IsNullOrWhiteSpace(partnerData.ReferenceDescription) && string.IsNullOrWhiteSpace(partnerData.ReferenceUrl))
                     return false;
 
-                if (embed == null)
-                    embed = Utils.EmbedFooter(client);
-
-                string message = string.Format(Properties.Resources.REF_TRADE_PARTNER
-                    , user.Id
-                    , $"{partnerData.UserName}" + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})"));
+                string message = string.Format(Properties.Resources.REF_TRADE_PARTNER, user.Id, $"{partnerData.UserName}" + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})"));
 
                 if (!string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()))
                     message += $"\n{string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme())}";
@@ -166,9 +150,9 @@ namespace teanicorns_art_trade_bot.Modules
                     message += $"\n{string.Format(Properties.Resources.TRADE_ENDS_ON, Storage.xs.Settings.GetTradeDays(), Storage.xs.Settings.GetTradeStart(Storage.xs.Settings.GetTradeDays()).ToString("dd-MMMM"))}";
 
                 if (!string.IsNullOrWhiteSpace(partnerData.ReferenceDescription))
-                    message += $"\ndescription: `{partnerData.ReferenceDescription}`";
+                    message += $"\n`description` : *\"{partnerData.ReferenceDescription}\"*";
 
-                await user.SendMessageAsync(message, false, embed);
+                await user.SendMessageAsync(embed: Utils.EmbedMessage(client, message, partnerData.ReferenceUrl));
             }
 
             return true;
@@ -264,16 +248,13 @@ namespace teanicorns_art_trade_bot.Modules
 
         public static async Task<bool> SendPartnerArtResponse(DiscordSocketClient client, Storage.UserData partnerData, SocketUser user, string monthTheme)
         {
-            Embed embed = null;
-            if (!string.IsNullOrWhiteSpace(partnerData.ArtUrl))
-                embed = Utils.GetFooterBuilder(client).WithImageUrl(partnerData.ArtUrl).Build();
-
-            if (embed == null)
+            if (string.IsNullOrWhiteSpace(partnerData.ArtUrl))
                 return false;
 
             string message = string.Format(Properties.Resources.REF_REVEAL_FINAL, user.Id, partnerData.UserName
-                + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})"));
-            await user.SendMessageAsync(message, embed: embed);
+                + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})"), monthTheme);
+
+            await user.SendMessageAsync(embed: Utils.EmbedMessage(client, message, partnerData.ArtUrl));
             return true;
         }
 
