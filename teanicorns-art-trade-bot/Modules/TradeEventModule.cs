@@ -321,7 +321,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             info += "registered messages: " + (Storage.xs.Settings.GetMsgIDs().Count() <= 0 ? "`empty`" : string.Join(", ", Storage.xs.Settings.GetMsgIDs().Select(x => $"`{x}`"))) + "\n";
             info += "subscribers: " + (Storage.xs.Settings.GetSubscribers().Count <= 0 ? "`empty`" : string.Join(", ", Storage.xs.Settings.GetSubscribers().Select(sub => $"`{Context.Client.GetUser(sub).Username}`"))) + "\n";
-            info += "theme pool: " + (Storage.xs.Settings.GetThemePool().Count <= 0 ? "`empty`" : string.Join(",", Storage.xs.Settings.GetThemePool().Select(pair => $"`{Context.Client.GetUser(pair.Key).Username}` ({string.Join(", ", pair.Value.Select(theme => $"`{theme}`"))})"))) + "\n";
+            info += "theme pool: " + (Storage.xs.Settings.GetThemePool().Count <= 0 ? "`empty`" : string.Join(",", Storage.xs.Settings.GetThemePool().Select(pair => $"`{Context.Client.GetUser(pair.Key).Username}` ({string.Join(", ", pair.Value.Select(theme => $"`{theme.Theme}`"))})"))) + "\n";
 
             string entries = $"\n**({Storage.xs.Entries.Count()})** **Entries**\n";
             if (!bAll)
