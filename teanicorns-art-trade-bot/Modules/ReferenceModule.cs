@@ -202,6 +202,12 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
+            if (bCurrentTrade && !Storage.xs.Settings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
+            {
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "please wait for the trade to end before submitting your art")));
+                return;
+            }
+
             var attachments = Context.Message.Attachments;
             if (attachments.Count <= 0)
             {
