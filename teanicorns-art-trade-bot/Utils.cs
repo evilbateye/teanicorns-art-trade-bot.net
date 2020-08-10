@@ -471,5 +471,21 @@ namespace teanicorns_art_trade_bot
 
             return 0;
         }
+
+        public static async Task<bool> SendPartnerResponse(DiscordSocketClient client, UserData entry, string theme)
+        {
+            if (string.IsNullOrWhiteSpace(entry.ArtUrl))
+                return false;
+            
+            UserData nextEntry;
+            if (!xs.Entries.Next(entry.UserId, out nextEntry))
+                return false;
+
+            SocketUser nextUser = client.GetUser(nextEntry.UserId);
+            if (nextUser == null)
+                return false;
+
+            return await Modules.ReferenceModule.SendPartnerArtResponse(client, entry, nextUser, theme);
+        }
     }
 }

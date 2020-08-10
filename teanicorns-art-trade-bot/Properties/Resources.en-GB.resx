@@ -118,7 +118,8 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="REF_REVEAL_FINAL" xml:space="preserve">
-    <value>&lt;@{0}&gt; `{1}` wants to show you their art for the `{2}` themed art trade</value>
+    <value>&lt;@{0}&gt; `{1}` wants to show you their art
+theme of the art trade was `{2}`</value>
   </data>
   <data name="REF_REVEAL_NOTIFY" xml:space="preserve">
     <value>thanks &lt;@{0}&gt;! a notification was sent to &lt;@{1}&gt;</value>
@@ -149,7 +150,7 @@ please use `{0}{1}`  to register or use `{0}{2}` if you need more info</value>
   <data name="TRADE_MONTH" xml:space="preserve">
     <value>**Trade Month**
 @everyone the `trade month` started, `I'm no longer accepting new entries!`
-please use `{0}{1}` to register your finished art at the `end` of the month or use `{0}{2}` if you need more info</value>
+please use `{0}{1}` to register your finished art when the trade ends or use `{0}{2}` if you need more info</value>
   </data>
   <data name="TRADE_THIS_THEME" xml:space="preserve">
     <value>this month's art trade theme is `{0}`</value>
@@ -214,5 +215,8 @@ please use the `{2}{3}` command if you wish to reply, here is the message:
   <data name="SUBSCRIBERS_NOTICE" xml:space="preserve">
     <value>hello &lt;@{0}&gt; {1}
 (if you don't want to see messages like this, you can use the `{2}{3}` command to unsubscribe)</value>
+  </data>
+  <data name="GLOBAL_WARNING" xml:space="preserve">
+    <value>&lt;@{0}&gt; warning, {1}</value>
   </data>
 </root>

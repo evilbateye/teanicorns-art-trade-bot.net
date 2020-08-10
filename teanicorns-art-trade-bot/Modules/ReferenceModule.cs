@@ -202,10 +202,19 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
+            bool bPostponeReveal = false;
             if (bCurrentTrade && !Storage.xs.Settings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
             {
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "please wait for the trade to end before submitting your art")));
-                return;
+                if (!Context.IsPrivate)
+                {
+                    await Context.Message.DeleteAsync();
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "please wait for the trade to end or submit your art in a direct message")));
+                    return;
+                }
+                else
+                {
+                    bPostponeReveal = true;
+                }
             }
 
             var attachments = Context.Message.Attachments;
@@ -239,14 +248,21 @@ namespace teanicorns_art_trade_bot.Modules
                     return;
                 }
 
-                string monthTheme = "";
-                if (!bCurrentTrade)
-                    monthTheme = foundTrade.GetTheme();
-
-                if (await SendPartnerArtResponse(Context.Client, data, nextUser, monthTheme))
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.REF_REVEAL_NOTIFY, user.Id, nextUser.Id)));
+                if (bPostponeReveal)
+                {
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_WARNING, user.Id, "your art has been saved, but it won't be revealed to your partner until the trade ends")));
+                }
                 else
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not notify your partner")));
+                {
+                    string monthTheme = Storage.xs.Entries.GetTheme();
+                    if (!bCurrentTrade)
+                        monthTheme = foundTrade.GetTheme();
+
+                    if (await SendPartnerArtResponse(Context.Client, data, nextUser, monthTheme))
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.REF_REVEAL_NOTIFY, user.Id, nextUser.Id)));
+                    else
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not notify your partner")));
+                }
             }
             else
                 await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "partner")));

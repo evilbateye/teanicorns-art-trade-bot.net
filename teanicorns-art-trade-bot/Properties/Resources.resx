@@ -214,4 +214,7 @@ please use the `{2}{3}` command if you wish to reply, here is the message:
     <value>hello &lt;@{0}&gt; {1}
 (if you don't want to see messages like this, you can use the {2}{3} command to unsubscribe)</value>
   </data>
+  <data name="GLOBAL_WARNING" xml:space="preserve">
+    <value>Sorry &lt;@{0}&gt;. Error: {1}</value>
+  </data>
 </root>
