@@ -16,43 +16,6 @@ namespace teanicorns_art_trade_bot.Modules
     public class TradeEventModule : ModuleBase<SocketCommandContext>
     {
         public CommandService CommandService { get; set; }
-
-        public static List<Storage.UserData> GetMissingArt(Storage.ApplicationData appData)
-        {
-            List<Storage.UserData> ret = new List<Storage.UserData>();
-            if (appData == null)
-                return ret;
-
-            foreach (Storage.UserData x in appData.GetStorage())
-            {
-                if (string.IsNullOrWhiteSpace(x.ArtUrl))
-                    ret.Add(x);
-            }
-            return ret;
-        }
-
-        public static Storage.ApplicationData GetAppDataFromHistory(int level)
-        {
-            return Storage.xs.History.GetTrade(level);
-        }
-        public static List<Storage.UserData> GetMissingArt(int? level = null)
-        {
-            if (!level.HasValue)
-                return GetMissingArt(Storage.xs.Entries);
-            return GetMissingArt(GetAppDataFromHistory(level.Value));
-        }
-
-        public static string GetMissingArtToStr(Storage.ApplicationData appData)
-        {
-            if (appData == null)
-                return "";
-
-            List<Storage.UserData> userDataList = GetMissingArt(appData);
-            if (userDataList == null)
-                return "";
-
-            return string.Join(", ", userDataList.Select(x => string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName));
-        }
                 
         public static async Task<bool> StartEntryWeek(DiscordSocketClient client, double? days2end = null, bool? force = null, [Remainder]string theme = "")
         {
@@ -65,51 +28,28 @@ namespace teanicorns_art_trade_bot.Modules
             Storage.xs.ClearStorage(Storage.xs.Entries);
             Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.EntryWeek, null/*days2start*/, days2end, force, true /*bResetPoll*/);
             Storage.xs.Entries.SetTheme(theme);
-                        
-            string artMissing = "";
-            Storage.ApplicationData artHistory0 = GetAppDataFromHistory(0);
-            if (artHistory0 != null)
-                artMissing = GetMissingArtToStr(artHistory0);
-
-            string artMissingHistory1 = "";
-            Storage.ApplicationData artHistory1 = GetAppDataFromHistory(1);
-            if (artHistory1 != null)
-                artMissingHistory1 = GetMissingArtToStr(artHistory1);
-
-            string artMissingHistory2 = "";
-            Storage.ApplicationData artHistory2 = GetAppDataFromHistory(2);
-            if (artHistory2 != null)
-                artMissingHistory2 = GetMissingArtToStr(artHistory2);
 
             string outMessage = $"{string.Format(Properties.Resources.ENTRY_WEEK, Config.CmdPrefix, "set entry", "about")}"
                 + (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "" : $"\n{string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme())}");
                         
             await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, outMessage));
 
-            string naughtyList = "";
-            if (!string.IsNullOrWhiteSpace(artMissing))
-                naughtyList += $"\n`{artHistory0.GetTheme()}` : {artMissing}";
-            if (!string.IsNullOrWhiteSpace(artMissingHistory1))
-                naughtyList += $"\n`{artHistory1.GetTheme()}` : {artMissingHistory1}";
-            if (!string.IsNullOrWhiteSpace(artMissingHistory2))
-                naughtyList += $"\n`{artHistory2.GetTheme()}` : {artMissingHistory2}";
-            if (!string.IsNullOrWhiteSpace(naughtyList))
-            {
-                await channel.SendMessageAsync(embed: Utils.EmbedMessage(client
-                    , $"**Naughty List**\nif you are on the list {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art <theme name>", "register the missing art for the listed themes:")}{naughtyList}"));
-            }
+            await Utils.CreateNaughtyList(client, Storage.xs.Settings.GetWorkingChannel());
 
             var subscribers = new List<ulong>(Storage.xs.Settings.GetSubscribers());
 
             // notify those that did not send their art on time
-            foreach (Storage.UserData user in GetMissingArt(artHistory0))
+            var artHistory0 = Utils.GetAppDataFromHistory(0);
+            foreach (Storage.UserData user in Utils.GetMissingArt(artHistory0))
             {
                 subscribers.Remove(user.UserId); // don't notify subscribers twice
 
                 SocketUser su = client.GetUser(user.UserId);
                 if (su != null)
+                {
                     await su.SendMessageAsync(embed: Utils.EmbedMessage(client, string.Format(Properties.Resources.TRADE_ART_LATE_DM, user.UserId, artHistory0.GetTheme())
                         + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "register the missing art")}"));
+                }
             }
 
             // notify those that subscribed for notifications

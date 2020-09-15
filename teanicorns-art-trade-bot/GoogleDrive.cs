@@ -46,7 +46,10 @@ namespace teanicorns_art_trade_bot
             System.Timers.Timer timer = new System.Timers.Timer();
             timer.Elapsed += new ElapsedEventHandler(OnPeriodicUpdate);
             timer.Interval = 600000;
-            timer.Enabled = true; 
+            timer.Enabled = true;
+
+            await UploadGoogleFile(Storage.xs.ENTRIES_PATH);
+            await UploadGoogleFile(Storage.xs.SETTINGS_PATH);
         }
 
         private static async void OnPeriodicUpdate(object source, ElapsedEventArgs e)
@@ -58,7 +61,7 @@ namespace teanicorns_art_trade_bot
                 {
                     if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeEnd(3)) > 0)
                     {
-                        string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.xs.Entries);
+                        string artMissing = Utils.GetMissingArtToStr(Storage.xs.Entries);
                         if (Storage.xs.Settings.IsForceTradeOn() || string.IsNullOrWhiteSpace(artMissing))
                         {
                             await Modules.TradeEventModule.StartEntryWeek(_discord);
@@ -66,7 +69,7 @@ namespace teanicorns_art_trade_bot
                     }
                     else if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeEnd()) > 0)
                     {
-                        string artMissing = Modules.TradeEventModule.GetMissingArtToStr(Storage.xs.Entries);
+                        string artMissing = Utils.GetMissingArtToStr(Storage.xs.Entries);
 
                         if (!Storage.xs.Settings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
                         {

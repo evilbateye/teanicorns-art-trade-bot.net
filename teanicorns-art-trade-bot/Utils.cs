@@ -145,14 +145,14 @@ namespace teanicorns_art_trade_bot
                 int winnerIdx = EmojiCodes.IndexOf(winnerCode);
                 if (winnerIdx < 0 || winnerIdx > 9)
                     return "";
-                for (int i = 0, j = winnerIdx; i < themePool.Count && winnerIdx >= 0; ++i)
+                for (int i = 0, j = winnerIdx; i < themePool.Count && j >= 0; ++i)
                 {
                     winner = themePool[i];
                     if (string.IsNullOrWhiteSpace(winner.Item2.EmojiCode))
                         --j;
                 }
             }
-                        
+
             await EditMessagePin(client, msg.Id, false /*unpin*/);
             //await channel.DeleteMessageAsync(msg);
             xs.Settings.SetThemePollID(0);
@@ -293,7 +293,7 @@ namespace teanicorns_art_trade_bot
                         emojiCodesTmp.Remove(contentEmojiCode);
 
                     reply += $"\n{line}";
-                    
+
                     themePool.RemoveAll(x => x.Theme == contentTheme);
                 }
 
@@ -305,7 +305,7 @@ namespace teanicorns_art_trade_bot
                         emojiCode = emojiCodesTmp[0];
                         emojiCodesTmp.RemoveAt(0);
                     }
-                        
+
                     reply += $"\n{emojiCode} : `{artTheme.Theme}`";
                     emojiObjs.Add(new Emoji(emojiCode));
                 }
@@ -367,11 +367,14 @@ namespace teanicorns_art_trade_bot
             if (xs.Settings.GetHelpMessageId() != 0)
                 footer.Add($"[bot help](https://discordapp.com/channels/{FindGuild(client).Id}/{channel.Id}/{xs.Settings.GetHelpMessageId()})");
 
+            if (xs.Settings.GetNaughtyListMessageId() != 0)
+                footer.Add($"[naughty list](https://discordapp.com/channels/{FindGuild(client).Id}/{channel.Id}/{xs.Settings.GetNaughtyListMessageId()})");
+
             footer.Add($"[teanicorn web](https://teanicorns.weebly.com/)");
 
             //string avatarUrl = client.CurrentUser.GetAvatarUrl();
             //if (string.IsNullOrEmpty(avatarUrl))
-                //avatarUrl = client.CurrentUser.GetDefaultAvatarUrl();
+            //avatarUrl = client.CurrentUser.GetDefaultAvatarUrl();
 
             return new EmbedBuilder()
                 .WithColor(51, 144, 243)
@@ -476,7 +479,7 @@ namespace teanicorns_art_trade_bot
         {
             if (string.IsNullOrWhiteSpace(entry.ArtUrl))
                 return false;
-            
+
             UserData nextEntry;
             if (!xs.Entries.Next(entry.UserId, out nextEntry))
                 return false;
@@ -486,6 +489,90 @@ namespace teanicorns_art_trade_bot
                 return false;
 
             return await Modules.ReferenceModule.SendPartnerArtResponse(client, entry, nextUser, theme);
+        }
+
+        public static ApplicationData GetAppDataFromHistory(int level)
+        {
+            return xs.History.GetTrade(level);
+        }
+
+        public static List<UserData> GetMissingArt(ApplicationData appData)
+        {
+            List<UserData> ret = new List<UserData>();
+            if (appData == null)
+                return ret;
+
+            foreach (UserData x in appData.GetStorage())
+            {
+                if (string.IsNullOrWhiteSpace(x.ArtUrl))
+                    ret.Add(x);
+            }
+            return ret;
+        }
+
+        public static List<UserData> GetMissingArt(int? level = null)
+        {
+            if (!level.HasValue)
+                return GetMissingArt(xs.Entries);
+            return GetMissingArt(GetAppDataFromHistory(level.Value));
+        }
+
+        public static string GetMissingArtToStr(ApplicationData appData)
+        {
+            if (appData == null)
+                return "";
+
+            List<UserData> userDataList = GetMissingArt(appData);
+            if (userDataList == null)
+                return "";
+
+            return string.Join(", ", userDataList.Select(x => string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName));
+        }
+
+        public static async Task<bool> CreateNaughtyList(DiscordSocketClient client, string channelName)
+        {
+            channelName = channelName.Trim();
+            if (string.IsNullOrWhiteSpace(channelName))
+                channelName = xs.Settings.GetWorkingChannel();
+
+            SocketTextChannel channel = FindChannel(client, channelName);
+            if (channel == null)
+                return false;
+
+            string artMissing = "";
+            ApplicationData artHistory0 = GetAppDataFromHistory(0);
+            if (artHistory0 != null)
+                artMissing = GetMissingArtToStr(artHistory0);
+
+            string artMissingHistory1 = "";
+            ApplicationData artHistory1 = GetAppDataFromHistory(1);
+            if (artHistory1 != null)
+                artMissingHistory1 = GetMissingArtToStr(artHistory1);
+
+            string artMissingHistory2 = "";
+            ApplicationData artHistory2 = GetAppDataFromHistory(2);
+            if (artHistory2 != null)
+                artMissingHistory2 = GetMissingArtToStr(artHistory2);
+
+            string naughtyList = "";
+            if (!string.IsNullOrWhiteSpace(artMissing))
+                naughtyList += $"\n`{artHistory0.GetTheme()}` : {artMissing}";
+            if (!string.IsNullOrWhiteSpace(artMissingHistory1))
+                naughtyList += $"\n`{artHistory1.GetTheme()}` : {artMissingHistory1}";
+            if (!string.IsNullOrWhiteSpace(artMissingHistory2))
+                naughtyList += $"\n`{artHistory2.GetTheme()}` : {artMissingHistory2}";
+            if (!string.IsNullOrWhiteSpace(naughtyList))
+            {
+                await EditMessagePin(client, xs.Settings.GetNaughtyListMessageId(), false /*unpin*/);
+
+                var naughtyMsg = await channel.SendMessageAsync(embed: Utils.EmbedMessage(client
+                    , $"**Naughty List**\nif you are on the list {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art <theme name>", "register the missing art for the listed themes:")}{naughtyList}"));
+                xs.Settings.SetNaughtyListMessageId(naughtyMsg.Id);
+
+                await EditMessagePin(client, naughtyMsg.Id, true /*pin*/);
+            }
+
+            return true;
         }
     }
 }

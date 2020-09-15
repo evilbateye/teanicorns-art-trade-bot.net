@@ -37,7 +37,8 @@ namespace teanicorns_art_trade_bot.Storage
         public enum MsgIDType
         {
             ThemePoll = 0,
-            Help = 1
+            Help = 1,
+            NaughtyList = 2
         }
 
         public const string DEFAULT_WORK_CHANNEL = "general";
@@ -65,6 +66,17 @@ namespace teanicorns_art_trade_bot.Storage
         public void SetHelpMessageId(ulong id)
         {
             _msgIDs[(int)MsgIDType.Help] = id;
+            Save();
+        }
+
+        public ulong GetNaughtyListMessageId()
+        {
+            return _msgIDs[(int)MsgIDType.NaughtyList];
+        }
+
+        public void SetNaughtyListMessageId(ulong id)
+        {
+            _msgIDs[(int)MsgIDType.NaughtyList] = id;
             Save();
         }
 

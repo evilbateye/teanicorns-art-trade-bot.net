@@ -29,10 +29,10 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.ApplicationData artHistory0 = TradeEventModule.GetAppDataFromHistory(0);
+            Storage.ApplicationData artHistory0 = Utils.GetAppDataFromHistory(0);
             if (artHistory0 != null)
             {
-                Storage.UserData userData = TradeEventModule.GetMissingArt(artHistory0).Find(x => x.UserId == user.Id);
+                Storage.UserData userData = Utils.GetMissingArt(artHistory0).Find(x => x.UserId == user.Id);
                 if (userData != null)
                 {
                     await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.REF_TRADE_LAST_MONTH_ART_MISSING, user.Id, artHistory0.GetTheme())
