@@ -34,7 +34,7 @@ namespace teanicorns_art_trade_bot.Modules
                         
             await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, outMessage));
 
-            await Utils.CreateNaughtyList(client, Storage.xs.Settings.GetWorkingChannel());
+            await Utils.CreateOrEditNaughtyList(client, Storage.xs.Settings.GetWorkingChannel());
 
             var subscribers = new List<ulong>(Storage.xs.Settings.GetSubscribers());
 

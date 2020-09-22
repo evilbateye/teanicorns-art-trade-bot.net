@@ -256,7 +256,10 @@ namespace teanicorns_art_trade_bot.Modules
                 {
                     string monthTheme = Storage.xs.Entries.GetTheme();
                     if (!bCurrentTrade)
+                    {
                         monthTheme = foundTrade.GetTheme();
+                        await Utils.CreateOrEditNaughtyList(Context.Client, Storage.xs.Settings.GetWorkingChannel(), user);
+                    }
 
                     if (await SendPartnerArtResponse(Context.Client, data, nextUser, monthTheme))
                         await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.REF_REVEAL_NOTIFY, user.Id, nextUser.Id)));

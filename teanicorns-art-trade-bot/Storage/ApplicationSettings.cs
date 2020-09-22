@@ -49,7 +49,7 @@ namespace teanicorns_art_trade_bot.Storage
         [JsonProperty("TradeDays")] private double _tradeDays = 0.0;
         [JsonProperty("Notified")] private NofifyFlags _notified = NofifyFlags.None;
         [JsonProperty("ForceTradeEnd")] private bool _forceTradeEnd = false;
-        [JsonProperty("MsgIDs")] private ulong[] _msgIDs = new ulong[2] { 0, 0 };
+        [JsonProperty("MsgIDs")] private ulong[] _msgIDs = new ulong[3] { 0, 0, 0 };
         [JsonProperty("Subscribers")] private List<ulong> _subscribers = new List<ulong>();
         [JsonProperty("ThemePool")] private Dictionary<ulong, List<ArtTheme>> _themePool = new Dictionary<ulong, List<ArtTheme>>();
 

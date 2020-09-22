@@ -529,7 +529,7 @@ namespace teanicorns_art_trade_bot
             return string.Join(", ", userDataList.Select(x => string.IsNullOrWhiteSpace(x.NickName) ? x.UserName : x.NickName));
         }
 
-        public static async Task<bool> CreateNaughtyList(DiscordSocketClient client, string channelName)
+        public static async Task<bool> CreateOrEditNaughtyList(DiscordSocketClient client, string channelName, SocketUser userEdit = null)
         {
             channelName = channelName.Trim();
             if (string.IsNullOrWhiteSpace(channelName))
@@ -561,12 +561,38 @@ namespace teanicorns_art_trade_bot
                 naughtyList += $"\n`{artHistory1.GetTheme()}` : {artMissingHistory1}";
             if (!string.IsNullOrWhiteSpace(artMissingHistory2))
                 naughtyList += $"\n`{artHistory2.GetTheme()}` : {artMissingHistory2}";
-            if (!string.IsNullOrWhiteSpace(naughtyList))
+
+            var reply = Utils.EmbedMessage(client, $"**Naughty List**\nif you are on the list {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art <theme name>", "register the missing art for the listed themes:")}{naughtyList}");
+
+            if (userEdit != null)
+            {
+                if (artHistory0.Get(userEdit.Id) == null && artHistory1.Get(userEdit.Id) == null && artHistory2.Get(userEdit.Id) == null)
+                    return true;
+
+                var naughtyMsg = await FindChannelMessage(client, xs.Settings.GetNaughtyListMessageId());
+                if (naughtyMsg == null)
+                    return false;
+
+                var restMsg = naughtyMsg as Discord.Rest.RestUserMessage;
+                if (restMsg == null)
+                    return false;
+
+                if (string.IsNullOrWhiteSpace(naughtyList))
+                {
+                    await EditMessagePin(client, xs.Settings.GetNaughtyListMessageId(), false /*unpin*/);
+                    await naughtyMsg.DeleteAsync();
+                    xs.Settings.SetNaughtyListMessageId(0);
+                }
+                else
+                {
+                    await restMsg.ModifyAsync(x => x.Embed = reply);
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(naughtyList))
             {
                 await EditMessagePin(client, xs.Settings.GetNaughtyListMessageId(), false /*unpin*/);
 
-                var naughtyMsg = await channel.SendMessageAsync(embed: Utils.EmbedMessage(client
-                    , $"**Naughty List**\nif you are on the list {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art <theme name>", "register the missing art for the listed themes:")}{naughtyList}"));
+                var naughtyMsg = await channel.SendMessageAsync(embed: reply);
                 xs.Settings.SetNaughtyListMessageId(naughtyMsg.Id);
 
                 await EditMessagePin(client, naughtyMsg.Id, true /*pin*/);
