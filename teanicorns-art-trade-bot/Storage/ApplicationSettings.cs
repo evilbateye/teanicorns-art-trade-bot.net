@@ -111,6 +111,18 @@ namespace teanicorns_art_trade_bot.Storage
             return default;
         }
 
+        public (ulong, ArtTheme) FindArtThemeByEmoji(string emoji)
+        {
+            foreach(KeyValuePair<ulong, List<ArtTheme>> pair in _themePool)
+            {
+                var artTheme = pair.Value.FirstOrDefault(x => x.EmojiCode == emoji);
+                if (artTheme != default)
+                    return (pair.Key, artTheme);
+            }
+
+            return default;
+        }
+
         public bool AddThemeToPool(ulong userID, string theme)
         {
             if (IsThemePoolMaxed())
@@ -124,6 +136,14 @@ namespace teanicorns_art_trade_bot.Storage
             {
                 theme = string.Join(' ', theme.Split(emojiMatch.Value).Select(x => x.Trim())).Trim();
                 customEmoji = emojiMatch.Value;
+            }
+            else
+            {
+                foreach (string defaultEmoji in Utils.EmojiCodes)
+                {
+                    if (FindArtThemeByEmoji(defaultEmoji) == default)
+                        customEmoji = defaultEmoji;
+                }
             }
 
             List<ArtTheme> themes;

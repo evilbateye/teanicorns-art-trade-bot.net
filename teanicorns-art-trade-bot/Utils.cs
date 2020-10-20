@@ -141,17 +141,7 @@ namespace teanicorns_art_trade_bot
 
             var winner = themePool.FirstOrDefault(x => x.Item2.EmojiCode == winnerCode);
             if (winner == default)
-            {
-                int winnerIdx = EmojiCodes.IndexOf(winnerCode);
-                if (winnerIdx < 0 || winnerIdx > 9)
-                    return "";
-                for (int i = 0, j = winnerIdx; i < themePool.Count && j >= 0; ++i)
-                {
-                    winner = themePool[i];
-                    if (string.IsNullOrWhiteSpace(winner.Item2.EmojiCode))
-                        --j;
-                }
-            }
+                return "";
 
             await EditMessagePin(client, msg.Id, false /*unpin*/);
             //await channel.DeleteMessageAsync(msg);
@@ -211,8 +201,6 @@ namespace teanicorns_art_trade_bot
                 //Encoding unicode = Encoding.Unicode;
                 //byte[] bytes = new byte[] { 48, 0, 227, 32 }; // ::zero::
 
-                var tmpEmojiCodes = new List<string>(EmojiCodes);
-
                 foreach (ArtTheme artTheme in themePool)
                 {
                     //var bytes = BitConverter.GetBytes(emojiNumber);
@@ -225,10 +213,7 @@ namespace teanicorns_art_trade_bot
 
                     string emojiCode = artTheme.EmojiCode;
                     if (string.IsNullOrWhiteSpace(emojiCode))
-                    {
-                        emojiCode = tmpEmojiCodes.First();
-                        tmpEmojiCodes.RemoveAt(0);
-                    }
+                        return false;
 
                     emojiObjs.Add(new Emoji(emojiCode));
                     reply += $"\n{emojiCode} : `{artTheme.Theme}`";
@@ -272,7 +257,6 @@ namespace teanicorns_art_trade_bot
             {
                 reply += $"\n({string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, "add theme <theme name>", "add a theme into the poll")})";
 
-                List<string> emojiCodesTmp = new List<string>(EmojiCodes);
                 foreach (string line in restEmbed.Description.Split('\n'))
                 {
                     string[] themeLine = line.Split(':');
@@ -289,9 +273,6 @@ namespace teanicorns_art_trade_bot
 
                     emojiObjs.Add(new Emoji(contentEmojiCode));
 
-                    if (emojiCodesTmp.Contains(contentEmojiCode))
-                        emojiCodesTmp.Remove(contentEmojiCode);
-
                     reply += $"\n{line}";
 
                     themePool.RemoveAll(x => x.Theme == contentTheme);
@@ -301,10 +282,7 @@ namespace teanicorns_art_trade_bot
                 {
                     string emojiCode = artTheme.EmojiCode;
                     if (string.IsNullOrWhiteSpace(emojiCode))
-                    {
-                        emojiCode = emojiCodesTmp[0];
-                        emojiCodesTmp.RemoveAt(0);
-                    }
+                        return false;
 
                     reply += $"\n{emojiCode} : `{artTheme.Theme}`";
                     emojiObjs.Add(new Emoji(emojiCode));
