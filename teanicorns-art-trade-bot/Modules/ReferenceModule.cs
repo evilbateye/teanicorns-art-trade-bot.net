@@ -393,9 +393,23 @@ namespace teanicorns_art_trade_bot.Modules
                     return;
                 }
 
-                await nextUser.SendMessageAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.TRADE_PINGPONG, nextUser.Id, "the person doing art for you", Config.CmdPrefix, "pong <reply>", message)));
+                string attachmentUrl = "";
+                var attachments = Context.Message.Attachments;
+                if (attachments.Count > 0)
+                {
+                    attachmentUrl = attachments.FirstOrDefault().Url;
+                }
 
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded")));
+                await nextUser.SendMessageAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.TRADE_PINGPONG, nextUser.Id, "the person doing art for you", Config.CmdPrefix, "pong <reply>", message), attachmentUrl));
+
+                string privateChannelWarn = "";
+                if (!Context.IsPrivate)
+                {
+                    await Context.Message.DeleteAsync();
+                    privateChannelWarn += ", but it has been removed from the channel to keep it a secret (please send me a DM next time)";
+                }
+
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded" + privateChannelWarn)));
             }
             else
                 await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner")));
@@ -429,9 +443,23 @@ namespace teanicorns_art_trade_bot.Modules
                     return;
                 }
 
-                await previousUser.SendMessageAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.TRADE_PINGPONG, previousUser.Id, "the person you are drawing for", Config.CmdPrefix, "ping <message>", message)));
+                string attachmentUrl = "";
+                var attachments = Context.Message.Attachments;
+                if (attachments.Count > 0)
+                {
+                    attachmentUrl = attachments.FirstOrDefault().Url;
+                }
 
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded")));
+                await previousUser.SendMessageAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.TRADE_PINGPONG, previousUser.Id, "the person you are drawing for", Config.CmdPrefix, "ping <message>", message), attachmentUrl));
+
+                string privateChannelWarn = "";
+                if (!Context.IsPrivate)
+                {
+                    await Context.Message.DeleteAsync();
+                    privateChannelWarn += ", but it has been removed from the channel to keep it a secret (please send me a DM next time)";
+                }
+
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded" + privateChannelWarn)));
             }
             else
                 await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner")));
