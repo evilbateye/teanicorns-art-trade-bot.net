@@ -271,7 +271,7 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "partner")));
         }
 
-        public static async Task<bool> SendPartnerArtResponse(DiscordSocketClient client, Storage.UserData partnerData, SocketUser user, string monthTheme)
+        public static async Task<bool> SendPartnerArtResponse(DiscordSocketClient client, Storage.UserData partnerData, SocketUser user, string monthTheme, bool notifyChannel = false)
         {
             if (string.IsNullOrWhiteSpace(partnerData.ArtUrl))
                 return false;
@@ -279,7 +279,19 @@ namespace teanicorns_art_trade_bot.Modules
             string message = string.Format(Properties.Resources.REF_REVEAL_FINAL, user.Id, partnerData.UserName
                 + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})"), monthTheme);
 
-            await user.SendMessageAsync(embed: Utils.EmbedMessage(client, message, partnerData.ArtUrl));
+            Embed msg = Utils.EmbedMessage(client, message, partnerData.ArtUrl);
+
+            await user.SendMessageAsync(embed: msg);
+
+            if (notifyChannel)
+            {
+                SocketTextChannel channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
+                if (channel == null)
+                    return false;
+
+                await channel.SendMessageAsync(embed: msg);
+            }
+
             return true;
         }
 

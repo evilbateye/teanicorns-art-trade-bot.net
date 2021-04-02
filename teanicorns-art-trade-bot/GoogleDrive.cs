@@ -79,7 +79,7 @@ namespace teanicorns_art_trade_bot
                                 await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_NOW, Config.CmdPrefix, "reveal art", "about")));
 
                             foreach (var entry in Storage.xs.Entries.GetStorage())
-                                await Utils.SendPartnerResponse(_discord, entry, Storage.xs.Entries.GetTheme());
+                                await Utils.SendPartnerResponse(_discord, entry, Storage.xs.Entries.GetTheme(), true /*notify channel*/);
                         }
 
                         if (string.IsNullOrWhiteSpace(artMissing))

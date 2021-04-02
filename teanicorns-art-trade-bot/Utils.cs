@@ -453,7 +453,7 @@ namespace teanicorns_art_trade_bot
             return 0;
         }
 
-        public static async Task<bool> SendPartnerResponse(DiscordSocketClient client, UserData entry, string theme)
+        public static async Task<bool> SendPartnerResponse(DiscordSocketClient client, UserData entry, string theme, bool bNotifyChannel = false)
         {
             if (string.IsNullOrWhiteSpace(entry.ArtUrl))
                 return false;
@@ -466,7 +466,7 @@ namespace teanicorns_art_trade_bot
             if (nextUser == null)
                 return false;
 
-            return await Modules.ReferenceModule.SendPartnerArtResponse(client, entry, nextUser, theme);
+            return await Modules.ReferenceModule.SendPartnerArtResponse(client, entry, nextUser, theme, bNotifyChannel);
         }
 
         public static ApplicationData GetAppDataFromHistory(int level)
