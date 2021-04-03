@@ -49,11 +49,15 @@ namespace teanicorns_art_trade_bot
             timer.Enabled = true;
 
             await UploadGoogleFile(Storage.xs.ENTRIES_PATH);
+            await UploadGoogleFile(Storage.xs.HISTORY_PATH);
             await UploadGoogleFile(Storage.xs.SETTINGS_PATH);
         }
 
         private static async void OnPeriodicUpdate(object source, ElapsedEventArgs e)
         {
+            if (!Storage.xs.Settings.IsGDriveOn())
+                return;
+
             if (Storage.xs.Settings.IsTradeMonthActive())
             {
                 SocketTextChannel channel = Utils.FindChannel(_discord, Storage.xs.Settings.GetWorkingChannel());
@@ -170,9 +174,9 @@ namespace teanicorns_art_trade_bot
             else
             {
                 f = files.Files[0];
-                await DownloadGoogleFile(f, fileName);
             }
 
+            await DownloadGoogleFile(f, fileName);
             return f;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace teanicorns_art_trade_bot.Storage
 {
@@ -12,6 +13,19 @@ namespace teanicorns_art_trade_bot.Storage
         public string ReferenceDescription = "";
         public string NickName = "";
         public string ArtUrl = "";
+        public ulong PreferenceId = 0;
+
+        [JsonConstructor]
+        public UserData(ulong id)
+        {
+            UserId = id;
+        }
+
+        public UserData(ulong id, string username)
+        {
+            UserId = id;
+            UserName = username;
+        }
 
         // ICloneable
         public object Clone()

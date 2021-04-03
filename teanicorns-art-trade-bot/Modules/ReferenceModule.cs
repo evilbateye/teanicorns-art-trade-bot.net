@@ -48,9 +48,7 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            Storage.UserData data = new Storage.UserData();
-            data.UserId = user.Id;
-            data.UserName = user.Username;
+            Storage.UserData data = new Storage.UserData(user.Id, user.Username);
             if (attachments.Count > 0)
                 data.ReferenceUrl = attachments.FirstOrDefault().Url;
             if (!string.IsNullOrWhiteSpace(description))
@@ -205,15 +203,15 @@ namespace teanicorns_art_trade_bot.Modules
             bool bPostponeReveal = false;
             if (bCurrentTrade && !Storage.xs.Settings.HasNotifyFlag(Storage.ApplicationSettings.NofifyFlags.Closing))
             {
-                if (!Context.IsPrivate)
+                string outputMsg = await Utils.CleanupWrongChannelMessage(Context, "please wait for the trade to end or submit your art in a direct message");
+                if (string.IsNullOrWhiteSpace(outputMsg))
                 {
-                    await Context.Message.DeleteAsync();
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "please wait for the trade to end or submit your art in a direct message")));
-                    return;
+                    bPostponeReveal = true;
                 }
                 else
                 {
-                    bPostponeReveal = true;
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, outputMsg)));
+                    return;
                 }
             }
 
@@ -414,14 +412,7 @@ namespace teanicorns_art_trade_bot.Modules
 
                 await nextUser.SendMessageAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.TRADE_PINGPONG, nextUser.Id, "the person doing art for you", Config.CmdPrefix, "pong <reply>", message), attachmentUrl));
 
-                string privateChannelWarn = "";
-                if (!Context.IsPrivate)
-                {
-                    await Context.Message.DeleteAsync();
-                    privateChannelWarn += ", but it has been removed from the channel to keep it a secret (please send me a DM next time)";
-                }
-
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded" + privateChannelWarn)));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded" + await Utils.CleanupWrongChannelMessage(Context, ", but it has been removed from the channel to keep it a secret (please send me a DM next time)"))));
             }
             else
                 await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner")));
@@ -464,14 +455,7 @@ namespace teanicorns_art_trade_bot.Modules
 
                 await previousUser.SendMessageAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.TRADE_PINGPONG, previousUser.Id, "the person you are drawing for", Config.CmdPrefix, "ping <message>", message), attachmentUrl));
 
-                string privateChannelWarn = "";
-                if (!Context.IsPrivate)
-                {
-                    await Context.Message.DeleteAsync();
-                    privateChannelWarn += ", but it has been removed from the channel to keep it a secret (please send me a DM next time)";
-                }
-
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded" + privateChannelWarn)));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded" + await Utils.CleanupWrongChannelMessage(Context,  ", but it has been removed from the channel to keep it a secret (please send me a DM next time)"))));
             }
             else
                 await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner")));

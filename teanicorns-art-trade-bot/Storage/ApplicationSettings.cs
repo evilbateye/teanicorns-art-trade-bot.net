@@ -52,6 +52,7 @@ namespace teanicorns_art_trade_bot.Storage
         [JsonProperty("MsgIDs")] private ulong[] _msgIDs = new ulong[3] { 0, 0, 0 };
         [JsonProperty("Subscribers")] private List<ulong> _subscribers = new List<ulong>();
         [JsonProperty("ThemePool")] private Dictionary<ulong, List<ArtTheme>> _themePool = new Dictionary<ulong, List<ArtTheme>>();
+        [JsonProperty("GDriveOn")] private bool _gDriveOn = true;
 
         public ulong[] GetMsgIDs()
         {
@@ -198,6 +199,16 @@ namespace teanicorns_art_trade_bot.Storage
             return true;
         }
 
+        public bool IsGDriveOn()
+        {
+            return _gDriveOn;
+        }
+
+        public void SetGDriveOn(bool bOn)
+        {
+            _gDriveOn = bOn;
+        }
+
         public List<ulong> GetSubscribers()
         {
             return _subscribers;
@@ -311,7 +322,7 @@ namespace teanicorns_art_trade_bot.Storage
             Save(); 
         }
 
-        public void ActivateTrade(TradeSegment? seg, double? days2start, double? days2end, bool? bForce, bool bResetPoll = false)
+        public void ActivateTrade(TradeSegment? seg, double? days2start, double? days2end, bool? bForce, bool? bGDriveOn, bool? bResetPoll)
         {
             if (seg.HasValue)
                 _artTradeActive = seg.Value;
@@ -336,7 +347,10 @@ namespace teanicorns_art_trade_bot.Storage
             if (bForce.HasValue)
                 _forceTradeEnd = bForce.Value;
 
-            if (bResetPoll)
+            if (bGDriveOn.HasValue)
+                _gDriveOn = bGDriveOn.Value;
+
+            if (bResetPoll.HasValue && bResetPoll.Value == true)
                 _msgIDs[(int)MsgIDType.ThemePoll] = 0;
 
             Save();
@@ -376,6 +390,7 @@ namespace teanicorns_art_trade_bot.Storage
                 _msgIDs = data.GetMsgIDs();
                 _subscribers = data.GetSubscribers();
                 _themePool = data.GetThemePool();
+                _gDriveOn = data.IsGDriveOn();
             }
         }
         public override void Save(string path = null)

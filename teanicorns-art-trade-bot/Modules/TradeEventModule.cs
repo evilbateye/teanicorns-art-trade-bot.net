@@ -26,7 +26,7 @@ namespace teanicorns_art_trade_bot.Modules
             Storage.xs.History.RecordTrade(Storage.xs.Entries);
             await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH);
             Storage.xs.ClearStorage(Storage.xs.Entries);
-            Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.EntryWeek, null/*days2start*/, days2end, force, true /*bResetPoll*/);
+            Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.EntryWeek, null/*days2start*/, days2end, force, null /*bGDriveOn*/, true /*bResetPoll*/);
             Storage.xs.Entries.SetTheme(theme);
 
             string outMessage = $"{string.Format(Properties.Resources.ENTRY_WEEK, Config.CmdPrefix, "set entry", "about")}"
@@ -96,7 +96,7 @@ namespace teanicorns_art_trade_bot.Modules
             if (channel == null)
                 return false;
             
-            Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.TradeMonth, 0.0/*days2start*/, days2end, force, true /*bResetPoll*/);
+            Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.TradeMonth, 0.0/*days2start*/, days2end, force, null /*bGDriveOn*/, true /*bResetPoll*/);
 
             Storage.xs.Entries.DoShuffle(Storage.xs.History);
 
@@ -180,8 +180,10 @@ namespace teanicorns_art_trade_bot.Modules
             , [Summary("number of days until the next trade starts (the duration of the entry week) (optional)")]double? days2start = null
             , [Summary("number of days until the next trade ends (the duration of the trade month) (optional)")]double? days2end = null
             , [Summary("bool flag indicating if the next trade should be forced to end automatically at the end (optional)")] bool? force = null
-            , [Summary("bool flag indicating if theme poll should be reset (optional)")] bool bResetPoll = false
+            , [Summary("bool flag indicating if cloud synchronization should be on or off")] bool? bGDriveOn = null
+            , [Summary("bool flag indicating if theme poll should be reset (optional)")] bool? bResetPoll = null
             , [Summary("name of the only channel where the art trade bot listens for user input")][Remainder]string channel = null)
+            
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -191,7 +193,7 @@ namespace teanicorns_art_trade_bot.Modules
             }
 
             Storage.xs.BackupStorage(Storage.xs.Settings);
-            Storage.xs.Settings.ActivateTrade((Storage.ApplicationSettings.TradeSegment?)tradeSeg, days2start, days2end, force, bResetPoll);
+            Storage.xs.Settings.ActivateTrade((Storage.ApplicationSettings.TradeSegment?)tradeSeg, days2start, days2end, force, bGDriveOn, bResetPoll);
 
             if (!string.IsNullOrWhiteSpace(channel))
                 await Channel(channel);
@@ -335,7 +337,7 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "admin only command")));
                 return;
             }
-
+                        
             var guild = Utils.FindGuild(ourUser);
             if (guild == null)
             {
@@ -370,7 +372,7 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, ourUser.Id)));
                 return;
             }
-
+                        
             ulong? partner3IdVal = null;
             if (!string.IsNullOrWhiteSpace(partner3Id))
             {
@@ -388,16 +390,26 @@ namespace teanicorns_art_trade_bot.Modules
 
             Storage.xs.BackupStorage(Storage.xs.Entries);
 
-            List<Storage.UserData> needNotify;
-            if (Storage.xs.Entries.ResetNext(partner2.Id, partner1.Id, partner3IdVal, out needNotify))
+            if (Storage.xs.Settings.IsEntryWeekActive())
             {
-                if (await SendPartnersResponse(Context.Client, needNotify))
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, ourUser.Id, "partners have been swapped")));
-                else
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "unable to notify partners related to the swap")));
+                Storage.UserData data = new Storage.UserData(partner2.Id);
+                data.PreferenceId = partner1.Id;
+                Storage.xs.Entries.Set(data);
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, ourUser.Id, "preferred partner has been marked")));
             }
             else
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "unable to swap partners")));
+            {
+                List<Storage.UserData> needNotify;
+                if (Storage.xs.Entries.ResetNext(partner2.Id, partner1.Id, partner3IdVal, out needNotify))
+                {
+                    if (await SendPartnersResponse(Context.Client, needNotify))
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, ourUser.Id, "partners have been swapped")));
+                    else
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "unable to notify partners related to the swap")));
+                }
+                else
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, ourUser.Id, "unable to swap partners")));
+            }
         }
 
         [Command("restore")]
@@ -518,6 +530,13 @@ namespace teanicorns_art_trade_bot.Modules
                 await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH);
                 await GoogleDriveHandler.UploadGoogleFile(Storage.xs.SETTINGS_PATH);
                 await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "all storages have been synced with cloud")));
+            }
+            else if (mode.Equals("save"))
+            {
+                Storage.xs.Entries.Save();
+                Storage.xs.Settings.Save();
+                Storage.xs.History.Save();
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "all storages have been saved to disk")));
             }
             else
             {

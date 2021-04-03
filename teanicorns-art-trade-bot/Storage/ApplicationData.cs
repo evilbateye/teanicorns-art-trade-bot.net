@@ -55,6 +55,8 @@ namespace teanicorns_art_trade_bot.Storage
                     _storage[index].NickName = data.NickName;
                 if (!string.IsNullOrWhiteSpace(data.ArtUrl))
                     _storage[index].ArtUrl = data.ArtUrl;
+                if (data.PreferenceId != 0)
+                    _storage[index].PreferenceId = data.PreferenceId;
             }
             else
                 _storage.Add(data);
@@ -142,13 +144,32 @@ namespace teanicorns_art_trade_bot.Storage
 
             return false;
         }
+        public bool SetPreference(ulong userId, ulong userPreference)
+        {
+            UserData nextUser = null;
+            if (!Next(userId, out nextUser))
+                return false;
+
+            if (nextUser.UserId == userPreference)
+                return true;
+
+            return SetNextValue(nextUser.UserId, userPreference);
+        }
         public void DoShuffle(ApplicationHistory history)
         {
             if (_storage.Count < 3 || !_shuffle.Compute(this, history))
             {
                 _storage = _storage.OrderBy(x => Guid.NewGuid()).ToList();
-                Save();
+
+                // primitive preference override, we don't try to find the best solution if multiple people have a preference
+                foreach (UserData data in _storage)
+                {
+                    if (data.PreferenceId != 0)
+                        SetPreference(data.UserId, data.PreferenceId);
+                }
             }
+
+            Save();
         }
         public bool Next(ulong userId, out UserData nextUser)
         {
@@ -174,11 +195,11 @@ namespace teanicorns_art_trade_bot.Storage
                 HashSet<UserData> needNotifySet = new HashSet<UserData>();
 
                 UserData user = null;
-                if (!Next(ourId, out user))
+                if (!Previous(ourId, out user))
                     return false;
                 needNotifySet.Add(user);
 
-                if (!Next(theirId, out user))
+                if (!Previous(theirId, out user))
                     return false;
                 needNotifySet.Add(user);
 

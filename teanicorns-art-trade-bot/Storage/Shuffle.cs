@@ -107,32 +107,40 @@ namespace teanicorns_art_trade_bot.Storage
             {
                 List<ulong> candidate = new List<ulong>();
 
-                ulong prevPartner = 0;
-                if (prevMonthList != null)
-                    prevMonthList.TryGetValue(user1.UserId, out prevPartner);
+                if (user1.PreferenceId == 0)
+                { 
+                    ulong prevPartner = 0;
+                    if (prevMonthList != null)
+                        prevMonthList.TryGetValue(user1.UserId, out prevPartner);
 
-                ulong prevPrevPartner = 0;
-                if (prevPrevMonthList != null)
-                    prevPrevMonthList.TryGetValue(user1.UserId, out prevPrevPartner);
+                    ulong prevPrevPartner = 0;
+                    if (prevPrevMonthList != null)
+                        prevPrevMonthList.TryGetValue(user1.UserId, out prevPrevPartner);
 
-                bool bPushBack = false;
-                foreach (UserData user2 in currentTrade.GetStorage())
+                    bool bPushBack = false;
+                    foreach (UserData user2 in currentTrade.GetStorage())
+                    {
+                        if (user2.UserId == user1.UserId || user2.UserId == prevPartner)
+                            continue;
+
+                        if (user2.UserId == prevPrevPartner)
+                            bPushBack = true;
+                        else
+                            candidate.Add(user2.UserId);
+                    }
+
+                    candidate = candidate.OrderBy(x => Guid.NewGuid()).ToList();
+                    if (bPushBack)
+                        candidate.Add(prevPrevPartner);
+
+                    if (candidate.Count == 0)
+                        return false;
+                }
+                else
                 {
-                    if (user2.UserId == user1.UserId || user2.UserId == prevPartner)
-                        continue;
-
-                    if (user2.UserId == prevPrevPartner)
-                        bPushBack = true;
-                    else
-                        candidate.Add(user2.UserId);
+                    candidate.Add(user1.PreferenceId);
                 }
 
-                candidate = candidate.OrderBy(x => Guid.NewGuid()).ToList();
-                if (bPushBack)
-                    candidate.Add(prevPrevPartner);
-
-                if (candidate.Count == 0)
-                    return false;
                 _data.Add(user1.UserId, candidate);
             }
 

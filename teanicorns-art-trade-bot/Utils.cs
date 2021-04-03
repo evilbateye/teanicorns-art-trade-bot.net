@@ -43,7 +43,10 @@ namespace teanicorns_art_trade_bot
             int index = -1;
             var userList = guild.Users.ToList();
 
-            if (UInt64.TryParse(userId, out ulong numericId))
+            ulong numericId = 0;
+            if (MentionUtils.TryParseUser(userId, out numericId))
+                index = userList.FindIndex(x => x.Id == numericId);
+            else if (UInt64.TryParse(userId, out numericId))
                 index = userList.FindIndex(x => x.Id == numericId);
             else
                 index = userList.FindIndex(x => x.Username == userId || x.Nickname == userId);
@@ -577,6 +580,15 @@ namespace teanicorns_art_trade_bot
             }
 
             return true;
+        }
+
+        public static async Task<string> CleanupWrongChannelMessage(SocketCommandContext ctx, string msg)
+        {
+            if (ctx.IsPrivate)
+                return "";
+            
+            await ctx.Message.DeleteAsync();
+            return msg;
         }
     }
 }

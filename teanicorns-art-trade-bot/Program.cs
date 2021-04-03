@@ -56,15 +56,18 @@ namespace teanicorns_art_trade_bot
             await _discord.LoginAsync(TokenType.Bot, Config.DiscordToken);
             await _discord.StartAsync();
 
-            var google = services.GetRequiredService<GoogleDriveHandler>();
-            await GoogleDriveHandler.SetupGoogleDrive(new DriveService(new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = Config.GoogleCred,
-                ApplicationName = "teanicorns-art-trade-bot",
-            }));
-
             Storage.xs.Initialize();
-                        
+
+            if (Storage.xs.Settings.IsGDriveOn())
+            {
+                var google = services.GetRequiredService<GoogleDriveHandler>();
+                await GoogleDriveHandler.SetupGoogleDrive(new DriveService(new BaseClientService.Initializer()
+                {
+                    HttpClientInitializer = Config.GoogleCred,
+                    ApplicationName = "teanicorns-art-trade-bot",
+                }));
+            }
+                                                
             await Task.Delay(-1);
 		}
 
