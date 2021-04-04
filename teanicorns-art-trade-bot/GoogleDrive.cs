@@ -180,8 +180,11 @@ namespace teanicorns_art_trade_bot
             return f;
         }
 
-        public static async Task DownloadGoogleFile(File f, string fileName)
+        public static async Task<bool> DownloadGoogleFile(File f, string fileName)
         {
+            if (!Storage.xs.Settings.IsGDriveOn())
+                return false;
+
             var stream = new System.IO.MemoryStream();
 
             try
@@ -191,6 +194,7 @@ namespace teanicorns_art_trade_bot
             }
             catch (Exception)
             {
+                return false;
             }
 
             Storage.xs.CreateEmptyIfNeeded(fileName);
@@ -202,18 +206,21 @@ namespace teanicorns_art_trade_bot
             }
             catch (Exception)
             {
+                return false;
             }
             finally
             {
                 file.Close();
                 stream.Close();
             }
+
+            return true;
         }
 
-        public static async Task UploadGoogleFile(string fileName, string fileId)
+        public static async Task<bool> UploadGoogleFile(string fileName, string fileId)
         {
-            if (!System.IO.File.Exists(fileName))
-                return;
+            if (!System.IO.File.Exists(fileName) || !Storage.xs.Settings.IsGDriveOn())
+                return false;
 
             byte[] byteArray = System.IO.File.ReadAllBytes(fileName);
             System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
@@ -227,14 +234,18 @@ namespace teanicorns_art_trade_bot
             }
             catch (Exception)
             {
+                return false;
             }
+
+            return true;
         }
 
-        public static async Task UploadGoogleFile(string fileName)
+        public static async Task<bool> UploadGoogleFile(string fileName)
         {
             File f;
-            if (_gFiles.TryGetValue(fileName, out f))
-                await UploadGoogleFile(fileName, f.Id);
+            if (!_gFiles.TryGetValue(fileName, out f))
+                return false;
+            return await UploadGoogleFile(fileName, f.Id);
         }
     }
 }

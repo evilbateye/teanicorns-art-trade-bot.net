@@ -13,6 +13,7 @@ namespace teanicorns_art_trade_bot.Storage
     {
         private List<List<ulong>> _computedChain = new List<List<ulong>>();
         private Dictionary<ulong, List<ulong>> _data = new Dictionary<ulong, List<ulong>>();
+        private static Random _rng = new Random();
 
         private Dictionary<ulong, ulong> FillPreviousTradesPairs(ApplicationData thisMonth, ApplicationData prevMonth)
         {
@@ -103,50 +104,60 @@ namespace teanicorns_art_trade_bot.Storage
             if (tradeHistory.Count() > 1)
                 prevPrevMonthList = FillPreviousTradesPairs(currentTrade, tradeHistory.GetTrade(1));
 
+            Dictionary<UserData, List<ulong>> tmpData = new Dictionary<UserData, List<ulong>>();
+
             foreach (UserData user1 in currentTrade.GetStorage())
             {
                 List<ulong> candidate = new List<ulong>();
 
-                if (user1.PreferenceId == 0)
-                { 
-                    ulong prevPartner = 0;
-                    if (prevMonthList != null)
-                        prevMonthList.TryGetValue(user1.UserId, out prevPartner);
+                ulong prevPartner = 0;
+                if (prevMonthList != null)
+                    prevMonthList.TryGetValue(user1.UserId, out prevPartner);
 
-                    ulong prevPrevPartner = 0;
-                    if (prevPrevMonthList != null)
-                        prevPrevMonthList.TryGetValue(user1.UserId, out prevPrevPartner);
+                ulong prevPrevPartner = 0;
+                if (prevPrevMonthList != null)
+                    prevPrevMonthList.TryGetValue(user1.UserId, out prevPrevPartner);
 
-                    bool bPushBack = false;
-                    foreach (UserData user2 in currentTrade.GetStorage())
-                    {
-                        if (user2.UserId == user1.UserId || user2.UserId == prevPartner)
-                            continue;
-
-                        if (user2.UserId == prevPrevPartner)
-                            bPushBack = true;
-                        else
-                            candidate.Add(user2.UserId);
-                    }
-
-                    candidate = candidate.OrderBy(x => Guid.NewGuid()).ToList();
-                    if (bPushBack)
-                        candidate.Add(prevPrevPartner);
-
-                    if (candidate.Count == 0)
-                        return false;
-                }
-                else
+                bool bPushBack = false;
+                foreach (UserData user2 in currentTrade.GetStorage())
                 {
-                    candidate.Add(user1.PreferenceId);
+                    if (user2.UserId == user1.UserId || user2.UserId == prevPartner || user2.UserId == user1.PreferenceId)
+                        continue;
+
+                    if (user2.UserId == prevPrevPartner)
+                        bPushBack = true;
+                    else
+                        candidate.Add(user2.UserId);
                 }
 
-                _data.Add(user1.UserId, candidate);
+                candidate = candidate.OrderBy(x => Guid.NewGuid()).ToList();
+                
+                if (bPushBack)
+                    candidate.Add(prevPrevPartner);
+
+                if (user1.PreferenceId != 0)
+                    candidate = candidate.Prepend(user1.PreferenceId).ToList();
+
+                if (candidate.Count == 0)
+                    return false;
+
+                tmpData.Add(user1, candidate);
             }
 
-            if (_data.Count == 0)
+            if (tmpData.Count == 0)
                 return false;
-            _data = _data.OrderBy(x => x.Value.Count).ToDictionary(x => x.Key, x => x.Value);
+
+            // order by number of candidates first, if someone had someone else as a partner las trade, it is removed from candidates this trade
+            foreach (var byCount in tmpData.GroupBy(x => x.Value.Count))
+            {
+                foreach (var byPreference in byCount.GroupBy(x => x.Key.PreferenceId != 0))
+                {
+                    foreach (var dat in byPreference.OrderBy(x => Guid.NewGuid()))
+                        _data.Add(dat.Key.UserId, dat.Value);
+                }
+            }
+
+            //_data = _data.OrderBy(x => x.Value.Count).ToDictionary(x => x.Key, x => x.Value);
             return true;
         }
         

@@ -526,9 +526,24 @@ namespace teanicorns_art_trade_bot.Modules
             }
             else if (mode.Equals("sync"))
             {
-                await GoogleDriveHandler.UploadGoogleFile(Storage.xs.ENTRIES_PATH);
-                await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH);
-                await GoogleDriveHandler.UploadGoogleFile(Storage.xs.SETTINGS_PATH);
+                if (!await GoogleDriveHandler.UploadGoogleFile(Storage.xs.ENTRIES_PATH))
+                {
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to sent data to cloud")));
+                    return;
+                }
+
+                if (!await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH))
+                {
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to sent data to cloud")));
+                    return;
+                }
+
+                if (!await GoogleDriveHandler.UploadGoogleFile(Storage.xs.SETTINGS_PATH))
+                {
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to sent data to cloud")));
+                    return;
+                }
+
                 await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "all storages have been synced with cloud")));
             }
             else if (mode.Equals("save"))
