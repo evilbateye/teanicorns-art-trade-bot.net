@@ -32,7 +32,7 @@ namespace teanicorns_art_trade_bot.Modules
             if (string.IsNullOrWhiteSpace(cmd_name))
             {
                 var aboutMsgs = Utils.CreateAbout(CommandService, Utils.IsAdminUser(user));
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Join("\n\n", aboutMsgs)));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Join("\n\n", aboutMsgs), Utils.Emotion.positive));
             }
             else
             {
@@ -69,10 +69,10 @@ namespace teanicorns_art_trade_bot.Modules
                             about += $"\n`{param.Name}` : {param.Summary}";
                         }
                     }
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, about));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, about, Utils.Emotion.positive));
                 }
                 else
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id)));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_UNKNOW_ARG, user.Id), Utils.Emotion.neutral));
             }
         }
     }

@@ -13,12 +13,31 @@ using Google.Apis.Util.Store;
 
 namespace teanicorns_art_trade_bot
 {
+
     class Config
     {
         private static BotConfig _bot = new BotConfig();
         public static string DiscordToken { get => _bot.DiscordToken; }
 		public static string CmdPrefix { get => _bot.CmdPrefix; }
         public static ICredential GoogleCred { get => _bot.GoogleCred; }
+        
+        public static string[] GetEmotions(Utils.Emotion e)
+        {
+            switch (e)
+            {
+                case Utils.Emotion.positive:
+                    return _bot.positiveEmotions;
+
+                case Utils.Emotion.neutral:
+                    return _bot.neutralEmotions;
+
+                case Utils.Emotion.negative:
+                    return _bot.negativeEmotions;
+
+                default:
+                    return null;
+            }
+        }
         static Config()
         {
             string localBotDiscordToken = Environment.GetEnvironmentVariable("ATB_TOKEN");
@@ -49,6 +68,10 @@ namespace teanicorns_art_trade_bot
                         Scopes = scopes
                     }.FromPrivateKey(localGAccountPrivateKey));
             }
+
+            _bot.positiveEmotions = Environment.GetEnvironmentVariable("POSITIVE_EMOTIONS").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
+            _bot.neutralEmotions = Environment.GetEnvironmentVariable("NEUTRAL_EMOTIONS").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
+            _bot.negativeEmotions = Environment.GetEnvironmentVariable("NEGATIVE_EMOTIONS").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
         }
 
         public class BotConfig
@@ -56,6 +79,9 @@ namespace teanicorns_art_trade_bot
             public string DiscordToken;
             public string CmdPrefix = ".";
             public ICredential GoogleCred = null;
+            public string[] positiveEmotions = null;
+            public string[] neutralEmotions = null;
+            public string[] negativeEmotions = null;
         }
     }
 }

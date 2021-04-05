@@ -80,7 +80,7 @@ namespace teanicorns_art_trade_bot
                             Storage.xs.Settings.SetNotifyDone(Storage.ApplicationSettings.NofifyFlags.Closing);
 
                             if (!string.IsNullOrWhiteSpace(artMissing))
-                                await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_NOW, Config.CmdPrefix, "reveal art", "about")));
+                                await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_NOW, Config.CmdPrefix, "reveal art", "about"), Utils.Emotion.negative));
 
                             foreach (var entry in Storage.xs.Entries.GetStorage())
                                 await Utils.SendPartnerResponse(_discord, entry, Storage.xs.Entries.GetTheme(), true /*notify channel*/);
@@ -97,7 +97,7 @@ namespace teanicorns_art_trade_bot
 
                             string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON, "`tomorrow`");
 
-                            await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, message));
+                            await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, message, Utils.Emotion.positive));
 
                             await Utils.NotifySubscribers(_discord, "the art trade will be ending `tomorrow`");
                         }
@@ -110,7 +110,7 @@ namespace teanicorns_art_trade_bot
 
                             string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON, "in `3` days");
 
-                            await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, message));
+                            await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, message, Utils.Emotion.positive));
 
                             await Utils.NotifySubscribers(_discord, "the art trade will be ending in `3` days");
                         }
@@ -123,7 +123,7 @@ namespace teanicorns_art_trade_bot
 
                             string message = string.Format(Properties.Resources.GOOGLE_TRADE_ENDING_SOON, "in `7` days");
 
-                            await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, message));
+                            await channel.SendMessageAsync(embed: Utils.EmbedMessage(_discord, message, Utils.Emotion.positive));
 
                             await Utils.NotifySubscribers(_discord, "the art trade will be ending in `7` days");
                         }

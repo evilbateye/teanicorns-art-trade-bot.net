@@ -25,7 +25,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (Storage.xs.Settings.IsTradeMonthActive())
             {
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "**trade** already started, entries can't be changed anymore")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "**trade** already started, entries can't be changed anymore"), Utils.Emotion.neutral));
                 return;
             }
 
@@ -36,7 +36,7 @@ namespace teanicorns_art_trade_bot.Modules
                 if (userData != null)
                 {
                     await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.REF_TRADE_LAST_MONTH_ART_MISSING, user.Id, artHistory0.GetTheme())
-                        + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "register the missing art and I will let you enter")}"));
+                        + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "register the missing art and I will let you enter")}", Utils.Emotion.negative));
                     return;
                 }
             }
@@ -44,7 +44,7 @@ namespace teanicorns_art_trade_bot.Modules
             var attachments = Context.Message.Attachments;
             if (attachments.Count <= 0 && string.IsNullOrWhiteSpace(description))
             {
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_MISSING_INPUT, user.Id, "description and/or embeded image")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_MISSING_INPUT, user.Id, "description and/or embeded image"), Utils.Emotion.neutral));
                 return;
             }
 
@@ -57,8 +57,8 @@ namespace teanicorns_art_trade_bot.Modules
                 data.NickName = guildUser.Nickname;
 
             Storage.xs.Entries.Set(data);
-
-            await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "I saved your entry")));
+                                    
+            await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "I saved your entry"), Utils.Emotion.positive));
         }
 
         [Command("get entry")]
@@ -73,12 +73,12 @@ namespace teanicorns_art_trade_bot.Modules
             {
                 if (!string.IsNullOrWhiteSpace(data.ReferenceDescription) || !string.IsNullOrWhiteSpace(data.ReferenceUrl))
                 {
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, data.ReferenceDescription, data.ReferenceUrl));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, data.ReferenceDescription, Utils.Emotion.none, data.ReferenceUrl));
                     return;
                 }
             }
 
-            await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry")));
+            await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry"), Utils.Emotion.neutral));
         }
 
         [Command("remove entry")]
@@ -92,14 +92,14 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (Storage.xs.Settings.IsTradeMonthActive())
             {
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "**trade** already started, entries can't be changed anymore")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "**trade** already started, entries can't be changed anymore"), Utils.Emotion.neutral));
                 return;
             }
 
             if (Storage.xs.Entries.Remove(user.Id))
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "your entry has been deleted")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "your entry has been deleted"), Utils.Emotion.positive));
             else
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry"), Utils.Emotion.neutral));
         }
 
         [Command("show partner")]
@@ -113,7 +113,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Storage.xs.Settings.IsTradeMonthActive())
             {
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "entry week in progress, partners haven't been assigned yet")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "entry week in progress, partners haven't been assigned yet"), Utils.Emotion.neutral));
                 return;
             }
 
@@ -121,10 +121,10 @@ namespace teanicorns_art_trade_bot.Modules
             if (Storage.xs.Entries.Next(user.Id, out nextUser))
             {
                 if (!await SendPartnerResponse(Context.Client, nextUser, user))
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry")));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry"), Utils.Emotion.neutral));
             }
             else
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "partner")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "partner"), Utils.Emotion.neutral));
         }
 
         public static async Task<bool> SendPartnerResponse(DiscordSocketClient client, Storage.UserData partnerData, Discord.WebSocket.SocketUser user, bool bThemeOnly = false)
@@ -132,7 +132,7 @@ namespace teanicorns_art_trade_bot.Modules
             if (bThemeOnly)
             {
                 var message = (string.IsNullOrWhiteSpace(Storage.xs.Entries.GetTheme()) ? "none" : string.Format(Properties.Resources.TRADE_THIS_THEME, Storage.xs.Entries.GetTheme())) + "\n";
-                await user.SendMessageAsync(embed: Utils.EmbedMessage(client, message));
+                await user.SendMessageAsync(embed: Utils.EmbedMessage(client, message, Utils.Emotion.positive));
             }
             else
             {
@@ -150,7 +150,7 @@ namespace teanicorns_art_trade_bot.Modules
                 if (!string.IsNullOrWhiteSpace(partnerData.ReferenceDescription))
                     message += $"\n`description` : *\"{partnerData.ReferenceDescription}\"*";
 
-                await user.SendMessageAsync(embed: Utils.EmbedMessage(client, message, partnerData.ReferenceUrl));
+                await user.SendMessageAsync(embed: Utils.EmbedMessage(client, message, Utils.Emotion.positive, partnerData.ReferenceUrl));
             }
 
             return true;
@@ -196,7 +196,7 @@ namespace teanicorns_art_trade_bot.Modules
 
             if (bCurrentTrade && !Storage.xs.Settings.IsTradeMonthActive())
             {
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "entry week in progress, partners haven't been assigned yet")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "entry week in progress, partners haven't been assigned yet"), Utils.Emotion.neutral));
                 return;
             }
 
@@ -210,7 +210,7 @@ namespace teanicorns_art_trade_bot.Modules
                 }
                 else
                 {
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, outputMsg)));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, outputMsg), Utils.Emotion.neutral));
                     return;
                 }
             }
@@ -218,14 +218,14 @@ namespace teanicorns_art_trade_bot.Modules
             var attachments = Context.Message.Attachments;
             if (attachments.Count <= 0)
             {
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_MISSING_INPUT, user.Id, "embeded image")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_MISSING_INPUT, user.Id, "embeded image"), Utils.Emotion.neutral));
                 return;
             }
 
             var data = foundTrade.Get(user.Id);
             if (data == null)
             {
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "entry"), Utils.Emotion.neutral));
                 return;
             }
 
@@ -242,13 +242,13 @@ namespace teanicorns_art_trade_bot.Modules
                 var nextUser = client.GetUser(nextUserData.UserId);
                 if (nextUser == null)
                 {
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find your partner")));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find your partner"), Utils.Emotion.neutral));
                     return;
                 }
 
                 if (bPostponeReveal)
                 {
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_WARNING, user.Id, "your art has been saved, but it won't be revealed to your partner until the trade ends")));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_WARNING, user.Id, "your art has been saved, but it won't be revealed to your partner until the trade ends"), Utils.Emotion.neutral));
                 }
                 else
                 {
@@ -260,13 +260,13 @@ namespace teanicorns_art_trade_bot.Modules
                     }
 
                     if (await SendPartnerArtResponse(Context.Client, data, nextUser, monthTheme))
-                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.REF_REVEAL_NOTIFY, user.Id, nextUser.Id)));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.REF_REVEAL_NOTIFY, user.Id, nextUser.Id), Utils.Emotion.positive));
                     else
-                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not notify your partner")));
+                        await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not notify your partner"), Utils.Emotion.neutral));
                 }
             }
             else
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "partner")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ITEM_NOT_FOUND, user.Id, "partner"), Utils.Emotion.neutral));
         }
 
         public static async Task<bool> SendPartnerArtResponse(DiscordSocketClient client, Storage.UserData partnerData, SocketUser user, string monthTheme, bool notifyChannel = false)
@@ -277,7 +277,7 @@ namespace teanicorns_art_trade_bot.Modules
             string message = string.Format(Properties.Resources.REF_REVEAL_FINAL, user.Id, partnerData.UserName
                 + (string.IsNullOrWhiteSpace(partnerData.NickName) ? "" : $" ({partnerData.NickName})"), monthTheme);
 
-            Embed msg = Utils.EmbedMessage(client, message, partnerData.ArtUrl);
+            Embed msg = Utils.EmbedMessage(client, message, Utils.Emotion.positive, partnerData.ArtUrl);
 
             await user.SendMessageAsync(embed: msg);
 
@@ -304,17 +304,17 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (Storage.xs.Settings.IsThemePoolMaxed())
             {
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_MAX_NUM_OF_ARGS, user.Id, "themes")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_MAX_NUM_OF_ARGS, user.Id, "themes"), Utils.Emotion.neutral));
                 return;
             }
 
             if (Storage.xs.Settings.AddThemeToPool(user.Id, theme))
             {
                 await Utils.EditThemePoll(Context.Client);
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "your theme has been registered")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "your theme has been registered"), Utils.Emotion.positive));
             }
             else
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_DUPLICAT_ARG, user.Id, "a theme")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_DUPLICAT_ARG, user.Id, "a theme"), Utils.Emotion.neutral));
 
         }
 
@@ -330,20 +330,20 @@ namespace teanicorns_art_trade_bot.Modules
                 if (Storage.xs.Settings.RemoveThemeFromPool(theme))
                 {
                     await Utils.EditThemePoll(Context.Client);
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the theme has been unregistered")));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the theme has been unregistered"), Utils.Emotion.positive));
                 }
                 else
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to remove theme from pool")));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to remove theme from pool"), Utils.Emotion.neutral));
             }
             else
             {
                 if (Storage.xs.Settings.RemoveThemeFromPool(user.Id, theme))
                 {
                     await Utils.EditThemePoll(Context.Client);
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "your theme has been unregistered")));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "your theme has been unregistered"), Utils.Emotion.positive));
                 }
                 else
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to remove theme from pool")));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to remove theme from pool"), Utils.Emotion.neutral));
             }
         }
 
@@ -359,7 +359,7 @@ namespace teanicorns_art_trade_bot.Modules
                 themes = new List<Storage.ArtTheme>();
 
             await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, $"{string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "here is a list of your registered themes")}: " +
-                (themes.Count > 0 ? string.Join(", ", themes.Select(x => $"{x.EmojiCode} `{x.Theme}`")) : "`none`")));
+                (themes.Count > 0 ? string.Join(", ", themes.Select(x => $"{x.EmojiCode} `{x.Theme}`")) : "`none`"), Utils.Emotion.positive));
         }
 
         [Command("subscribe")]
@@ -370,9 +370,9 @@ namespace teanicorns_art_trade_bot.Modules
         {
             var user = Context.Message.Author;
             if (Storage.xs.Settings.ChangeSubscription(user.Id, ref bOnOff))
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, $"you have been {(bOnOff.Value ? string.Empty : "un-")}subscribed")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, $"you have been {(bOnOff.Value ? string.Empty : "un-")}subscribed"), Utils.Emotion.positive));
             else
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to change subscription")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to change subscription"), Utils.Emotion.neutral));
         }
 
         [Command("ping")]
@@ -389,7 +389,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Storage.xs.Settings.IsTradeMonthActive())
             {
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "entry week in progress, partners haven't been assigned yet")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "entry week in progress, partners haven't been assigned yet"), Utils.Emotion.neutral));
                 return;
             }
 
@@ -399,7 +399,7 @@ namespace teanicorns_art_trade_bot.Modules
                 var nextUser = Context.Client.GetUser(nextUserData.UserId);
                 if (nextUser == null)
                 {
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner")));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner"), Utils.Emotion.neutral));
                     return;
                 }
 
@@ -410,12 +410,12 @@ namespace teanicorns_art_trade_bot.Modules
                     attachmentUrl = attachments.FirstOrDefault().Url;
                 }
 
-                await nextUser.SendMessageAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.TRADE_PINGPONG, nextUser.Id, "the person doing art for you", Config.CmdPrefix, "pong <reply>", message), attachmentUrl));
+                await nextUser.SendMessageAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.TRADE_PINGPONG, nextUser.Id, "the person doing art for you", Config.CmdPrefix, "pong <reply>", message), Utils.Emotion.positive, attachmentUrl));
 
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded" + await Utils.CleanupWrongChannelMessage(Context, ", but it has been removed from the channel to keep it a secret (please send me a DM next time)"))));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded" + await Utils.CleanupWrongChannelMessage(Context, ", but it has been removed from the channel to keep it a secret (please send me a DM next time)")), Utils.Emotion.neutral));
             }
             else
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner"), Utils.Emotion.neutral));
         }
 
         [Command("pong")]
@@ -432,7 +432,7 @@ namespace teanicorns_art_trade_bot.Modules
             var user = Context.Message.Author;
             if (!Storage.xs.Settings.IsTradeMonthActive())
             {
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "entry week in progress, partners haven't been assigned yet")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "entry week in progress, partners haven't been assigned yet"), Utils.Emotion.neutral));
                 return;
             }
 
@@ -442,7 +442,7 @@ namespace teanicorns_art_trade_bot.Modules
                 var previousUser = Context.Client.GetUser(previousUserData.UserId);
                 if (previousUser == null)
                 {
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner")));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner"), Utils.Emotion.neutral));
                     return;
                 }
 
@@ -453,12 +453,12 @@ namespace teanicorns_art_trade_bot.Modules
                     attachmentUrl = attachments.FirstOrDefault().Url;
                 }
 
-                await previousUser.SendMessageAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.TRADE_PINGPONG, previousUser.Id, "the person you are drawing for", Config.CmdPrefix, "ping <message>", message), attachmentUrl));
+                await previousUser.SendMessageAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.TRADE_PINGPONG, previousUser.Id, "the person you are drawing for", Config.CmdPrefix, "ping <message>", message), Utils.Emotion.positive, attachmentUrl));
 
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded" + await Utils.CleanupWrongChannelMessage(Context,  ", but it has been removed from the channel to keep it a secret (please send me a DM next time)"))));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "the message has been forwarded" + await Utils.CleanupWrongChannelMessage(Context,  ", but it has been removed from the channel to keep it a secret (please send me a DM next time)")), Utils.Emotion.neutral));
             }
             else
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner")));
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "could not find trade partner"), Utils.Emotion.neutral));
         }
     }
 }

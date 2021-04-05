@@ -14,7 +14,7 @@ namespace teanicorns_art_trade_bot
     public class Utils
     {
         //public const string ADMIN_GROUP_ID = "admin";
-
+        private static Random rng = new Random();
         public static bool IsAdminUser(SocketUser user)
         {
             if (user is SocketGuildUser guildUser)
@@ -227,7 +227,7 @@ namespace teanicorns_art_trade_bot
                 reply += $"\n({string.Format(Properties.Resources.GLOBAL_EMPTY, "themes")}, {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, "add theme <theme name>", "add a theme into the poll")})";
             }
 
-            var msg = await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, reply));
+            var msg = await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, reply, Utils.Emotion.positive));
             xs.Settings.SetThemePollID(msg.Id);
             emojiObjs.ForEach(async e => await msg.AddReactionAsync(e));
             await EditMessagePin(client, msg.Id, true /*pin*/);
@@ -296,7 +296,7 @@ namespace teanicorns_art_trade_bot
                 reply += $"\n({string.Format(Properties.Resources.GLOBAL_EMPTY, "themes")}, {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, "add theme <theme name>", "add a theme into the poll")})";
             }
 
-            await restMsg.ModifyAsync(x => x.Embed = Utils.EmbedMessage(client, reply));
+            await restMsg.ModifyAsync(x => x.Embed = Utils.EmbedMessage(client, reply, Utils.Emotion.positive));
             foreach (var emoji in restMsg.Reactions)
             {
                 string reactionCode = emoji.Key.Name;
@@ -330,11 +330,11 @@ namespace teanicorns_art_trade_bot
             {
                 SocketUser su = client.GetUser(userId);
                 if (su != null)
-                    await su.SendMessageAsync(embed: Utils.EmbedMessage(client, string.Format(Properties.Resources.SUBSCRIBERS_NOTICE, userId, message, Config.CmdPrefix, "subscribe false")));
+                    await su.SendMessageAsync(embed: Utils.EmbedMessage(client, string.Format(Properties.Resources.SUBSCRIBERS_NOTICE, userId, message, Config.CmdPrefix, "subscribe false"), Utils.Emotion.positive));
             }
         }
 
-        public static EmbedBuilder GetFooterBuilder(DiscordSocketClient client, string message = "", string imageUrl = "")
+        public static EmbedBuilder GetFooterBuilder(DiscordSocketClient client, string message = "", string imageUrl = "", string emote = "")
         {
             SocketTextChannel channel = FindChannel(client, xs.Settings.GetWorkingChannel());
             if (channel == null)
@@ -357,22 +357,53 @@ namespace teanicorns_art_trade_bot
             //if (string.IsNullOrEmpty(avatarUrl))
             //avatarUrl = client.CurrentUser.GetDefaultAvatarUrl();
 
+            //var emotes = Context.Guild.Emotes;
+
             return new EmbedBuilder()
                 .WithColor(51, 144, 243)
-                .WithDescription($"{message}\n\n{string.Join(" **|** ", footer)}")
+                .WithDescription($"{message} {emote}\n\n{string.Join(" **|** ", footer)}")
                 .WithImageUrl(imageUrl);
         }
 
-        public static Embed EmbedFooter(DiscordSocketClient client, string message = "", string imageUrl = "")
+        public static Embed EmbedFooter(DiscordSocketClient client, string message = "", string imageUrl = "", string emote = "")
         {
-            return GetFooterBuilder(client, message, imageUrl)?.Build();
+            return GetFooterBuilder(client, message, imageUrl, emote)?.Build();
         }
 
-        public static Embed EmbedMessage(DiscordSocketClient client, string message, string imageUrl = "")
+        public enum Emotion
         {
-            return EmbedFooter(client, message, imageUrl);
+            none = 0,
+            positive = 1,
+            neutral = 2,
+            negative = 3
         }
 
+        public static string GetRandomEmote(DiscordSocketClient client, Emotion emotionType)
+        {
+            var emotes = Config.GetEmotions(emotionType);
+            if (emotes == null)
+                return "";
+
+            var guild = FindGuild(client);
+            if (guild == null)
+                return "";
+
+            var emoteName = emotes[rng.Next(emotes.Length)];
+            if (string.IsNullOrWhiteSpace(emoteName))
+                return "";
+
+            Emote emote = guild.Emotes.FirstOrDefault(x => x.Name.IndexOf(emoteName, StringComparison.OrdinalIgnoreCase) != -1);
+            if (emote == null)
+                return "";
+
+            return $"<:{emote.Name}:{emote.Id}>";
+        }
+
+        public static Embed EmbedMessage(DiscordSocketClient client, string message, Emotion emotionType = Emotion.positive, string imageUrl = "")
+        {
+            return EmbedFooter(client, message, imageUrl, GetRandomEmote(client, emotionType));
+        }
+                
         public enum AboutMessageSubtype
         {
             intro = 0,
@@ -437,7 +468,7 @@ namespace teanicorns_art_trade_bot
             await EditMessagePin(client, xs.Settings.GetHelpMessageId(), false /*unpin*/);
 
             var aboutMsgs = CreateAbout(commandService, false);
-            var helpMsg = await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, $"@everyone {aboutMsgs[(int)AboutMessageSubtype.intro]}\n\n{aboutMsgs[(int)AboutMessageSubtype.userCommands]}"));
+            var helpMsg = await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, $"@everyone {aboutMsgs[(int)AboutMessageSubtype.intro]}\n\n{aboutMsgs[(int)AboutMessageSubtype.userCommands]}", Utils.Emotion.positive));
             xs.Settings.SetHelpMessageId(helpMsg.Id);
 
             await EditMessagePin(client, helpMsg.Id, true /*pin*/);
@@ -543,7 +574,7 @@ namespace teanicorns_art_trade_bot
             if (!string.IsNullOrWhiteSpace(artMissingHistory2))
                 naughtyList += $"\n`{artHistory2.GetTheme()}` : {artMissingHistory2}";
 
-            var reply = Utils.EmbedMessage(client, $"**Naughty List**\nif you are on the list {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art <theme name>", "register the missing art for the listed themes:")}{naughtyList}");
+            var reply = Utils.EmbedMessage(client, $"**Naughty List**\nif you are on the list {string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art <theme name>", "register the missing art for the listed themes:")}{naughtyList}", Utils.Emotion.negative);
 
             if (userEdit != null)
             {
