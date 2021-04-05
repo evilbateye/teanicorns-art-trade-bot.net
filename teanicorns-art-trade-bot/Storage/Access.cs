@@ -49,10 +49,20 @@ namespace teanicorns_art_trade_bot.Storage
             BackupStorage(Settings);
         }
 
-        public static void Initialize()
+        public static void Initialize(bool bSettingsOnly)
         {
             Console.WriteLine("Axx: Initialize");
 
+            if (Validate(Settings))
+            {
+                Settings.Load();
+                if (Settings != null)
+                    Console.WriteLine($"Axx: history-count-{Settings.Count()}");
+            }
+
+            if (bSettingsOnly)
+                return;
+            
             if (Validate(Entries))
             {
                 Entries.Load();
@@ -65,13 +75,6 @@ namespace teanicorns_art_trade_bot.Storage
                 History.Load();
                 if (History != null)
                     Console.WriteLine($"Axx: history-count-{History.Count()}");
-            }
-
-            if (Validate(Settings))
-            {
-                Settings.Load();
-                if (Settings != null)
-                    Console.WriteLine($"Axx: history-count-{Settings.Count()}");
             }
         }
         private static bool Validate(StorageBase s)

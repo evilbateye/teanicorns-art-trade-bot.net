@@ -56,7 +56,7 @@ namespace teanicorns_art_trade_bot
             await _discord.LoginAsync(TokenType.Bot, Config.DiscordToken);
             await _discord.StartAsync();
 
-            Storage.xs.Initialize();
+            Storage.xs.Initialize(true);
 
             if (Storage.xs.Settings.IsGDriveOn())
             {
@@ -67,6 +67,8 @@ namespace teanicorns_art_trade_bot
                     ApplicationName = "teanicorns-art-trade-bot",
                 }));
             }
+
+            Storage.xs.Initialize(false);
 
             await Task.Delay(-1);
 		}

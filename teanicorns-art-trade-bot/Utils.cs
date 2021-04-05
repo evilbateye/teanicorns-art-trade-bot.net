@@ -399,7 +399,7 @@ namespace teanicorns_art_trade_bot
             return $"<:{emote.Name}:{emote.Id}>";
         }
 
-        public static Embed EmbedMessage(DiscordSocketClient client, string message, Emotion emotionType = Emotion.positive, string imageUrl = "")
+        public static Embed EmbedMessage(DiscordSocketClient client, string message, Emotion emotionType = Emotion.none, string imageUrl = "")
         {
             return EmbedFooter(client, message, imageUrl, GetRandomEmote(client, emotionType));
         }
