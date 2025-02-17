@@ -277,7 +277,11 @@ namespace teanicorns_art_trade_bot.Storage
 
         // StorageBase
         public override int Count() { return _storage.Count; }
-        public override void Clear() { _storage.Clear(); }
+        public override void Clear() 
+        { 
+            _theme = "";
+            _storage.Clear(); 
+        }
         public override void Load(string path = null)
         {
             string json = File.ReadAllText(path == null ? _path : path);
