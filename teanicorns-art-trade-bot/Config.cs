@@ -69,9 +69,17 @@ namespace teanicorns_art_trade_bot
                     }.FromPrivateKey(localGAccountPrivateKey));
             }
 
-            _bot.positiveEmotions = Environment.GetEnvironmentVariable("POSITIVE_EMOTIONS").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
-            _bot.neutralEmotions = Environment.GetEnvironmentVariable("NEUTRAL_EMOTIONS").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
-            _bot.negativeEmotions = Environment.GetEnvironmentVariable("NEGATIVE_EMOTIONS").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
+            string localPosEmotions = Environment.GetEnvironmentVariable("POSITIVE_EMOTIONS");
+            if (!string.IsNullOrWhiteSpace(localPosEmotions))
+                _bot.positiveEmotions = localPosEmotions.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
+            
+            string localNeuEmotions = Environment.GetEnvironmentVariable("NEUTRAL_EMOTIONS");
+            if (!string.IsNullOrWhiteSpace(localNeuEmotions))
+                _bot.neutralEmotions = localNeuEmotions.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
+
+            string localNegEmotions = Environment.GetEnvironmentVariable("NEGATIVE_EMOTIONS");
+            if (!string.IsNullOrWhiteSpace(localNegEmotions))
+                _bot.negativeEmotions = localNegEmotions.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
         }
 
         public class BotConfig
