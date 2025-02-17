@@ -17,15 +17,18 @@ namespace teanicorns_art_trade_bot.Modules
     {
         public CommandService CommandService { get; set; }
                 
-        public static async Task<bool> StartEntryWeek(DiscordSocketClient client, double? days2end = null, bool? force = null, [Remainder]string theme = "")
+        public static async Task<bool> StartEntryWeek(bool bIsTradeMonthActive, DiscordSocketClient client, double? days2end = null, bool? force = null, [Remainder]string theme = "")
         {
             SocketTextChannel channel = Utils.FindChannel(client, Storage.xs.Settings.GetWorkingChannel());
             if (channel == null)
                 return false;
 
-            Storage.xs.History.RecordTrade(Storage.xs.Entries);
-            await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH);
-            Storage.xs.ClearStorage(Storage.xs.Entries);
+            if (bIsTradeMonthActive)
+            {
+                Storage.xs.History.RecordTrade(Storage.xs.Entries);
+                await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH);
+                Storage.xs.ClearStorage(Storage.xs.Entries);
+            }
             Storage.xs.Settings.ActivateTrade(Storage.ApplicationSettings.TradeSegment.EntryWeek, null/*days2start*/, days2end, force, null /*bGDriveOn*/, true /*bResetPoll*/);
             Storage.xs.Entries.SetTheme(theme);
 
@@ -34,21 +37,24 @@ namespace teanicorns_art_trade_bot.Modules
                         
             await channel.SendMessageAsync(embed: Utils.EmbedMessage(client, outMessage, Utils.Emotion.positive));
 
-            await Utils.CreateOrEditNaughtyList(client, Storage.xs.Settings.GetWorkingChannel());
-
             var subscribers = new List<ulong>(Storage.xs.Settings.GetSubscribers());
 
-            // notify those that did not send their art on time
-            var artHistory0 = Utils.GetAppDataFromHistory(0);
-            foreach (Storage.UserData user in Utils.GetMissingArt(artHistory0))
+            if (bIsTradeMonthActive)
             {
-                subscribers.Remove(user.UserId); // don't notify subscribers twice
+                await Utils.CreateOrEditNaughtyList(client, Storage.xs.Settings.GetWorkingChannel());
 
-                SocketUser su = client.GetUser(user.UserId);
-                if (su != null)
+                // notify those that did not send their art on time
+                var artHistory0 = Utils.GetAppDataFromHistory(0);
+                foreach (Storage.UserData user in Utils.GetMissingArt(artHistory0))
                 {
-                    await su.SendMessageAsync(embed: Utils.EmbedMessage(client, string.Format(Properties.Resources.TRADE_ART_LATE_DM, user.UserId, artHistory0.GetTheme())
-                        + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "register the missing art")}", Utils.Emotion.negative));
+                    subscribers.Remove(user.UserId); // don't notify subscribers twice
+
+                    SocketUser su = client.GetUser(user.UserId);
+                    if (su != null)
+                    {
+                        await su.SendMessageAsync(embed: Utils.EmbedMessage(client, string.Format(Properties.Resources.TRADE_ART_LATE_DM, user.UserId, artHistory0.GetTheme())
+                            + $"\n{string.Format(Properties.Resources.GLOBAL_CMDHELP, Config.CmdPrefix, $"reveal art {artHistory0.GetTheme()}", "register the missing art")}", Utils.Emotion.negative));
+                    }
                 }
             }
 
@@ -78,16 +84,11 @@ namespace teanicorns_art_trade_bot.Modules
                 return;
             }
 
-            if (Storage.xs.Settings.IsTradeMonthActive())
-            {
-                Storage.xs.BackupStorage(Storage.xs.Entries);
-                Storage.xs.BackupStorage(Storage.xs.Settings);
-                Storage.xs.BackupStorage(Storage.xs.History);
+            Storage.xs.BackupStorage(Storage.xs.Entries);
+            Storage.xs.BackupStorage(Storage.xs.Settings);
+            Storage.xs.BackupStorage(Storage.xs.History);
 
-                await StartEntryWeek(Context.Client, days2end, force, theme);
-            }
-            else
-                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_IN_PROGRESS, user.Id, "entry week"), Utils.Emotion.neutral));
+            await StartEntryWeek(Storage.xs.Settings.IsTradeMonthActive(), Context.Client, days2end, force, theme);
         }
                         
         public static async Task<bool> StartTradeMonth(DiscordSocketClient client, double? days2end = null, bool? force = null)

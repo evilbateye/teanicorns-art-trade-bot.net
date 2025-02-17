@@ -68,7 +68,7 @@ namespace teanicorns_art_trade_bot
                         string artMissing = Utils.GetMissingArtToStr(Storage.xs.Entries);
                         if (Storage.xs.Settings.IsForceTradeOn() || string.IsNullOrWhiteSpace(artMissing))
                         {
-                            await Modules.TradeEventModule.StartEntryWeek(_discord);
+                            await Modules.TradeEventModule.StartEntryWeek(Storage.xs.Settings.IsTradeMonthActive(), _discord);
                         }
                     }
                     else if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeEnd()) > 0)
@@ -87,7 +87,7 @@ namespace teanicorns_art_trade_bot
                         }
 
                         if (string.IsNullOrWhiteSpace(artMissing))
-                            await Modules.TradeEventModule.StartEntryWeek(_discord);
+                            await Modules.TradeEventModule.StartEntryWeek(Storage.xs.Settings.IsTradeMonthActive(), _discord);
                     }
                     else if (DateTime.Now.CompareTo(Storage.xs.Settings.GetTradeEnd(-1)) > 0)
                     {
