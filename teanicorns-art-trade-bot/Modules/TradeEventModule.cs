@@ -285,7 +285,7 @@ namespace teanicorns_art_trade_bot.Modules
         [Summary("remove all trade entries")]
         [InfoModule.SummaryDetail("forcefully removes all entries, use with caution" +
             "\nit is possible to undo this operation using the restore command")]
-        public async Task Clear()
+        public async Task Clear([Summary("string mode empty = clear just Entries in storage, nuclear = **WARNING: this is a complete wipeout, use at your own risk**")]string mode = "")
         {
             var user = Context.Message.Author;
             if (!Utils.IsAdminUser(user))
@@ -293,7 +293,41 @@ namespace teanicorns_art_trade_bot.Modules
                 await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "admin only command"), Utils.Emotion.neutral));
                 return;
             }
+            
+            mode = mode.ToLower().Trim();
+            if (mode.Equals("nuclear"))
+            {
+                Storage.xs.DeleteBackup(Storage.xs.Entries);
+                Storage.xs.DeleteBackup(Storage.xs.Settings);
+                Storage.xs.DeleteBackup(Storage.xs.History);
 
+                Storage.xs.ClearStorage(Storage.xs.Entries);
+                Storage.xs.ClearStorage(Storage.xs.Settings);
+                Storage.xs.ClearStorage(Storage.xs.History);
+                
+                if (!await GoogleDriveHandler.UploadGoogleFile(Storage.xs.ENTRIES_PATH))
+                {
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to send entries data to cloud"), Utils.Emotion.neutral));
+                    return;
+                }
+
+                if (!await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH))
+                {
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to send history data to cloud"), Utils.Emotion.neutral));
+                    return;
+                }
+
+                if (!await GoogleDriveHandler.UploadGoogleFile(Storage.xs.SETTINGS_PATH))
+                {
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to send settings data to cloud"), Utils.Emotion.neutral));
+                    return;
+                }
+
+
+                await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "everything has been completely cleared"), Utils.Emotion.negative));
+                return;
+            }
+            
             Storage.xs.BackupStorage(Storage.xs.Entries);
             Storage.xs.ClearStorage(Storage.xs.Entries);
             await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_SUCCESS, user.Id, "entries have been cleared"), Utils.Emotion.positive));
@@ -528,19 +562,19 @@ namespace teanicorns_art_trade_bot.Modules
             {
                 if (!await GoogleDriveHandler.UploadGoogleFile(Storage.xs.ENTRIES_PATH))
                 {
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to sent data to cloud"), Utils.Emotion.neutral));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to send entries data to cloud"), Utils.Emotion.neutral));
                     return;
                 }
 
                 if (!await GoogleDriveHandler.UploadGoogleFile(Storage.xs.HISTORY_PATH))
                 {
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to sent data to cloud"), Utils.Emotion.neutral));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to send history data to cloud"), Utils.Emotion.neutral));
                     return;
                 }
 
                 if (!await GoogleDriveHandler.UploadGoogleFile(Storage.xs.SETTINGS_PATH))
                 {
-                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to sent data to cloud"), Utils.Emotion.neutral));
+                    await ReplyAsync(embed: Utils.EmbedMessage(Context.Client, string.Format(Properties.Resources.GLOBAL_ERROR, user.Id, "unable to send settings data to cloud"), Utils.Emotion.neutral));
                     return;
                 }
 

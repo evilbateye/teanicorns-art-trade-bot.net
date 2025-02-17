@@ -401,7 +401,7 @@ namespace teanicorns_art_trade_bot
 
         public static Embed EmbedMessage(DiscordSocketClient client, string message, Emotion emotionType = Emotion.none, string imageUrl = "")
         {
-            return EmbedFooter(client, message, imageUrl, GetRandomEmote(client, emotionType));
+            return EmbedFooter(client, message, imageUrl, GetRandomEmote(client, Emotion.positive));
         }
                 
         public enum AboutMessageSubtype

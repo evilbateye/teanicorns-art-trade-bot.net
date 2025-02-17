@@ -113,6 +113,16 @@ namespace teanicorns_art_trade_bot.Storage
                 File.Copy(s.GetPath(), backupName);
             }
         }
+
+        public static void DeleteBackup(StorageBase s)
+        {
+            if (s != null)
+            {
+                string backupName = s.GetPath() + ".bk";
+                if (File.Exists(backupName))
+                    File.Delete(backupName);
+            }
+        }
         public static void ClearStorage(StorageBase s)
         {
             if (s != null)
